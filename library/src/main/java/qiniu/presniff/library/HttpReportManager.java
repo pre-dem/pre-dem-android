@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.zip.GZIPOutputStream;
 
 import qiniu.presniff.library.config.NetConfig;
@@ -178,7 +179,7 @@ public class HttpReportManager {
             LogUtils.e(TAG,e.toString());
             return false;
         }
-        if (responseCode != HttpURLConnection.HTTP_OK) {
+        if (responseCode != 201) {
             return false;
         }
         int length = httpConn.getContentLength();

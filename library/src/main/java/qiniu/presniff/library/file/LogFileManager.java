@@ -77,7 +77,6 @@ public class LogFileManager {
             String content;
             while ((content = reader.readLine()) != null) {
                 builder.append(content);
-                builder.append("\n");
             }
             String result = builder.toString();
             if ("".equals(result)) {
@@ -143,7 +142,6 @@ public class LogFileManager {
     }
 
     public String getReportContent() {
-//        LogUtils.d(TAG,"-------mIsInitialized:"+(!mIsInitialized));
         if (!mIsInitialized) {
             return null;
         }
@@ -182,12 +180,11 @@ public class LogFileManager {
                 mContext.deleteFile(LOG_FILE_BASE_NAME + fileIndex);
             }
         }
-        String str= "1\\tappName\\tpackageName\\t4.4.4\\nCustom Phone - 4.4.4 - API 19 - 768x1280\\tunknown\\twww.baidu.com\\t-\\nGET\\t115.239.210.27\\t200\\t1495114974995\\n1495114975967\\t1495114976311\\t944\\t3012\\n-1\\t-\\t1\\tappName\\tpackageName\\t4.4.4\\nCustom Phone - 4.4.4 - API 19 - 768x1280\\tunknown\\twww.baidu.com\\t-\\nGET\\t115.239.210.27\\t200\\t1495114974995\\n1495114975967\\t1495114976311\\t944\\t3012\\n-1\\t-\\t";
-        return str;//mCachedReportContent;
+//        String str= "1\\tappName\\tpackageName\\t4.4.4\\nCustom Phone - 4.4.4 - API 19 - 768x1280\\tunknown\\twww.baidu.com\\t-\\nGET\\t115.239.210.27\\t200\\t1495114974995\\n1495114975967\\t1495114976311\\t944\\t3012\\n-1\\t-\\t1\\tappName\\tpackageName\\t4.4.4\\nCustom Phone - 4.4.4 - API 19 - 768x1280\\tunknown\\twww.baidu.com\\t-\\nGET\\t115.239.210.27\\t200\\t1495114974995\\n1495114975967\\t1495114976311\\t944\\t3012\\n-1\\t-\\t";
+        return mCachedReportContent;
     }
 
     public boolean addReportContent(String content) {
-//        LogUtils.d(TAG,"------mIsInitialized:"+(!mIsInitialized));
         if (!mIsInitialized) {
             return false;
         }
@@ -200,7 +197,6 @@ public class LogFileManager {
 
         synchronized (this) {
             String filename = LOG_FILE_BASE_NAME + mWriteFileIndex;
-//            LogUtils.d(TAG,"------fileName:"+filename);
             if (!writeFileOnce(mContext, filename, content, Context.MODE_PRIVATE + Context.MODE_APPEND)) {
                 return false;
             }
@@ -219,7 +215,6 @@ public class LogFileManager {
     }
 
     private static boolean writeFileOnce(Context context, String filename, String content, int mode) {
-//        LogUtils.d(TAG,"------writeFileOnce()");
         FileOutputStream output = null;
         BufferedWriter writer = null;
         try {
@@ -230,12 +225,13 @@ public class LogFileManager {
             return true;
         } catch (FileNotFoundException e) {
             LogUtils.e(TAG,"------"+e.toString());
+            e.printStackTrace();
         } catch (IOException e) {
-//            e.printStackTrace();
             LogUtils.e(TAG,"------"+e.toString());
+            e.printStackTrace();
         } catch (OutOfMemoryError e) {
-//            e.printStackTrace();
             LogUtils.d(TAG,"------"+e.toString());
+            e.printStackTrace();
         } finally {
             closeSilently(output);
             closeSilently(writer);
@@ -252,6 +248,7 @@ public class LogFileManager {
             json.put(KEY_WRITE_FILE_POSITION, mWriteFilePosition);
             return writeFileOnce(mContext, INDEX_FILE_NAME, json.toString(), Context.MODE_PRIVATE);
         } catch (JSONException e) {
+            LogUtils.e(TAG,"-----"+e.toString());
             e.printStackTrace();
         }
         return false;

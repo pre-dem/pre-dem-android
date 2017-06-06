@@ -1,4 +1,4 @@
-package qiniu.presniff.library.handler;
+package qiniu.presniff.library.http;
 
 import java.io.IOException;
 import java.net.InetAddress;

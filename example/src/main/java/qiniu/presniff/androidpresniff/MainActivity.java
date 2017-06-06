@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import qiniu.presniff.library.SDKManager;
+import qiniu.presniff.library.DEMManager;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -69,13 +69,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SDKManager.init(this,null,null);
+        DEMManager.init(this);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        SDKManager.unInit();
+        DEMManager.unInit();
     }
 
     //用于进行网络请求的AsyncTask

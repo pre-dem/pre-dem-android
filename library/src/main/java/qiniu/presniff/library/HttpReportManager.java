@@ -1,6 +1,7 @@
-package qiniu.presniff.library.http;
+package qiniu.presniff.library;
 
 import android.content.Context;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -18,24 +19,24 @@ import qiniu.presniff.library.file.LogFileManager;
 import qiniu.presniff.library.util.LogUtils;
 
 /**
- * Created by Misty on 5/19/17.
+ * Created by Misty on 17/6/5.
  */
 
-public class LogReporter {
-    private static final String TAG = "LogReporter";
+public class HttpReportManager {
+    private static final String TAG = "HttpReportManager";
 
     private static final int MSG_WHAT_REPORT = 1;
     private static final int MSG_WHAT_BYEBYE = 2;
-
-    private static final int reportIntervalTime = 1 * 60 * 1000;
     private static final int MSG_BYEBYTE_DELAY = 10; //ms
-    private static final int MIN_REPORT_INTERVAL = 10 * 1000; //ms
+    private static final int reportIntervalTime = 1 * 60 * 1000;
 
+    private static boolean initialized = false;
     private boolean DebugON = false;
 
     private Handler mReportHandler;
     private HandlerThread mHandlerThread;
     private LogFileManager mLogFileManager;
+
     private Object lockReporter = new Object();
 
     private Handler.Callback mCallback = new Handler.Callback() {
@@ -43,10 +44,11 @@ public class LogReporter {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_WHAT_REPORT:
-                    LogUtils.d(TAG,"-------onReportMessage(true)");
+                    //发送上报数据
                     onReportMessage(true);
                     break;
                 case MSG_WHAT_BYEBYE:
+                    //注销上报数据
                     onByeByeMessage();
                     break;
                 default:
@@ -56,13 +58,33 @@ public class LogReporter {
         }
     };
 
-    private LogReporter(){}
 
-    public static LogReporter getInstance(){
-        return LogReporterHolder.instance;
+    private HttpReportManager(){
     }
 
-    public void initialize(Context context) {
+    public static HttpReportManager getInstance(){
+        return HttpReportManagerHolder.instance;
+    }
+
+    private static class HttpReportManagerHolder {
+        public final static HttpReportManager instance = new HttpReportManager();
+    }
+
+    public void register(Context context){
+        if (initialized || context == null) {
+            return;
+        }
+        initialized = true;
+
+        initialize(context);
+    }
+
+    public void unregister(){
+        destroy();
+        initialized = false;
+    }
+
+    private void initialize(Context context) {
         if (mHandlerThread != null) {
             return;
         }
@@ -77,7 +99,6 @@ public class LogReporter {
 
     private void onReportMessage(boolean again) {
         String report = mLogFileManager.getReportContent();
-//        LogUtils.d(TAG,"-------report : " + report);
         if (report != null && sendRequest(NetConfig.PostPath, report)) {
             mLogFileManager.setReportSuccess();
         }
@@ -136,7 +157,6 @@ public class LogReporter {
             if (DebugON) {
                 httpConn.getOutputStream().write(bytes);
             } else {
-//                LogUtils.d(TAG,"-------compressed");
                 ByteArrayOutputStream compressed = new ByteArrayOutputStream();
                 GZIPOutputStream gzip = new GZIPOutputStream(compressed);
                 gzip.write(bytes);
@@ -195,30 +215,14 @@ public class LogReporter {
         if (read <= 0) {
             return false;
         }
-        String responseData = new String(data);
-        responseData = responseData.trim();
-        LogUtils.d(TAG, "-------"+responseData);
-//        try {
-//            JSONObject res = new JSONObject(responseData);
-//            int reportInterval = res.optInt("reportInterval");
-//            int recordInterval = res.optInt("sampleInterval");
-//            handleIntervalTime(url, reportInterval * 1000, recordInterval * 1000);
-//        } catch (Exception e) {
-//            LogUtils.e(TAG,e.toString());
-//            return false;
-//        }
         return true;
     }
 
-    public void destroy() {
+    private void destroy() {
         if (mHandlerThread == null) {
             return;
         }
         mReportHandler.removeCallbacksAndMessages(null);
         mReportHandler.sendEmptyMessageDelayed(MSG_WHAT_BYEBYE, MSG_BYEBYTE_DELAY);
-    }
-
-    private static class LogReporterHolder {
-        public final static LogReporter instance = new LogReporter();
     }
 }

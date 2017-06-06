@@ -12,6 +12,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import qiniu.presniff.library.CrashManager;
+import qiniu.presniff.library.bean.CrashBean;
 import qiniu.presniff.library.config.ConstantConfig;
 import qiniu.presniff.library.listener.CrashManagerListener;
 import qiniu.presniff.library.util.LogUtils;
@@ -53,30 +54,30 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
 
         String filename = UUID.randomUUID().toString();
 
-        CrashDetails crashDetails = new CrashDetails(filename, exception);
-        crashDetails.setAppPackage(ConstantConfig.APP_PACKAGE);
-        crashDetails.setAppVersionCode(ConstantConfig.APP_VERSION);
-        crashDetails.setAppVersionName(ConstantConfig.APP_VERSION_NAME);
-        crashDetails.setAppStartDate(startDate);
-        crashDetails.setAppCrashDate(now);
+        CrashBean crashBean = new CrashBean(filename, exception);
+        crashBean.setAppPackage(ConstantConfig.APP_PACKAGE);
+        crashBean.setAppVersionCode(ConstantConfig.APP_VERSION);
+        crashBean.setAppVersionName(ConstantConfig.APP_VERSION_NAME);
+        crashBean.setAppStartDate(startDate);
+        crashBean.setAppCrashDate(now);
 
         if ((listener == null) || (listener.includeDeviceData())) {
-            crashDetails.setOsVersion(ConstantConfig.ANDROID_VERSION);
-            crashDetails.setOsBuild(ConstantConfig.ANDROID_BUILD);
-            crashDetails.setDeviceManufacturer(ConstantConfig.PHONE_MANUFACTURER);
-            crashDetails.setDeviceModel(ConstantConfig.PHONE_MODEL);
+            crashBean.setOsVersion(ConstantConfig.ANDROID_VERSION);
+            crashBean.setOsBuild(ConstantConfig.ANDROID_BUILD);
+            crashBean.setDeviceManufacturer(ConstantConfig.PHONE_MANUFACTURER);
+            crashBean.setDeviceModel(ConstantConfig.PHONE_MODEL);
         }
 
         if (thread != null && ((listener == null) || (listener.includeThreadDetails()))) {
-            crashDetails.setThreadName(thread.getName() + "-" + thread.getId());
+            crashBean.setThreadName(thread.getName() + "-" + thread.getId());
         }
 
         if (ConstantConfig.CRASH_IDENTIFIER != null && (listener == null || listener.includeDeviceIdentifier())) {
-            crashDetails.setReporterKey(ConstantConfig.CRASH_IDENTIFIER);
+            crashBean.setReporterKey(ConstantConfig.CRASH_IDENTIFIER);
         }
 
 
-        crashDetails.writeCrashReport();
+        crashBean.writeCrashReport();
 
         if (listener != null) {
             try {
@@ -153,29 +154,29 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
             exception.printStackTrace(printWriter);
         }
 
-        CrashDetails crashDetails = new CrashDetails(filename, exception, additionalManagedException, isManagedException);
-        crashDetails.setAppPackage(ConstantConfig.APP_PACKAGE);
-        crashDetails.setAppVersionCode(ConstantConfig.APP_VERSION);
-        crashDetails.setAppVersionName(ConstantConfig.APP_VERSION_NAME);
-        crashDetails.setAppStartDate(startDate);
-        crashDetails.setAppCrashDate(now);
+        CrashBean crashBean = new CrashBean(filename, exception, additionalManagedException, isManagedException);
+        crashBean.setAppPackage(ConstantConfig.APP_PACKAGE);
+        crashBean.setAppVersionCode(ConstantConfig.APP_VERSION);
+        crashBean.setAppVersionName(ConstantConfig.APP_VERSION_NAME);
+        crashBean.setAppStartDate(startDate);
+        crashBean.setAppCrashDate(now);
 
         if ((listener == null) || (listener.includeDeviceData())) {
-            crashDetails.setOsVersion(ConstantConfig.ANDROID_VERSION);
-            crashDetails.setOsBuild(ConstantConfig.ANDROID_BUILD);
-            crashDetails.setDeviceManufacturer(ConstantConfig.PHONE_MANUFACTURER);
-            crashDetails.setDeviceModel(ConstantConfig.PHONE_MODEL);
+            crashBean.setOsVersion(ConstantConfig.ANDROID_VERSION);
+            crashBean.setOsBuild(ConstantConfig.ANDROID_BUILD);
+            crashBean.setDeviceManufacturer(ConstantConfig.PHONE_MANUFACTURER);
+            crashBean.setDeviceModel(ConstantConfig.PHONE_MODEL);
         }
 
         if (thread != null && ((listener == null) || (listener.includeThreadDetails()))) {
-            crashDetails.setThreadName(thread.getName() + "-" + thread.getId());
+            crashBean.setThreadName(thread.getName() + "-" + thread.getId());
         }
 
         if (ConstantConfig.CRASH_IDENTIFIER != null && (listener == null || listener.includeDeviceIdentifier())) {
-            crashDetails.setReporterKey(ConstantConfig.CRASH_IDENTIFIER);
+            crashBean.setReporterKey(ConstantConfig.CRASH_IDENTIFIER);
         }
 
-        crashDetails.writeCrashReport();
+        crashBean.writeCrashReport();
 
         if (listener != null) {
             try {

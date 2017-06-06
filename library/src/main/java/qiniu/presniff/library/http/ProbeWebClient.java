@@ -1,8 +1,10 @@
-package qiniu.presniff.library.io;
+package qiniu.presniff.library.http;
 
 import android.webkit.WebViewClient;
 
-import static qiniu.presniff.library.io.ProbeTXWebClient.excludeIPs;
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * Created by Misty on 5/18/17.
@@ -10,6 +12,8 @@ import static qiniu.presniff.library.io.ProbeTXWebClient.excludeIPs;
 
 public class ProbeWebClient extends WebViewClient{
     private static final String TAG = "ProbeWebClient";
+
+    protected static final Set<String> excludeIPs = new HashSet<>();
 
     public static boolean isExcludeIPs(String ip) {
         return excludeIPs.contains(ip);

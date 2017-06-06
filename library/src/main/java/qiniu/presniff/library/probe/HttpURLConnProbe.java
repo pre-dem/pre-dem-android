@@ -16,13 +16,12 @@ import java.util.regex.Matcher;
 
 import javax.net.ssl.HttpsURLConnection;
 
-import qiniu.presniff.library.SDKManager;
+import qiniu.presniff.library.DEMManager;
 import qiniu.presniff.library.bean.LogBean;
 import qiniu.presniff.library.config.GlobalConfig;
-import qiniu.presniff.library.handler.MySSLSocketFactory;
-import qiniu.presniff.library.io.ProbeInputStream;
-import qiniu.presniff.library.io.ProbeTXWebClient;
-import qiniu.presniff.library.io.ProbeWebClient;
+import qiniu.presniff.library.http.MySSLSocketFactory;
+import qiniu.presniff.library.http.ProbeInputStream;
+import qiniu.presniff.library.http.ProbeWebClient;
 import qiniu.presniff.library.util.LogUtils;
 import qiniu.presniff.library.util.PatternUtil;
 
@@ -44,8 +43,7 @@ public class HttpURLConnProbe {
 
     @Around("callOpenConnection() || callRequestMethod()")
     public Object onHttpURLOpenConnect(ProceedingJoinPoint joinPoint) throws Throwable {
-//        LogUtils.i(TAG,"------OpenConnect:"+joinPoint.getTarget());
-        if (!SDKManager.isEnable() || joinPoint.getArgs().length > 1){
+        if (!DEMManager.isHttpMonitorEnable() || joinPoint.getArgs().length > 1){
             return joinPoint.proceed();
         }
         LogBean urlTraceRecord = LogBean.obtain();
@@ -63,17 +61,8 @@ public class HttpURLConnProbe {
                 URL url = (URL) joinPoint.getTarget();
                 urlTraceRecord.setStartTimestamp(System.currentTimeMillis());
 
-                // exclude url
-                boolean isExludeInTXWebClient = false;
-                try {
-                    isExludeInTXWebClient = ProbeTXWebClient.isExcludeIPs(url.getHost());
-                } catch (Throwable e) {
-                    LogUtils.e(TAG,e.toString());
-                    e.printStackTrace();
-                }
-
                 //判断是否需要收集url信息
-                if (GlobalConfig.isExcludeHost(url.getHost()) || !(GlobalConfig.isIncludeHost(url.getHost())) || ProbeWebClient.isExcludeIPs(url.getHost()) || isExludeInTXWebClient) {
+                if (GlobalConfig.isExcludeHost(url.getHost()) || !(GlobalConfig.isIncludeHost(url.getHost())) || ProbeWebClient.isExcludeIPs(url.getHost())) {
                     return joinPoint.proceed();
                 }
 
@@ -82,7 +71,7 @@ public class HttpURLConnProbe {
                 // match ip
                 Matcher matcher = PatternUtil.IP_Pattern.matcher(url.getHost());
                 if (matcher.find()) {
-                    if (!ProbeWebClient.isExcludeIPs(url.getHost()) && !isExludeInTXWebClient && GlobalConfig.isIncludeHost(url.getHost())) {
+                    if (!ProbeWebClient.isExcludeIPs(url.getHost()) && GlobalConfig.isIncludeHost(url.getHost())) {
                         urlTraceRecord.setHostIP(url.getHost());
                         urlTraceRecord.setDnsTime(0);
                         synchronized (reportMap) {
@@ -93,7 +82,7 @@ public class HttpURLConnProbe {
                 }else {
                     String ipUrl;
                     URLConnection conn;
-                    if (SDKManager.isDns()) {
+                    if (DEMManager.isDns()) {
                         long stime = System.currentTimeMillis();
                         try {
                             urlTraceRecord.setHostIP(InetAddress.getByName(url.getHost()).getHostAddress());
@@ -133,21 +122,9 @@ public class HttpURLConnProbe {
         }
     }
 
-//    @Around("call(* java.net.HttpURLConnection+.setRequestMethod(..))")
-//    public Object onHttpURLConnection(ProceedingJoinPoint joinPoint) throws Throwable {
-//        LogUtils.i(TAG,"-----onHttpURLConnection:"+joinPoint.getArgs());
-//        if (!Probe.isEnable() || joinPoint.getArgs().length != 1){
-//            return joinPoint.proceed();
-//        }
-//        String method = joinPoint.getArgs()[0].toString();
-//        LogUtils.i(TAG,"------method:"+method);
-//        return joinPoint.proceed();
-//    }
-
     @Around("call(* java.net.URLConnection+.getInputStream(..))")
     public Object onHttpURLConnectInput(ProceedingJoinPoint joinPoint) throws Throwable {
-//        LogUtils.d(TAG, "-----onHttpURLConnectInput");
-        if (!SDKManager.isEnable()) {
+        if (!DEMManager.isHttpMonitorEnable()) {
             return joinPoint.proceed();
         }
         try {
@@ -160,17 +137,7 @@ public class HttpURLConnProbe {
                 return joinPoint.proceed();
             }
 
-            // exclude url
-            boolean isExludeInTXWebClient = false;
-            try {
-                isExludeInTXWebClient = ProbeTXWebClient.isExcludeIPs(url.getHost());
-            } catch (NoClassDefFoundError e) {
-                e.printStackTrace();
-            } catch (Throwable e) {
-                e.printStackTrace();
-            }
-
-            if (GlobalConfig.isExcludeHost(url.getHost()) || ProbeWebClient.isExcludeIPs(url.getHost()) || isExludeInTXWebClient){
+            if (GlobalConfig.isExcludeHost(url.getHost()) || ProbeWebClient.isExcludeIPs(url.getHost())){
                 return joinPoint.proceed();
             }
 
@@ -179,7 +146,7 @@ public class HttpURLConnProbe {
                     if (reportMap.containsKey(url.toString())){
                         LogBean urlTraceRecord = reportMap.get(url.toString());
                         reportMap.remove(url.toString());
-                        if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || !GlobalConfig.isIncludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain()) || isExludeInTXWebClient) {
+                        if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || !GlobalConfig.isIncludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain())) {
                             return joinPoint.proceed();
                         }
 

@@ -5,6 +5,9 @@ package qiniu.presniff.library.config;
  */
 
 public class NetConfig {
+    //config
+    public static final String configPath = "http://hriygkee.bq.cloudappl.com/v1/app_config/";
+
     //http
     public static final String Path = "http://hriygkee.bq.cloudappl.com";
     public static final String PostPath = "http://jkbkolos.bq.cloudappl.com/http_monitor";

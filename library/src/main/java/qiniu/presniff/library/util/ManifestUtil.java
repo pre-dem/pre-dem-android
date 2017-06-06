@@ -12,6 +12,9 @@ import java.util.regex.Pattern;
  */
 
 public class ManifestUtil {
+    private static final String APP_ID = "qiniu.presniff.library.appId";
+    private static final String APP_KEY = "qiniu.presniff.library.appKey";
+
 
     public static final String APP_IDENTIFIER_KEY = "qiniu.presniff.crash.httplibrary.appIdentifier";
 
@@ -55,5 +58,13 @@ public class ManifestUtil {
             throw new RuntimeException(e);
         }
         return bundle;
+    }
+
+    public static String getAppId(Context context){
+        return getManifestString(context, APP_ID);
+    }
+
+    public static String getAppKey(Context context){
+        return getManifestString(context, APP_KEY);
     }
 }

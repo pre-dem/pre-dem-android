@@ -1,4 +1,4 @@
-package qiniu.presniff.library.exception;
+package qiniu.presniff.library.bean;
 
 import android.text.TextUtils;
 
@@ -25,7 +25,7 @@ import qiniu.presniff.library.util.LogUtils;
  * Created by Misty on 5/22/17.
  */
 
-public class CrashDetails {
+public class CrashBean {
     private static final String TAG = "CrashDetails";
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
 
@@ -69,13 +69,13 @@ public class CrashDetails {
 
     private String format;
 
-    public CrashDetails(String crashIdentifier) {
+    public CrashBean(String crashIdentifier) {
         this.crashIdentifier = crashIdentifier;
         isXamarinException = false;
         throwableStackTrace = "";
     }
 
-    public CrashDetails(String crashIdentifier, Throwable throwable) {
+    public CrashBean(String crashIdentifier, Throwable throwable) {
         this(crashIdentifier);
 
         isXamarinException = false;
@@ -86,7 +86,7 @@ public class CrashDetails {
         throwableStackTrace = stackTraceResult.toString();
     }
 
-    public CrashDetails(String crashIdentifier, Throwable throwable, String managedExceptionString, Boolean isManagedException) {
+    public CrashBean(String crashIdentifier, Throwable throwable, String managedExceptionString, Boolean isManagedException) {
         this(crashIdentifier);
 
         final Writer stackTraceResult = new StringWriter();
@@ -293,15 +293,15 @@ public class CrashDetails {
         this.format = format;
     }
 
-    public static CrashDetails fromFile(File file) throws IOException {
+    public static CrashBean fromFile(File file) throws IOException {
         String crashIdentifier = file.getName().substring(0, file.getName().indexOf(".stacktrace"));
         return fromReader(crashIdentifier, new FileReader(file));
     }
 
-    public static CrashDetails fromReader(String crashIdentifier, Reader in) throws IOException {
+    public static CrashBean fromReader(String crashIdentifier, Reader in) throws IOException {
         BufferedReader bufferedReader = new BufferedReader(in);
 
-        CrashDetails result = new CrashDetails(crashIdentifier);
+        CrashBean result = new CrashBean(crashIdentifier);
 
         String readLine, headerName, headerValue;
         boolean headersProcessed = false;

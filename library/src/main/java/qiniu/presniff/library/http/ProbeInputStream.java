@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import qiniu.presniff.library.bean.LogBean;
 import qiniu.presniff.library.config.StreamConfig;
-import qiniu.presniff.library.file.LogFileManager;
+import qiniu.presniff.library.util.LogFileManager;
 
 /**
  * Created by Misty on 5/18/17.

@@ -13,5 +13,9 @@ public class NetConfig {
     public static final String PostPath = "http://jkbkolos.bq.cloudappl.com/http_monitor";
 
     //crash
-    public static final String BASE_URL = "https://sdk.hockeyapp.net/";
+//    public static final String BASE_URL = "https://sdk.hockeyapp.net/";
+    public static final String CRASH_URL = "http://hriygkee.bq.cloudappl.com/";
+
+    //telemetry
+    public static final String TELEMETRY_URL= "http://jkbkolos.bq.cloudappl.com";
 }

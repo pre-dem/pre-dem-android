@@ -71,11 +71,11 @@ public class CrashManager {
     }
 
     public static void register(Context context, String appIdentifier){
-        register(context, NetConfig.BASE_URL, appIdentifier, null);
+        register(context, NetConfig.CRASH_URL, appIdentifier, null);
     }
 
     public static void register(Context context, String appIdentifier, CrashManagerListener listener) {
-        register(context, NetConfig.BASE_URL, appIdentifier, listener);
+        register(context, NetConfig.CRASH_URL, appIdentifier, listener);
     }
 
     public static void register(Context context, String urlString, String appIdentifier, CrashManagerListener listener) {
@@ -84,7 +84,7 @@ public class CrashManager {
     }
 
     public static void initialize(Context context, String appIdentifier, CrashManagerListener listener){
-        initialize(context, NetConfig.BASE_URL, appIdentifier, listener, true);
+        initialize(context, NetConfig.CRASH_URL, appIdentifier, listener, true);
     }
 
     public static void initialize(Context context, String urlString, String appIdentifier, CrashManagerListener listener){
@@ -571,8 +571,8 @@ public class CrashManager {
      * Returns the complete URL for the HockeyApp API.
      */
     private static String getURLString() {
-        String str = urlString + "api/2/apps/"+ identifier + "/crashes/";
-//        String str = "http://hriygkee.bq.cloudappl.com/api/1/a/apps/" + identifier + "/crashes";
+//        String str = urlString + "api/2/apps/"+ identifier + "/crashes/";
+        String str = urlString + "api/1/a/apps/" + identifier + "/crashes";
         LogUtils.d(TAG,"-----url : " + str);
         return str;
     }

@@ -68,7 +68,7 @@ public class HttpURLConnProbe {
 
                 urlTraceRecord.setDomain(url.getHost());
                 urlTraceRecord.setPath(url.getPath());
-                // match ip
+                // 判断host是否是IP
                 Matcher matcher = PatternUtil.IP_Pattern.matcher(url.getHost());
                 if (matcher.find()) {
                     if (!ProbeWebClient.isExcludeIPs(url.getHost()) && GlobalConfig.isIncludeHost(url.getHost())) {

@@ -5,12 +5,11 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import qiniu.presniff.library.file.LogFileManager;
+import qiniu.presniff.library.util.LogFileManager;
 
 /**
  * Created by Misty on 5/24/17.

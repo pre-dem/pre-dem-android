@@ -22,7 +22,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/http_btn"
-            android:text="点击产生一个联网请求"
+            android:text="点击产生一个HttpURLConnection请求"
+            />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/okhttp_btn"
+            android:text="点击产生一个OkHttp请求"
             />
 
         <TextView

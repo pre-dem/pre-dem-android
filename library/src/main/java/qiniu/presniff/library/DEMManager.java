@@ -110,6 +110,9 @@ public class DEMManager {
     }
 
     public static boolean isHttpMonitorEnable() {
+        if (app == null){
+            return false;
+        }
         return app.isHttpMonitorEnable();
     }
     public static boolean isEnable() {

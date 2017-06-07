@@ -1,7 +1,6 @@
 package qiniu.presniff.library;
 
 import android.content.Context;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -12,11 +11,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.zip.GZIPOutputStream;
 
 import qiniu.presniff.library.config.NetConfig;
-import qiniu.presniff.library.file.LogFileManager;
+import qiniu.presniff.library.util.LogFileManager;
 import qiniu.presniff.library.util.LogUtils;
 
 /**

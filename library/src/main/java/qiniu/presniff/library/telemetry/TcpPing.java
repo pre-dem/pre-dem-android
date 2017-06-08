@@ -8,8 +8,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 
 import okhttp3.internal.Util;
-import qiniu.presniff.library.telemetry.out.Output;
-import qiniu.presniff.library.telemetry.out.Task;
+import qiniu.presniff.library.telemetry.output.Output;
+import qiniu.presniff.library.telemetry.output.Task;
 import qiniu.presniff.library.util.AsyncRun;
 
 /**

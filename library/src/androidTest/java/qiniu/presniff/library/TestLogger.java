@@ -1,6 +1,6 @@
 package qiniu.presniff.library;
 
-import qiniu.presniff.library.telemetry.out.Output;
+import qiniu.presniff.library.telemetry.output.Output;
 
 /**
  * Created by Misty on 17/6/7.

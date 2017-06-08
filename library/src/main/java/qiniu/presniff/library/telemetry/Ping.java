@@ -7,10 +7,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
-import qiniu.presniff.library.telemetry.out.Output;
-import qiniu.presniff.library.telemetry.out.Task;
+import qiniu.presniff.library.telemetry.output.Output;
+import qiniu.presniff.library.telemetry.output.Task;
 import qiniu.presniff.library.util.AsyncRun;
-import qiniu.presniff.library.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/7.

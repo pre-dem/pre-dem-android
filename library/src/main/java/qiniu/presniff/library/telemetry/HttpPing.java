@@ -7,8 +7,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import qiniu.presniff.library.telemetry.out.Output;
-import qiniu.presniff.library.telemetry.out.Task;
+import qiniu.presniff.library.telemetry.output.Output;
+import qiniu.presniff.library.telemetry.output.Task;
 import qiniu.presniff.library.util.AsyncRun;
 
 /**

@@ -2,21 +2,19 @@ package qiniu.presniff.library;
 
 import android.support.test.runner.AndroidJUnit4;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import qiniu.presniff.library.telemetry.DNS;
 import qiniu.presniff.library.telemetry.HttpPing;
 import qiniu.presniff.library.telemetry.Ping;
 import qiniu.presniff.library.telemetry.TcpPing;
 import qiniu.presniff.library.telemetry.TraceRoute;
-import qiniu.presniff.library.telemetry.out.Output;
-import qiniu.presniff.library.telemetry.out.Task;
+import qiniu.presniff.library.telemetry.output.Output;
+import qiniu.presniff.library.telemetry.output.Task;
 
 /**
  * Created by Misty on 17/6/7.

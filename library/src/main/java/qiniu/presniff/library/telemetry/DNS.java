@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import okhttp3.internal.Util;
 import qiniu.presniff.library.util.AsyncRun;
 
 /**

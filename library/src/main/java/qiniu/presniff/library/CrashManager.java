@@ -133,11 +133,7 @@ public class CrashManager {
                 listener.onNewCrashesFound();
             }
 
-//            if (!autoSend) {
-//                showDialog(weakContext, listener, ignoreDefaultHandler);
-//            } else {
-                sendCrashes(weakContext, listener, ignoreDefaultHandler);
-//            }
+            sendCrashes(weakContext, listener, ignoreDefaultHandler);
         } else if (foundOrSend == STACK_TRACES_FOUND_CONFIRMED) {
             if (listener != null) {
                 listener.onConfirmedCrashesFound();

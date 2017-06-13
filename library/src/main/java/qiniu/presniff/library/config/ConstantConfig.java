@@ -96,7 +96,7 @@ public class ConstantConfig {
     /**
      * Unique identifier for device, not dependent on package or device.
      */
-    public static String DEVICE_IDENTIFIER = null;
+    public static String DEVICE_IDENTIFIER = "-";
 
     public static void loadFromContext(Context context){
         ConstantConfig.APP_NAME=getAppName(context);

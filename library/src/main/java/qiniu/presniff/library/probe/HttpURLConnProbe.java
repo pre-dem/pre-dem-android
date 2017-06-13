@@ -43,7 +43,10 @@ public class HttpURLConnProbe {
 
     @Around("callOpenConnection() || callRequestMethod()")
     public Object onHttpURLOpenConnect(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!DEMManager.isHttpMonitorEnable() || joinPoint.getArgs().length > 1){
+//        if (!DEMManager.isHttpMonitorEnable() || joinPoint.getArgs().length > 1){
+//            return joinPoint.proceed();
+//        }
+        if (joinPoint.getArgs().length > 1){
             return joinPoint.proceed();
         }
         LogBean urlTraceRecord = LogBean.obtain();
@@ -58,6 +61,7 @@ public class HttpURLConnProbe {
                 if (!joinPoint.getTarget().toString().startsWith("http://") && !joinPoint.getTarget().toString().startsWith("https://")){
                     return joinPoint.proceed();
                 }
+
                 URL url = (URL) joinPoint.getTarget();
                 urlTraceRecord.setStartTimestamp(System.currentTimeMillis());
 
@@ -90,7 +94,6 @@ public class HttpURLConnProbe {
                             throw e;
                         }
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - stime);
-//                        ExcludeIPs.add(urlTraceRecord.getHostIP());
                         //https请求
                         if (url.toString().startsWith("https://")) {
                             ipUrl = url.toString();

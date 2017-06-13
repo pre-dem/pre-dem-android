@@ -5,4 +5,5 @@ package qiniu.presniff.library;
  */
 
 public class TelemetryManager {
+    private static final String TAG = "TelemetryManager";
 }

@@ -1,24 +1,21 @@
 package qiniu.presniff.library.probe;
 
-import android.util.Log;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 
 import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 
-import javax.net.ssl.HttpsURLConnection;
-
+import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import qiniu.presniff.library.DEMManager;
 import qiniu.presniff.library.bean.LogBean;
 import qiniu.presniff.library.config.GlobalConfig;
-import qiniu.presniff.library.http.MySSLSocketFactory;
+import qiniu.presniff.library.http.ProbeResponse;
 import qiniu.presniff.library.http.ProbeWebClient;
 import qiniu.presniff.library.util.LogUtils;
 import qiniu.presniff.library.util.PatternUtil;
@@ -32,12 +29,12 @@ import static qiniu.presniff.library.probe.HttpURLConnProbe.reportMap;
 public class OkHttpProbe {
     private static final String TAG = "OkHttpProbe";
 
-    @Around("call(* okhttp3.OkHttpClient.*(..))")
+    @Around("call(* okhttp3.OkHttpClient+.newCall(..))")
 //    @Around("call(* okhttp3.OkHttpClient.new(..))")
     public Object onOkHttpNew(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!DEMManager.isHttpMonitorEnable() || joinPoint.getArgs().length != 1) {
-            return joinPoint.proceed();
-        }
+//        if (!DEMManager.isHttpMonitorEnable() || joinPoint.getArgs().length != 1) {
+//            return joinPoint.proceed();
+//        }
         LogBean urlTraceRecord = LogBean.obtain();
 
         Object[] args = joinPoint.getArgs();
@@ -56,9 +53,7 @@ public class OkHttpProbe {
         urlTraceRecord.setPath(url.getPath());
 
         // match ip
-        LogUtils.d(TAG,"------>host : " + url.getHost());
         Matcher matcher = PatternUtil.IP_Pattern.matcher(url.getHost());
-        LogUtils.d(TAG,"------>matcher : " + matcher.find());
         if (matcher.find()) {
             if (!ProbeWebClient.isExcludeIPs(url.getHost()) && GlobalConfig.isIncludeHost(url.getHost())) {
                 urlTraceRecord.setHostIP(url.getHost());
@@ -69,52 +64,75 @@ public class OkHttpProbe {
             }
             return joinPoint.proceed();
         } else {
-            String ipUrl;
-            URLConnection conn;
-            if (DEMManager.isDns()) {
-                long stime = System.currentTimeMillis();
-                try {
-                    urlTraceRecord.setHostIP(InetAddress.getByName(url.getHost()).getHostAddress());
-                } catch (UnknownHostException e) {
-                    throw e;
-                }
-                urlTraceRecord.setDnsTime(System.currentTimeMillis() - stime);
-                //https请求
-                if (url.toString().startsWith("https://")) {
-                    ipUrl = url.toString();
-                    conn = (URLConnection) joinPoint.proceed();
-                    conn.setRequestProperty("Host", url.getHost());
-                    ((HttpsURLConnection) conn).setSSLSocketFactory(new MySSLSocketFactory(urlTraceRecord.getHostIP()));
-                } else {
-                    //http请求
-                    ipUrl = url.toString().replaceFirst(url.getHost(), urlTraceRecord.getHostIP());
-                    conn = new URL(ipUrl).openConnection();
-                    conn.setRequestProperty("Host", url.getHost());
-                }
-            } else {
-                urlTraceRecord.setDnsTime(-1);
-                ipUrl = url.toString();
-                conn = (URLConnection) joinPoint.proceed();
-            }
+            String ipUrl = url.toString();
             synchronized (reportMap) {
                 reportMap.put(ipUrl, urlTraceRecord);
             }
-            return conn;
+            LogUtils.d(TAG,"------joinPoint.proceed()" + urlTraceRecord.toJsonString());
+            return joinPoint.proceed();
         }
     }
 
-    @Around("call(* okhttp3.Response+.*(..))")
+    @Around("call(* okhttp3.Response+.body(..))")
     public Object onOkHttpResponse(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!DEMManager.isHttpMonitorEnable()) {
+//        if (!DEMManager.isHttpMonitorEnable()) {
+//            return joinPoint.proceed();
+//        }
+
+        Response response = (Response) joinPoint.getTarget();
+        HttpUrl url = response.request().url();
+        try {
+            synchronized (reportMap) {
+                if (reportMap.containsKey(url.url().toString())){
+                    LogBean urlTraceRecord = reportMap.get(url.toString());
+                    reportMap.remove(url.toString());
+                    if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || !GlobalConfig.isIncludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain())) {
+                        return joinPoint.proceed();
+                    }
+                    if (DEMManager.isDns()){
+                        long s = System.currentTimeMillis();
+                        String ip = InetAddress.getByName(response.request().url().host()).getHostAddress();
+                        urlTraceRecord.setHostIP(ip);
+                        urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
+                    }else{
+                        urlTraceRecord.setHostIP("-");
+                        urlTraceRecord.setDnsTime(-1);
+                    }
+
+                    urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
+                    urlTraceRecord.setStatusCode(response.code());
+                    urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
+                    urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
+                    return ProbeResponse.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                }else {
+                    // exclude url
+                    if (!GlobalConfig.isIncludeHost(url.host())){
+                        return joinPoint.proceed();
+                    }
+//
+                    LogBean urlTraceRecord = LogBean.obtain();
+                    if (DEMManager.isDns()){
+                        long s = System.currentTimeMillis();
+                        String ip = InetAddress.getByName(response.request().url().host()).getHostAddress();
+                        urlTraceRecord.setHostIP(ip);
+                        urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
+                    }else{
+                        urlTraceRecord.setHostIP("-");
+                        urlTraceRecord.setDnsTime(-1);
+                    }
+
+                    urlTraceRecord.setDomain(url.host());
+                    urlTraceRecord.setPath(url.url().getPath());
+                    urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
+                    urlTraceRecord.setStatusCode(response.code());
+                    urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
+                    urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
+                    return ProbeResponse.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                }
+            }
+        }catch (Exception e){
+            LogUtils.e(TAG, e.toString());
             return joinPoint.proceed();
         }
-
-        LogUtils.d(TAG,"------" + joinPoint.getTarget().toString());
-
-        Object[] args = joinPoint.getArgs();
-        for (int i = 0 ;i < args.length; i++){
-            Log.d(TAG,"-------目标方法参数:"+args[i]);
-        }
-        return joinPoint.proceed();
     }
 }

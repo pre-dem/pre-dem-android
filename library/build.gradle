@@ -62,7 +62,6 @@ dependencies {
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
     // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
     androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.1'
-    //compile files('libs/okhttp-3.8.0.jar')
 }
 
 android.libraryVariants.all { variant ->

@@ -19,6 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ANRMainActivity">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
 
         <meta-data android:name="qiniu.presniff.library.appKey" android:value="test"></meta-data>
         <meta-data android:name="qiniu.presniff.library.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>

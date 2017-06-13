@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Locale;
 
-import qiniu.presniff.library.telemetry.output.Output;
 import qiniu.presniff.library.telemetry.output.Task;
 import qiniu.presniff.library.util.AsyncRun;
 
@@ -21,35 +20,32 @@ public class Ping implements Task {
     private final String address;
     private final int count;
     private final int size;
-    private final Output output;
+//    private final Output output;
     private final Callback complete;
     private volatile boolean stopped;
     private int interval;
 
-    private Ping(String address, int count,
-
-                 Output output, Callback complete) {
-        this(address, count, 56, 200, output, complete);
+    private Ping(String address, int count, Callback complete) {
+        this(address, count, 56, 200, complete);
     }
 
     private Ping(String address, int count, int size,
-                 int interval, Output output, Callback complete) {
+                 int interval, Callback complete) {
         this.address = address;
         this.count = count;
         this.size = size;
         this.interval = interval;
-        this.output = output;
+//        this.output = output;
         this.complete = complete;
         this.stopped = false;
     }
 
-    public static Task start(String address, Output output, Callback complete) {
-        return start(address, 10, output, complete);
+    public static Task start(String address, Callback complete) {
+        return start(address, 10, complete);
     }
 
-    public static Task start(String address, int count,
-                             Output output, Callback complete) {
-        final Ping p = new Ping(address, count, output, complete);
+    public static Task start(String address, int count, Callback complete) {
+        final Ping p = new Ping(address, count, complete);
         AsyncRun.runInBack(new Runnable() {
             @Override
             public void run() {
@@ -91,11 +87,11 @@ public class Ping implements Task {
                     process.getErrorStream()));
             while ((line = reader.readLine()) != null) {
                 str.append(line).append("\n");
-                output.write(line);
+//                output.write(line);
             }
             while ((line = errorReader.readLine()) != null) {
                 str.append(line);
-                output.write(line);
+//                output.write(line);
             }
             reader.close();
             errorReader.close();
@@ -216,7 +212,6 @@ public class Ping implements Task {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 }

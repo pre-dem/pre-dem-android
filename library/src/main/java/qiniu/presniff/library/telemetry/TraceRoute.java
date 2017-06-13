@@ -229,7 +229,7 @@ public class TraceRoute implements Task {
             return allData;
         }
 
-        private void append(String str) {
+        public void append(String str) {
             builder.append(str);
         }
     }

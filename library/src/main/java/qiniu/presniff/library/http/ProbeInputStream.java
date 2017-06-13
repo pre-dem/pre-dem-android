@@ -20,7 +20,6 @@ public class ProbeInputStream extends InputStream {
 //    protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
 
     protected long timeout;
-//    protected boolean isFirstPacket;
     protected boolean replied;
     protected AtomicBoolean isFinish;
     protected Runnable runTimeOut;
@@ -72,9 +71,8 @@ public class ProbeInputStream extends InputStream {
                     }
                 }
                 if (isFinish.compareAndSet(false, true)) {
-                    //TODO 提交数据
+                    // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-//                    LogUtils.d(TAG,"-----log info : " + record.toJsonString());
                     LogFileManager.getInstance().addReportContent(record.toString());
                 }
             }
@@ -82,9 +80,7 @@ public class ProbeInputStream extends InputStream {
     }
 
     protected void init(InputStream is, LogBean record, long timeout) {
-//        this.doReport = true;
         this.timeout = timeout;
-//        isFirstPacket = true;
         replied = false;
         isFinish = new AtomicBoolean(false);
 
@@ -93,24 +89,14 @@ public class ProbeInputStream extends InputStream {
 
     }
 
-//    protected void checkFirstPacket() {
-//        if (isFirstPacket) {
-//            isFirstPacket = false;
-//
-//            replied = true;
-//            executor.execute(runTimeOut);
-//        }
-//    }
-
     protected synchronized void checkFinish(long result) {
         if (!isFinish.get()) {
             if (result >= 0) {
                 replied = true;
             } else {
                 if (isFinish.compareAndSet(false, true)) {
-                    //TODO 提交数据
+                    // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-//                    LogUtils.d(TAG,"-----log info : " + record.toString());
                     LogFileManager.getInstance().addReportContent(record.toString());
                 }
             }

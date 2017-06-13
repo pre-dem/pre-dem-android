@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void run() throws Exception {
         Request request = new Request.Builder()
-                .url("http://publicobject.com/helloworld.txt")
+                .url("http://www.baidu.com")
                 .build();
 
         client.newCall(request).enqueue(new Callback() {
@@ -107,20 +107,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 LogUtils.d(TAG,"------"+response.code());
-                if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected code " + response);
-                }
-                Headers responseHeaders = response.headers();
-                String respheader = "";
-                for (int i = 0; i < responseHeaders.size(); i++) {
-                    respheader += (responseHeaders.name(i)+":"+responseHeaders.value(i) + "\n");
-                }
+                LogUtils.d(TAG,"------"+response.body().string());
+//                if (!response.isSuccessful()) {
+//                    throw new IOException("Unexpected code " + response);
+//                }
+//                Headers responseHeaders = response.headers();
+//                String respheader = "";
+//                for (int i = 0; i < responseHeaders.size(); i++) {
+//                    respheader += (responseHeaders.name(i)+":"+responseHeaders.value(i) + "\n");
+//                }
 
-                Headers reqeustHeaders = response.request().headers();
-                String reqheader = "";
-                for (int i = 0; i < reqeustHeaders.size(); i++) {
-                    reqheader += (reqeustHeaders.name(i)+":"+reqeustHeaders.value(i) + "\n");
-                }
+//                Headers reqeustHeaders = response.request().headers();
+//                String reqheader = "";
+//                for (int i = 0; i < reqeustHeaders.size(); i++) {
+//                    reqheader += (reqeustHeaders.name(i)+":"+reqeustHeaders.value(i) + "\n");
+//                }
 
 //                String reqBody = response.request().body() == null ? "" : response.request().body().toString();
 

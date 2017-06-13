@@ -20,20 +20,20 @@ public class HttpPing implements Task {
 
     private static final int MAX = 64 * 1024;
 
-    private final Output out;
+//    private final Output out;
     private final String url;
     private final Callback complete;
     private volatile boolean stopped;
 
-    private HttpPing(String url, Output out, final Callback complete) {
-        this.out = out;
+    private HttpPing(String url, final Callback complete) {
+//        this.out = out;
         this.url = url;
         this.complete = complete;
         this.stopped = false;
     }
 
-    public static Task start(String url, Output out, Callback complete) {
-        final HttpPing h = new HttpPing(url, out, complete);
+    public static Task start(String url, Callback complete) {
+        final HttpPing h = new HttpPing(url, complete);
         AsyncRun.runInBack(new Runnable() {
             @Override
             public void run() {
@@ -46,25 +46,19 @@ public class HttpPing implements Task {
     private void run() {
         long start = System.currentTimeMillis();
         try {
-            out.write("Get " + url);
             URL u = new URL(url);
             HttpURLConnection httpConn = (HttpURLConnection) u.openConnection();
             httpConn.setConnectTimeout(10000);
             httpConn.setReadTimeout(20000);
             int responseCode = httpConn.getResponseCode();
-            out.write("status " + responseCode);
 
             Map<String, List<String>> headers = httpConn.getHeaderFields();
-            for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-                out.write(entry.getKey() + ":" + entry.getValue().get(0));
-            }
             InputStream is = httpConn.getInputStream();
             int len = httpConn.getContentLength();
             len = len > MAX || len < 0 ? MAX : len;
             byte[] data = new byte[len];
             int read = is.read(data);
             long duration = System.currentTimeMillis() - start;
-            out.write("Done, duration " + duration + "ms");
             is.close();
             if (read <= 0) {
                 Result r = new Result(responseCode, headers, null, (int) duration, "no body");
@@ -82,9 +76,7 @@ public class HttpPing implements Task {
             e.printStackTrace();
             long duration = System.currentTimeMillis() - start;
             Result r = new Result(-1, null, null, (int) duration, e.getMessage());
-            out.write("error : " + e.getMessage());
             this.complete.complete(r);
-
         }
     }
 

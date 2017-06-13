@@ -11,6 +11,9 @@ import okhttp3.internal.Util;
 import qiniu.presniff.library.telemetry.output.Output;
 import qiniu.presniff.library.telemetry.output.Task;
 import qiniu.presniff.library.util.AsyncRun;
+import qiniu.presniff.library.util.LogUtils;
+
+import static android.view.View.Y;
 
 /**
  * Created by Misty on 17/6/7.
@@ -28,23 +31,23 @@ public class TcpPing implements Task {
     private final int count;
     private final Callback complete;
     private boolean stopped;
-    private Output output;
+//    private Output output;
 
-    private TcpPing(String host, int port, int count, Output output, Callback complete) {
+    private TcpPing(String host, int port, int count, Callback complete) {
         this.host = host;
         this.port = port;
         this.count = count;
         this.complete = complete;
-        this.output = output;
+//        this.output = output;
     }
 
-    public static Task start(String host, Output output, Callback complete) {
-        return start(host, 80, 3, output, complete);
+    public static Task start(String host, Callback complete) {
+        return start(host, 80, 3, complete);
     }
 
     public static Task start(String host, int port, int count
-            , Output output, Callback complete) {
-        final TcpPing t = new TcpPing(host, port, count, output, complete);
+            , Callback complete) {
+        final TcpPing t = new TcpPing(host, port, count, complete);
         AsyncRun.runInBack(new Runnable() {
             @Override
             public void run() {
@@ -60,7 +63,6 @@ public class TcpPing implements Task {
             addrs = InetAddress.getAllByName(host);
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            output.write("Unknown host: " + host);
             AsyncRun.runInMain(new Runnable() {
                 @Override
                 public void run() {
@@ -72,7 +74,6 @@ public class TcpPing implements Task {
 
         final String ip = addrs[0].getHostAddress();
         InetSocketAddress server = new InetSocketAddress(ip, port);
-        output.write("connect to " + ip + ":" + port);
         int[] times = new int[count];
         int index = -1;
         int dropped = 0;
@@ -82,7 +83,6 @@ public class TcpPing implements Task {
                 connect(server, 20 * 1000);
             } catch (IOException e) {
                 e.printStackTrace();
-                output.write(e.getMessage());
                 int code = NotReach;
                 if (e instanceof SocketTimeoutException) {
                     code = TimeOut;

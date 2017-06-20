@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="qiniu.presniff.androidpresniff.MainActivity">
+    tools:context="qiniu.predem.androidpresniff.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,53 +14,44 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/crash_btn"
-            android:text="点击产生一个Crash"
-            />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/http_btn"
-            android:text="点击产生一个HttpURLConnection请求"
+            android:text="点我发送HttpURLConnection请求"
             />
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/okhttp_btn"
-            android:text="点击产生一个OkHttp请求"
+            android:id="@+id/okhttp2_btn"
+            android:text="点我发送OkHttp2.0+请求"
             />
 
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tvUrl"
+            android:id="@+id/okhttp3_btn"
+            android:text="点我发送OkHttp3.0+请求"
             />
 
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tvRequestHeader"
+            android:id="@+id/crash_btn"
+            android:text="点我触发一次 crash"
             />
 
-        <TextView
+        <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tvRequestBody"
+            android:id="@+id/diagnosis_btn"
+            android:text="点我诊断一下网络"
             />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/tvResponseHeader"
-            />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/tvResponseBody"
-            />
+        <!--<Button-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:id="@+id/anr_btn"-->
+            <!--android:text="点击产生一个ANR"-->
+            <!--/>-->
 
     </LinearLayout>
 

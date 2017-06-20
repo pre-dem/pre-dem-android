@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="qiniu.presniff.androidpresniff">
+    package="qiniu.predem.androidpresniff">
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
@@ -12,23 +12,16 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name="qiniu.predem.androidpresniff.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ANRMainActivity">
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
-
-        <meta-data android:name="qiniu.presniff.library.appKey" android:value="test"></meta-data>
-        <meta-data android:name="qiniu.presniff.library.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>
+        <meta-data android:name="qiniu.predem.library.appKey" android:value="test"></meta-data>
+        <meta-data android:name="qiniu.predem.library.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>
     </application>
 
 </manifest>

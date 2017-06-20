@@ -32,11 +32,11 @@ public class HttpReportTest extends AndroidTestCase {
         Context appContext = InstrumentationRegistry.getTargetContext();
         HttpMonitorManager.getInstance().register(appContext);
 
-//        try {
-//            Thread.sleep(40000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @After

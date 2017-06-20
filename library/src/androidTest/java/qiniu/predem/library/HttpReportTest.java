@@ -9,6 +9,8 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import qiniu.predem.library.util.LogUtils;
+
 /**
  * Instrumentation test, which will execute on an Android device.
  *
@@ -37,10 +39,13 @@ public class HttpReportTest extends AndroidTestCase {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
 
-    @After
-    public void destroy(){
         HttpMonitorManager.getInstance().unregister();
     }
+
+//    @After
+//    public void destroy(){
+//        System.out.println("------destroy");
+//        HttpMonitorManager.getInstance().unregister();
+//    }
 }

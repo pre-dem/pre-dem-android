@@ -46,4 +46,4 @@ after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 after_failure:
-  - if [-f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html; fi
+  - if [ -f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html; fi

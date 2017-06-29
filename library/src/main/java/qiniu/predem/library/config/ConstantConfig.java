@@ -112,9 +112,7 @@ public class ConstantConfig {
     }
 
     private static void loadDeviceIdentifier(Context context){
-        // get device ID
-        ContentResolver resolver = context.getContentResolver();
-        String deviceIdentifier = Settings.Secure.getString(resolver, Settings.Secure.ANDROID_ID);
+        String deviceIdentifier = getId(context);
         if (deviceIdentifier != null) {
             String deviceIdentifierAnonymized = tryHashStringSha256(context, deviceIdentifier);
             // if anonymized device identifier is null we should use a random UUID
@@ -173,8 +171,13 @@ public class ConstantConfig {
         }
     }
 
+    @SuppressLint("HardwareIds")
+    private static String getId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
     private static void loadCrashIdentifier(Context context){
-        String deviceIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String deviceIdentifier = getId(context);
         if (!TextUtils.isEmpty(ConstantConfig.APP_PACKAGE) && !TextUtils.isEmpty(deviceIdentifier)) {
             String combined = ConstantConfig.APP_PACKAGE + ":" + deviceIdentifier + ":" + createSalt(context);
             try {

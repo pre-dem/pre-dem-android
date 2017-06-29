@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import qiniu.presniff.library.BuildConfig;
+import qiniu.predem.library.BuildConfig;
 import qiniu.predem.library.bean.CrashMetaData;
 import qiniu.predem.library.config.ConstantConfig;
 import qiniu.predem.library.config.NetConfig;

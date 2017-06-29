@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("qiniu.presniff.library.test", appContext.getPackageName());
+        assertEquals("qiniu.predem.library.test", appContext.getPackageName());
     }
 }

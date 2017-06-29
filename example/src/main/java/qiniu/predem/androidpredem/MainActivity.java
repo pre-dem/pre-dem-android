@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import qiniu.predem.library.DEMManager;
-import qiniu.presniff.androidpresniff.R;
+import qiniu.predem.androidpredem.R;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";

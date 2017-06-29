@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class ManifestUtil {
 
-    public static final String APP_IDENTIFIER_KEY = "qiniu.presniff.crash.httplibrary.appIdentifier";
+    public static final String APP_IDENTIFIER_KEY = "qiniu.predem.crash.httplibrary.appIdentifier";
 
     public static final String APP_IDENTIFIER_PATTERN = "[0-9a-f]+";
 

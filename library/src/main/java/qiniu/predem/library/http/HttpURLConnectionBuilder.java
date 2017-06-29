@@ -133,10 +133,6 @@ public class HttpURLConnectionBuilder {
         connection.setConnectTimeout(mTimeout);
         connection.setReadTimeout(mTimeout);
 
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD) {
-            connection.setRequestProperty("Connection", "close");
-        }
-
         if (!TextUtils.isEmpty(mRequestMethod)) {
             connection.setRequestMethod(mRequestMethod);
             if (!TextUtils.isEmpty(mRequestBody) || mRequestMethod.equalsIgnoreCase("POST") || mRequestMethod.equalsIgnoreCase("PUT")) {

@@ -1,5 +1,6 @@
 package qiniu.predem.library.file;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import org.json.JSONException;
@@ -86,9 +87,7 @@ public class LogFileManager {
             return result;
         } catch (FileNotFoundException e) {
             //e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
+        } catch (IOException | OutOfMemoryError e) {
             e.printStackTrace();
         } finally {
             closeSilently(input);
@@ -228,8 +227,6 @@ public class LogFileManager {
             writer.write(content);
             writer.close();
             return true;
-        } catch (FileNotFoundException e) {
-            LogUtils.e(TAG,"------"+e.toString());
         } catch (IOException e) {
 //            e.printStackTrace();
             LogUtils.e(TAG,"------"+e.toString());
@@ -276,6 +273,7 @@ public class LogFileManager {
     }
 
     public static class LogFileManagerHolder{
+        @SuppressLint("StaticFieldLeak")
         public final static LogFileManager instance = new LogFileManager();
     }
 }

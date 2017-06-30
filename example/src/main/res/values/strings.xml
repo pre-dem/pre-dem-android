@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">AndroidPreSniff</string>
+    <string name="app_name">AndroidPreDem</string>
     <string name="anr_btn">ANR</string>
 </resources>

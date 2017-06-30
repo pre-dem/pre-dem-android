@@ -17,11 +17,35 @@ public class TelemetryBean {
     public HttpResult httpResult;
     public String dnsRecords;
 
-    public static class PingResult{
+    public String toJsonString() {
+        StringBuilder jsonStr = new StringBuilder();
+        jsonStr.append("{ ");
+        jsonStr.append("\"result_id\": \"").append(resultId).append("\", ");
+        jsonStr.append(pingResult.toJsonString());
+        jsonStr.append(tcpResult.toJsonString());
+        jsonStr.append(trResult.toJsonString());
+        jsonStr.append("\"dns_records\": \"").append(dnsRecords).append("\", ");
+        jsonStr.append(httpResult.toJsonString());
+        jsonStr.append(" }");
+        return jsonStr.toString();
+    }
+
+    public String toString() {
+        StringBuffer str = new StringBuffer();
+        str.append("result_id").append(resultId).append(" ");
+        str.append(pingResult.toString());
+        str.append(tcpResult.toString());
+        str.append(trResult.toString());
+        str.append("dnsRecords:").append(dnsRecords).append(" ");
+        str.append(httpResult.toString());
+        return str.toString();
+    }
+
+    public static class PingResult {
         public final String result;
         public final String ip;
         public final int size;
-//        public final int interval;
+        //        public final int interval;
         private final String lastLinePrefix = "rtt min/avg/max/mdev = ";
         private final String packetWords = " packets transmitted";
         private final String receivedWords = " received";
@@ -83,8 +107,8 @@ public class TelemetryBean {
                 String s3 = l[1].substring(0, l[1].length() - receivedWords.length());
                 sent = Integer.parseInt(s3.trim());
             }
-            if (l[3].length() > totalTime.length()){
-                String s3 = l[3].substring(totalTime.length(),l[3].length()-2);
+            if (l[3].length() > totalTime.length()) {
+                String s3 = l[3].substring(totalTime.length(), l[3].length() - 2);
                 time = Integer.parseInt(s3);
             }
 
@@ -106,7 +130,7 @@ public class TelemetryBean {
             }
         }
 
-        public String toJsonString(){
+        public String toJsonString() {
             StringBuilder jsonStr = new StringBuilder();
             jsonStr.append("\"ping_code\": ").append(200).append(", ");
             jsonStr.append("\"ping_ip\": \"").append(ip).append("\", ");
@@ -121,7 +145,7 @@ public class TelemetryBean {
             return jsonStr.toString();
         }
 
-        public String toString(){
+        public String toString() {
             StringBuilder str = new StringBuilder();
             str.append("pingCode:").append(200).append(" ");
             str.append("pingIP:").append(ip).append(" ");
@@ -137,7 +161,7 @@ public class TelemetryBean {
         }
     }
 
-    public static class TCPResult{
+    public static class TCPResult {
         public final int code;
         public final String ip;
         public final int maxTime;
@@ -149,19 +173,19 @@ public class TelemetryBean {
         public final long totalTime;
 
         public TCPResult(int code, String ip, int maxTime, int minTime, int avgTime, long totalTime,
-                      int stddevTime, int count, int dropped) {
+                         int stddevTime, int count, int dropped) {
             this.code = code;
             this.ip = ip;
             this.maxTime = maxTime;
             this.minTime = minTime;
             this.avgTime = avgTime;
-            this.totalTime=totalTime;
+            this.totalTime = totalTime;
             this.stddevTime = stddevTime;
             this.count = count;
             this.dropped = dropped;
         }
 
-        public String toJsonString(){
+        public String toJsonString() {
             StringBuilder jsonStr = new StringBuilder();
             jsonStr.append("\"tcp_code\": ").append(code).append(", ");
             jsonStr.append("\"tcp_ip\": \"").append(ip).append("\", ");
@@ -175,7 +199,7 @@ public class TelemetryBean {
             return jsonStr.toString();
         }
 
-        public String toString(){
+        public String toString() {
             StringBuilder str = new StringBuilder();
             str.append("tcpCode:").append(code).append(" ");
             str.append("tcpIp:").append(ip).append(" ");
@@ -190,7 +214,7 @@ public class TelemetryBean {
         }
     }
 
-    public static class TraceRouteResult{
+    public static class TraceRouteResult {
         public final String ip;
         private final StringBuilder builder = new StringBuilder();
         private String allData;
@@ -211,7 +235,7 @@ public class TelemetryBean {
             builder.append(str);
         }
 
-        public String toJsonString(){
+        public String toJsonString() {
             StringBuilder jsonStr = new StringBuilder();
             jsonStr.append("\"tr_code\": ").append(200).append(", ");
             jsonStr.append("\"tr_ip\": \"").append(ip).append("\", ");
@@ -219,7 +243,7 @@ public class TelemetryBean {
             return jsonStr.toString();
         }
 
-        public String toString(){
+        public String toString() {
             StringBuilder str = new StringBuilder();
             str.append("trCode:").append(200).append(" ");
             str.append("trIp:").append(ip).append(" ");
@@ -228,7 +252,7 @@ public class TelemetryBean {
         }
     }
 
-    public static class HttpResult{
+    public static class HttpResult {
         public final int code;
         public final Map<String, List<String>> headers;
         public final byte[] body;
@@ -236,7 +260,7 @@ public class TelemetryBean {
         public final String errorMessage;
 
         public HttpResult(int code,
-                       Map<String, List<String>> headers, byte[] body, int duration, String errorMessage) {
+                          Map<String, List<String>> headers, byte[] body, int duration, String errorMessage) {
             this.code = code;
             this.headers = headers;
             this.body = body;
@@ -244,16 +268,16 @@ public class TelemetryBean {
             this.errorMessage = errorMessage;
         }
 
-        public String toJsonString(){
+        public String toJsonString() {
             StringBuilder jsonStr = new StringBuilder();
             jsonStr.append("\"http_code\": ").append(code).append(", ");
 //            jsonStr.append("\"http_ip\": \"").append(httpIp).append("\", ");
             jsonStr.append("\"http_duration\": ").append(duration).append(", ");
-            jsonStr.append("\"http_body_size\": ").append(body==null?0:body.length);
+            jsonStr.append("\"http_body_size\": ").append(body == null ? 0 : body.length);
             return jsonStr.toString();
         }
 
-        public String toString(){
+        public String toString() {
             StringBuilder str = new StringBuilder();
             str.append("httpCode:").append(code).append(" ");
 //            str.append("httpIp:").append(httpIp).append(" ");
@@ -261,30 +285,5 @@ public class TelemetryBean {
             str.append("httpBodySize:").append(body.length).append(" ");
             return str.toString();
         }
-    }
-
-
-    public String toJsonString() {
-        StringBuilder jsonStr = new StringBuilder();
-        jsonStr.append("{ ");
-        jsonStr.append("\"result_id\": \"").append(resultId).append("\", ");
-        jsonStr.append(pingResult.toJsonString());
-        jsonStr.append(tcpResult.toJsonString());
-        jsonStr.append(trResult.toJsonString());
-        jsonStr.append("\"dns_records\": \"").append(dnsRecords).append("\", ");
-        jsonStr.append(httpResult.toJsonString());
-        jsonStr.append(" }");
-        return jsonStr.toString();
-    }
-
-    public String toString(){
-        StringBuffer str = new StringBuffer();
-        str.append("result_id").append(resultId).append(" ");
-        str.append(pingResult.toString());
-        str.append(tcpResult.toString());
-        str.append(trResult.toString());
-        str.append("dnsRecords:").append(dnsRecords).append(" ");
-        str.append(httpResult.toString());
-        return str.toString();
     }
 }

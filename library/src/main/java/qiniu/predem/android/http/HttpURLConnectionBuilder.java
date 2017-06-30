@@ -23,23 +23,32 @@ import qiniu.predem.android.bean.AppBean;
  */
 
 public class HttpURLConnectionBuilder {
-    private static final String TAG = "HttpURLConnectionBuilder";
-
-    private static final int DEFAULT_TIMEOUT = 2 * 60 * 1000;
     public static final String DEFAULT_CHARSET = "UTF-8";
     public static final long FORM_FIELD_LIMIT = 4 * 1024 * 1024;
-
+    private static final String TAG = "HttpURLConnectionBuilder";
+    private static final int DEFAULT_TIMEOUT = 2 * 60 * 1000;
     private final String mUrlString;
     private final Map<String, String> mHeaders;
     private String mRequestMethod;
     private String mRequestBody;
-//    private SimpleMultipartEntity mMultipartEntity;
+    //    private SimpleMultipartEntity mMultipartEntity;
     private int mTimeout = DEFAULT_TIMEOUT;
 
     public HttpURLConnectionBuilder(String urlString) {
         mUrlString = urlString;
         mHeaders = new HashMap<String, String>();
         mHeaders.put("User-Agent", AppBean.SDK_USER_AGENT);
+    }
+
+    private static String getFormString(Map<String, String> params, String charset) throws UnsupportedEncodingException {
+        List<String> protoList = new ArrayList<String>();
+        for (String key : params.keySet()) {
+            String value = params.get(key);
+            key = URLEncoder.encode(key, charset);
+            value = URLEncoder.encode(value, charset);
+            protoList.add(key + "=" + value);
+        }
+        return TextUtils.join("&", protoList);
     }
 
     public HttpURLConnectionBuilder setRequestMethod(String requestMethod) {
@@ -49,7 +58,7 @@ public class HttpURLConnectionBuilder {
 
     public HttpURLConnectionBuilder writeFormFields(Map<String, String> fields) {
 
-        for (String key: fields.keySet()) {
+        for (String key : fields.keySet()) {
             String value = fields.get(key);
             if (value.length() > FORM_FIELD_LIMIT) {
                 throw new IllegalArgumentException("Form field " + key + " size too large: " + value.length() + " - max allowed: " + FORM_FIELD_LIMIT);
@@ -116,16 +125,5 @@ public class HttpURLConnectionBuilder {
 //        }
 
         return connection;
-    }
-
-    private static String getFormString(Map<String, String> params, String charset) throws UnsupportedEncodingException {
-        List<String> protoList = new ArrayList<String>();
-        for (String key : params.keySet()) {
-            String value = params.get(key);
-            key = URLEncoder.encode(key, charset);
-            value = URLEncoder.encode(value, charset);
-            protoList.add(key + "=" + value);
-        }
-        return TextUtils.join("&", protoList);
     }
 }

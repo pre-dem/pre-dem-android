@@ -27,11 +27,11 @@ public final class Configuration {
 
     public static boolean dnsEnable = true; //默认是否使用dns
 
-    public static void init(Context context){
-        if (context == null){
+    public static void init(Context context) {
+        if (context == null) {
             return;
         }
-        
+
         //初始化domain 和 appkey
         HttpConfig.loadFromManifest(context);
         //初始化 app 信息

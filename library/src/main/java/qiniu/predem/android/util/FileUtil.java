@@ -51,9 +51,8 @@ import static qiniu.predem.android.config.FileConfig.QOS_FILE_PREFIX;
  */
 
 public class FileUtil {
-    private static final String TAG = "FileUtil";
-
     public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+    private static final String TAG = "FileUtil";
     private static final String FIELD_FORMAT = "Format";
     private static final String FIELD_FORMAT_VALUE = "Xamarin";
 
@@ -73,14 +72,77 @@ public class FileUtil {
      */
     private String mCachedReportContent = null;
 
-    private FileUtil(){}
+    private FileUtil() {
+    }
 
-    public static FileUtil getInstance(){
+    public static FileUtil getInstance() {
         return FileUtilHolder.instance;
     }
 
-    public static class FileUtilHolder{
-        public final static FileUtil instance = new FileUtil();
+    private static String readFileOnce(Context context, String filename, long offset) {
+        FileInputStream input = null;
+        BufferedReader reader = null;
+        try {
+            input = context.openFileInput(filename);
+            reader = new BufferedReader(new InputStreamReader(input));
+            reader.skip(offset);
+            StringBuilder builder = new StringBuilder();
+            String content;
+            while ((content = reader.readLine()) != null) {
+                builder.append(content);
+            }
+            String result = builder.toString();
+            if ("".equals(result)) {
+                return null;
+            }
+            return result;
+        } catch (FileNotFoundException e) {
+            //e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        } finally {
+            closeSilently(input);
+            closeSilently(reader);
+        }
+        return null;
+    }
+
+    private static boolean writeFileOnce(Context context, String filename, String content, int mode) {
+        FileOutputStream output = null;
+        BufferedWriter writer = null;
+        try {
+            output = context.openFileOutput(filename, mode);
+            writer = new BufferedWriter(new OutputStreamWriter(output));
+            writer.write(content);
+            writer.close();
+            return true;
+        } catch (FileNotFoundException e) {
+            LogUtils.e(TAG, "------" + e.toString());
+            e.printStackTrace();
+        } catch (IOException e) {
+            LogUtils.e(TAG, "------" + e.toString());
+            e.printStackTrace();
+        } catch (OutOfMemoryError e) {
+            LogUtils.d(TAG, "------" + e.toString());
+            e.printStackTrace();
+        } finally {
+            closeSilently(output);
+            closeSilently(writer);
+        }
+        return false;
+    }
+
+    private static void closeSilently(Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void initialize(Context context) {
@@ -192,7 +254,7 @@ public class FileUtil {
     }
 
     public void writeCrashReport(CrashBean crashBean) {
-        if (TextUtils.isEmpty(FileConfig.FILES_PATH)){
+        if (TextUtils.isEmpty(FileConfig.FILES_PATH)) {
             return;
         }
         String path = FileConfig.FILES_PATH + "/" + crashBean.getCrashIdentifier() + ".stacktrace";
@@ -200,7 +262,7 @@ public class FileUtil {
     }
 
     public void writeCrashReport(final String path, CrashBean crashBean) {
-        LogUtils.d(TAG,"Writing unhandled exception to: " + path);
+        LogUtils.d(TAG, "Writing unhandled exception to: " + path);
 
         BufferedWriter writer = null;
 
@@ -230,50 +292,20 @@ public class FileUtil {
             writer.flush();
 
         } catch (IOException e) {
-            LogUtils.e(TAG,"Error saving crash report!" + e.toString());
+            LogUtils.e(TAG, "Error saving crash report!" + e.toString());
         } finally {
             try {
                 if (writer != null) {
                     writer.close();
                 }
             } catch (IOException e1) {
-                LogUtils.e(TAG,"Error saving crash report!"+e1.toString());
+                LogUtils.e(TAG, "Error saving crash report!" + e1.toString());
             }
         }
     }
 
     private void writeHeader(Writer writer, String name, String value) throws IOException {
         writer.write(name + ": " + value + "\n");
-    }
-
-    private static String readFileOnce(Context context, String filename, long offset) {
-        FileInputStream input = null;
-        BufferedReader reader = null;
-        try {
-            input = context.openFileInput(filename);
-            reader = new BufferedReader(new InputStreamReader(input));
-            reader.skip(offset);
-            StringBuilder builder = new StringBuilder();
-            String content;
-            while ((content = reader.readLine()) != null) {
-                builder.append(content);
-            }
-            String result = builder.toString();
-            if ("".equals(result)) {
-                return null;
-            }
-            return result;
-        } catch (FileNotFoundException e) {
-            //e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
-            e.printStackTrace();
-        } finally {
-            closeSilently(input);
-            closeSilently(reader);
-        }
-        return null;
     }
 
     private boolean updateIndexFile() {
@@ -285,33 +317,8 @@ public class FileUtil {
             json.put(KEY_WRITE_FILE_POSITION, mWriteFilePosition);
             return writeFileOnce(mContext, INDEX_FILE_NAME, json.toString(), Context.MODE_PRIVATE);
         } catch (JSONException e) {
-            LogUtils.e(TAG,"-----"+e.toString());
+            LogUtils.e(TAG, "-----" + e.toString());
             e.printStackTrace();
-        }
-        return false;
-    }
-
-    private static boolean writeFileOnce(Context context, String filename, String content, int mode) {
-        FileOutputStream output = null;
-        BufferedWriter writer = null;
-        try {
-            output = context.openFileOutput(filename, mode);
-            writer = new BufferedWriter(new OutputStreamWriter(output));
-            writer.write(content);
-            writer.close();
-            return true;
-        } catch (FileNotFoundException e) {
-            LogUtils.e(TAG,"------"+e.toString());
-            e.printStackTrace();
-        } catch (IOException e) {
-            LogUtils.e(TAG,"------"+e.toString());
-            e.printStackTrace();
-        } catch (OutOfMemoryError e) {
-            LogUtils.d(TAG,"------"+e.toString());
-            e.printStackTrace();
-        } finally {
-            closeSilently(output);
-            closeSilently(writer);
         }
         return false;
     }
@@ -334,17 +341,6 @@ public class FileUtil {
         mIsInitialized = false;
     }
 
-    private static void closeSilently(Closeable closeable) {
-        if (closeable == null) {
-            return;
-        }
-        try {
-            closeable.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void deleteAllQosFiles() {
         String[] files = mContext.fileList();
         for (String file : files) {
@@ -352,5 +348,9 @@ public class FileUtil {
                 mContext.deleteFile(file);
             }
         }
+    }
+
+    public static class FileUtilHolder {
+        public final static FileUtil instance = new FileUtil();
     }
 }

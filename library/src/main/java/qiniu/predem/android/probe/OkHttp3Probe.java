@@ -84,18 +84,18 @@ public class OkHttp3Probe {
         HttpUrl url = response.request().url();
         try {
             synchronized (reportMap) {
-                if (reportMap.containsKey(url.url().toString())){
+                if (reportMap.containsKey(url.url().toString())) {
                     LogBean urlTraceRecord = reportMap.get(url.toString());
                     reportMap.remove(url.toString());
                     if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain())) {//!GlobalConfig.isIncludeHost(urlTraceRecord.getDomain())
                         return joinPoint.proceed();
                     }
-                    if (Configuration.dnsEnable){
+                    if (Configuration.dnsEnable) {
                         long s = System.currentTimeMillis();
                         String ip = InetAddress.getByName(response.request().url().host()).getHostAddress();
                         urlTraceRecord.setHostIP(ip);
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
-                    }else{
+                    } else {
                         urlTraceRecord.setHostIP("-");
                         urlTraceRecord.setDnsTime(-1);
                     }
@@ -104,15 +104,15 @@ public class OkHttp3Probe {
                     urlTraceRecord.setStatusCode(response.code());
                     urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
                     urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
-                    return ProbeResponse3.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
-                }else {
+                    return ProbeResponse3.obtain((ResponseBody) joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                } else {
                     LogBean urlTraceRecord = LogBean.obtain();
-                    if (Configuration.dnsEnable){
+                    if (Configuration.dnsEnable) {
                         long s = System.currentTimeMillis();
                         String ip = InetAddress.getByName(response.request().url().host()).getHostAddress();
                         urlTraceRecord.setHostIP(ip);
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
-                    }else{
+                    } else {
                         urlTraceRecord.setHostIP("-");
                         urlTraceRecord.setDnsTime(-1);
                     }
@@ -123,10 +123,10 @@ public class OkHttp3Probe {
                     urlTraceRecord.setStatusCode(response.code());
                     urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
                     urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
-                    return ProbeResponse3.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                    return ProbeResponse3.obtain((ResponseBody) joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtils.e(TAG, e.toString());
             return joinPoint.proceed();
         }

@@ -11,16 +11,8 @@ import qiniu.predem.android.util.LogUtils;
  */
 
 public class FileConfig {
-    private static final String TAG = "FileConfig";
-
-    /**
-     * Path where crash logs and temporary files are stored.
-     */
-    public static String FILES_PATH = null;
-
     public static final int MAX_LOG_FILE_SIZE = 64 * 1024;//每个文件的最大值
     public static final int MAX_LOG_FILE_NUM = 100;//最大文件数
-
     /**
      * http monitor logs
      */
@@ -32,7 +24,6 @@ public class FileConfig {
     public static final String KEY_WRITE_FILE_POSITION = "write_file_position";
     public static final String CACHE_FILE_NAME = QOS_FILE_PREFIX + "cache";
     public static final String LOG_FILE_BASE_NAME = QOS_FILE_PREFIX + "log.";
-
     /**
      * crash logs
      */
@@ -47,16 +38,21 @@ public class FileConfig {
     public static final String FIELD_DEVICE_MODEL = "Model";
     public static final String FIELD_APP_VERSION_NAME = "Version Name";
     public static final String FIELD_THREAD_NAME = "Thread";
+    private static final String TAG = "FileConfig";
+    /**
+     * Path where crash logs and temporary files are stored.
+     */
+    public static String FILES_PATH = null;
 
-    public static void loadFilesPath(Context context){
-        if (context != null){
+    public static void loadFilesPath(Context context) {
+        if (context != null) {
             try {
                 File file = context.getFilesDir();
-                if (file != null){
+                if (file != null) {
                     FILES_PATH = file.getAbsolutePath();
                 }
-            }catch (Exception e){
-                LogUtils.e(TAG,"Exception thrown when accessing the files dir:"+e.toString());
+            } catch (Exception e) {
+                LogUtils.e(TAG, "Exception thrown when accessing the files dir:" + e.toString());
                 e.printStackTrace();
             }
         }

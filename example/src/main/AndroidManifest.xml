@@ -20,8 +20,12 @@
             </intent-filter>
         </activity>
 
-        <meta-data android:name="qiniu.predem.android.appKey" android:value="test"></meta-data>
-        <meta-data android:name="qiniu.predem.android.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>
+        <meta-data
+            android:name="qiniu.predem.android.appKey"
+            android:value="test"></meta-data>
+        <meta-data
+            android:name="qiniu.predem.android.appId"
+            android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>
     </application>
 
 </manifest>

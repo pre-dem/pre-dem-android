@@ -20,7 +20,7 @@ public class UtilsTest {
     private static final String TAG = "UtilsTest";
 
     @Test
-    public void testManifestAppDomain(){
+    public void testManifestAppDomain() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
         String appId = ManifestUtil.getDomain(appContext);
@@ -28,7 +28,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testManifestAppKey(){
+    public void testManifestAppKey() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
         String appKey = ManifestUtil.getAppKey(appContext);

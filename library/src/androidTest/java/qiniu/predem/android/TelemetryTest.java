@@ -145,10 +145,10 @@ public class TelemetryTest {
     public void TelemetryTest() throws InterruptedException {
         Context appContext = InstrumentationRegistry.getTargetContext();
         final CountDownLatch c = new CountDownLatch(1);
-        NetDiagnosis.start(appContext, "www.baidu.com","http://www.baidu.com", new NetDiagnosis.Callback() {
+        NetDiagnosis.start(appContext, "www.baidu.com", "http://www.baidu.com", new NetDiagnosis.Callback() {
             @Override
             public void complete(boolean isSuccessful, Exception e) {
-                LogUtils.d(TAG,"-----"+isSuccessful);
+                LogUtils.d(TAG, "-----" + isSuccessful);
                 System.out.println(isSuccessful);
                 c.countDown();
             }
@@ -159,6 +159,6 @@ public class TelemetryTest {
     @Test
     public void IpAddressTest() throws UnknownHostException {
         InetAddress i = InetAddress.getByName("www.baidu.com");
-        LogUtils.d(TAG,"-----ip : " + i.getHostAddress());
+        LogUtils.d(TAG, "-----ip : " + i.getHostAddress());
     }
 }

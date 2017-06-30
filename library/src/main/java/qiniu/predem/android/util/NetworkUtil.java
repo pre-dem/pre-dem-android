@@ -19,7 +19,7 @@ public class NetworkUtil {
                 return activeNetwork != null && activeNetwork.isConnected();
             }
         } catch (Exception e) {
-            LogUtils.e(TAG,"Exception thrown when check network is connected:"+e.toString());
+            LogUtils.e(TAG, "Exception thrown when check network is connected:" + e.toString());
             e.printStackTrace();
         }
         return false;

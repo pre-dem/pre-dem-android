@@ -22,12 +22,15 @@ import qiniu.predem.android.util.FileUtil;
 
 public class ProbeResponse3 extends ResponseBody {
     private static final String TAG = "ProbeResponse3";
-
+    private static final List<ProbeResponse3> mPool = new LinkedList<>();
     private ResponseBody responseBody;
     private BufferedSource bufferedSource;
     private LogBean record;
 
-    private static final List<ProbeResponse3> mPool = new LinkedList<>();
+    private ProbeResponse3(ResponseBody responseBody, LogBean record) {
+        this.responseBody = responseBody;
+        this.record = record;
+    }
 
     public static ProbeResponse3 obtain(ResponseBody responseBody, LogBean record) {
         if (mPool.size() > 0) {
@@ -47,11 +50,6 @@ public class ProbeResponse3 extends ResponseBody {
         this.responseBody = responseBody;
         this.record = record;
 
-    }
-
-    private ProbeResponse3(ResponseBody responseBody, LogBean record){
-        this.responseBody = responseBody;
-        this.record = record;
     }
 
     @Nullable
@@ -76,16 +74,17 @@ public class ProbeResponse3 extends ResponseBody {
     private Source source(Source source) {
         return new ForwardingSource(source) {
             long totalBytes = 0L;
+
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
-                if (bytesRead == -1){
+                if (bytesRead == -1) {
                     // TODO: 17/6/13
                     record.setEndTimestamp(System.currentTimeMillis());
 //                    LogUtils.d(TAG,"------info : " + record.toJsonString());
                     FileUtil.getInstance().addReportContent(record.toString());
-                }else{
+                } else {
                     totalBytes += bytesRead;
                     record.setDataLength(totalBytes);
                 }

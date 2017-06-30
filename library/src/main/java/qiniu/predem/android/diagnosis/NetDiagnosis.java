@@ -37,18 +37,16 @@ import static qiniu.predem.android.util.MatcherUtil.traceMatcher;
  */
 
 public class NetDiagnosis implements Task {
-    private static final String TAG = "NetDiagnosis";
-
     public static final int TimeOut = -3;
     public static final int NotReach = -2;
-
+    private static final String TAG = "NetDiagnosis";
     private static final int MaxHop = 31;
     private static final int MAX = 64 * 1024;
 
     private final String address;
     private final String url;
-    private volatile boolean stopped;
     private final Callback complete;
+    private volatile boolean stopped;
     private Context mContext;
 
     private NetDiagnosis(Context context, String domainn, String url, Callback complete) {
@@ -60,8 +58,8 @@ public class NetDiagnosis implements Task {
     }
 
     public static void start(Context context, String domain, String url, Callback complete) {
-        if (!Configuration.networkDiagnosis){
-            complete.complete(false,new Exception("the diagnosis isn't open"));
+        if (!Configuration.networkDiagnosis) {
+            complete.complete(false, new Exception("the diagnosis isn't open"));
         }
         final NetDiagnosis p = new NetDiagnosis(context, domain, url, complete);
         AsyncRun.runInBack(new Runnable() {
@@ -183,14 +181,14 @@ public class NetDiagnosis implements Task {
             } catch (IOException e) {
                 e.printStackTrace();
                 // TODO: 17/6/8 tr 失败
-                complete.complete(false,e);
+                complete.complete(false, e);
                 break;
             }
             long t2 = System.currentTimeMillis();
             String pingtOutput = getPingtOutput(p);
             if (str.length() == 0) {
                 // TODO: 17/6/8 tr 失败
-                complete.complete(false,new Exception("TraceRoute failure"));
+                complete.complete(false, new Exception("TraceRoute failure"));
                 break;
             }
             Matcher m = traceMatcher(pingtOutput);
@@ -222,7 +220,7 @@ public class NetDiagnosis implements Task {
         /////////////////////////////////////////////////
         long start = System.currentTimeMillis();
         try {
-            URL u = new URL("http://"+address);
+            URL u = new URL("http://" + address);
             HttpURLConnection httpConn = (HttpURLConnection) u.openConnection();
             httpConn.setConnectTimeout(10000);
             httpConn.setReadTimeout(20000);
@@ -238,17 +236,17 @@ public class NetDiagnosis implements Task {
             is.close();
             if (read <= 0) {
                 result.httpResult = new TelemetryBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
-            }else if (read < data.length) {
-                result.httpResult = new TelemetryBean.HttpResult(responseCode, headers, null, (int)duration, "no body");
+            } else if (read < data.length) {
+                result.httpResult = new TelemetryBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
             }
 
             //上报
-            sendRequest(HttpConfig.getDiagnosisUrl(),result.toJsonString());
+            sendRequest(HttpConfig.getDiagnosisUrl(), result.toJsonString());
 
 //            complete.complete(res, null);
         } catch (IOException e) {
             e.printStackTrace();
-            result.httpResult = new TelemetryBean.HttpResult(-1,null,null,0,null);
+            result.httpResult = new TelemetryBean.HttpResult(-1, null, null, 0, null);
             complete.complete(false, e);
         }
     }
@@ -260,11 +258,11 @@ public class NetDiagnosis implements Task {
         try {
             httpConn = (HttpURLConnection) new URL(url).openConnection();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
-            complete.complete(false,e);
+            LogUtils.e(TAG, e.toString());
+            complete.complete(false, e);
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         }
@@ -273,7 +271,7 @@ public class NetDiagnosis implements Task {
         try {
             httpConn.setRequestMethod("POST");
         } catch (ProtocolException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         }
@@ -283,17 +281,17 @@ public class NetDiagnosis implements Task {
         try {
             byte[] bytes = content.getBytes();
             if (bytes == null) {
-                complete.complete(false,new Exception("response body empty"));
+                complete.complete(false, new Exception("response body empty"));
                 return false;
             }
             httpConn.getOutputStream().write(content.getBytes());
             httpConn.getOutputStream().flush();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         }
@@ -301,7 +299,7 @@ public class NetDiagnosis implements Task {
         try {
             responseCode = httpConn.getResponseCode();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         }
@@ -320,11 +318,11 @@ public class NetDiagnosis implements Task {
         try {
             is = httpConn.getInputStream();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         }
@@ -333,14 +331,14 @@ public class NetDiagnosis implements Task {
         try {
             read = is.read(data);
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
             return false;
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                LogUtils.e(TAG,e.toString());
+                LogUtils.e(TAG, e.toString());
                 complete.complete(false, e);
                 return false;
             }
@@ -443,12 +441,12 @@ public class NetDiagnosis implements Task {
         }
     }
 
-    public interface Callback {
-        void complete(boolean isSuccessful, Exception e);
-    }
-
     @Override
     public void stop() {
         stopped = true;
+    }
+
+    public interface Callback {
+        void complete(boolean isSuccessful, Exception e);
     }
 }

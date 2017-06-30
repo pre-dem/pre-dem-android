@@ -15,6 +15,7 @@ import javax.net.ssl.SSLSocketFactory;
 public class MySSLSocketFactory extends SSLSocketFactory {
     private static final String TAG = "MySSLSocketFactory";
     protected final String hostIp;
+
     public MySSLSocketFactory(String hostIp) {
         super();
         this.hostIp = hostIp;

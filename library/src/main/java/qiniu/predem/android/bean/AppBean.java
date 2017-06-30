@@ -20,13 +20,10 @@ import qiniu.predem.android.util.LogUtils;
  */
 
 public class AppBean {
-    private static final String TAG = "AppBean";
-
     /**
      * Name of this SDK.
      */
     public static final String SDK_NAME = "PreDemSDK";
-    private static final String BUNDLE_BUILD_NUMBER = "buildNumber";
     /**
      * Version of the SDK - retrieved from the build configuration.
      */
@@ -35,10 +32,12 @@ public class AppBean {
      * The user agent string the SDK will send with every HockeyApp API request.
      */
     public static final String SDK_USER_AGENT = "PreDemSDK/Android " + BuildConfig.VERSION_NAME;
+    private static final String TAG = "AppBean";
+    private static final String BUNDLE_BUILD_NUMBER = "buildNumber";
     /**
      * The app's name.
      */
-    public static String APP_NAME="-";
+    public static String APP_NAME = "-";
     /**
      * The app's version code.
      */
@@ -77,7 +76,7 @@ public class AppBean {
      */
     public static String CRASH_IDENTIFIER = "-";
 
-    public static void loadFromContext(Context context){
+    public static void loadFromContext(Context context) {
         APP_NAME = getAppName(context);
         ANDROID_VERSION = Build.VERSION.RELEASE;
         ANDROID_BUILD = Build.DISPLAY;
@@ -90,7 +89,7 @@ public class AppBean {
 //        loadDeviceIdentifier(context);
     }
 
-    private static void loadCrashIdentifier(Context context){
+    private static void loadCrashIdentifier(Context context) {
         String deviceIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         if (!TextUtils.isEmpty(APP_PACKAGE) && !TextUtils.isEmpty(deviceIdentifier)) {
             String combined = APP_PACKAGE + ":" + deviceIdentifier + ":" + createSalt(context);
@@ -102,7 +101,7 @@ public class AppBean {
 
                 CRASH_IDENTIFIER = bytesToHex(bytes);
             } catch (Throwable e) {
-                LogUtils.e(TAG,"Couldn't create CrashIdentifier with Exception:" + e.toString());
+                LogUtils.e(TAG, "Couldn't create CrashIdentifier with Exception:" + e.toString());
                 //TODO handle the exception
             }
         }
@@ -110,7 +109,7 @@ public class AppBean {
 
     @SuppressLint("InlinedApi")
     @SuppressWarnings("deprecation")
-    private static String createSalt(Context context){
+    private static String createSalt(Context context) {
         String abiString;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             abiString = Build.SUPPORTED_ABIS[0];
@@ -140,8 +139,8 @@ public class AppBean {
         return result.replaceAll("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5");
     }
 
-    private static void loadPackageData(Context context){
-        if (context != null){
+    private static void loadPackageData(Context context) {
+        if (context != null) {
             try {
                 PackageManager packageManager = context.getPackageManager();
                 PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
@@ -153,28 +152,28 @@ public class AppBean {
                 if ((buildNumber != 0) && (buildNumber > packageInfo.versionCode)) {
                     APP_VERSION = "" + buildNumber;
                 }
-            }catch (Exception e){
-                LogUtils.e(TAG,"Exception thrown when accessing the package info:"+e.toString());
+            } catch (Exception e) {
+                LogUtils.e(TAG, "Exception thrown when accessing the package info:" + e.toString());
                 e.printStackTrace();
             }
         }
     }
 
-    private static int loadBuildNumber(Context context, PackageManager packageManager){
+    private static int loadBuildNumber(Context context, PackageManager packageManager) {
         try {
             ApplicationInfo appInfo = packageManager.getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
             Bundle metaData = appInfo.metaData;
             if (metaData != null) {
                 return metaData.getInt(BUNDLE_BUILD_NUMBER, 0);
             }
-        }catch (PackageManager.NameNotFoundException e){
-            LogUtils.e(TAG,"Exception thrown when accessing the application info:"+e.toString());
+        } catch (PackageManager.NameNotFoundException e) {
+            LogUtils.e(TAG, "Exception thrown when accessing the application info:" + e.toString());
             e.printStackTrace();
         }
         return 0;
     }
 
-    public static String getAppName(Context context){
+    public static String getAppName(Context context) {
         int lableInfo = context.getApplicationInfo().labelRes;
         String textTitle = context.getString(lableInfo);
         return textTitle;

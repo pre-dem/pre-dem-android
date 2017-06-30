@@ -9,7 +9,7 @@ import java.util.List;
 
 public class LogBean {
     private static final String TAG = "LogBean";
-
+    private static final List<LogBean> mPool = new LinkedList<>();
     protected int platform;
     protected String appName;
     protected String appBundleId;
@@ -29,7 +29,10 @@ public class LogBean {
     protected int networkErrorCode;
     protected String networkErrorMsg;
 
-    private static final List<LogBean> mPool = new LinkedList<>();
+    protected LogBean() {
+        super();
+        init();
+    }
 
     //TODO 用list保存数据，我们直接保存到文件中，这里应该是写文件操作
     public static LogBean obtain() {
@@ -52,12 +55,7 @@ public class LogBean {
         }
     }
 
-    protected LogBean(){
-        super();
-        init();
-    }
-
-    public void init(){
+    public void init() {
         platform = 1;
         appName = AppBean.APP_NAME;
         appBundleId = AppBean.APP_PACKAGE;
@@ -234,10 +232,10 @@ public class LogBean {
         if (domain != null) {
             jsonStr.append("\"domain\": \"").append(domain).append("\", ");
         }
-        if (path != null){
+        if (path != null) {
             jsonStr.append("\"path\": \"").append(path).append("\", ");
         }
-        if (method != null){
+        if (method != null) {
             jsonStr.append("\"method\": \"").append(method).append("\", ");
         }
         if (hostIP != null) {
@@ -255,7 +253,7 @@ public class LogBean {
         return jsonStr.toString();
     }
 
-    public String toString(){
+    public String toString() {
         StringBuffer str = new StringBuffer();
         str.append(platform).append("\\t");
         str.append(appName).append("\\t");

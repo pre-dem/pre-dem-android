@@ -21,12 +21,15 @@ import qiniu.predem.android.util.FileUtil;
 
 public class ProbeResponse2 extends ResponseBody {
     private static final String TAG = "ProbeResponse2";
-
+    private static final List<ProbeResponse2> mPool = new LinkedList<>();
     private ResponseBody responseBody;
     private BufferedSource bufferedSource;
     private LogBean record;
 
-    private static final List<ProbeResponse2> mPool = new LinkedList<>();
+    private ProbeResponse2(ResponseBody responseBody, LogBean record) {
+        this.responseBody = responseBody;
+        this.record = record;
+    }
 
     public static ProbeResponse2 obtain(ResponseBody responseBody, LogBean record) {
         if (mPool.size() > 0) {
@@ -46,11 +49,6 @@ public class ProbeResponse2 extends ResponseBody {
         this.responseBody = responseBody;
         this.record = record;
 
-    }
-
-    private ProbeResponse2(ResponseBody responseBody, LogBean record){
-        this.responseBody = responseBody;
-        this.record = record;
     }
 
     @Override
@@ -74,15 +72,16 @@ public class ProbeResponse2 extends ResponseBody {
     private Source source(Source source) {
         return new ForwardingSource(source) {
             long totalBytes = 0L;
+
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
-                if (bytesRead == -1){
+                if (bytesRead == -1) {
                     // TODO: 17/6/13
                     record.setEndTimestamp(System.currentTimeMillis());
                     FileUtil.getInstance().addReportContent(record.toString());
-                }else{
+                } else {
                     totalBytes += bytesRead;
                     record.setDataLength(totalBytes);
                 }

@@ -14,22 +14,29 @@ import qiniu.predem.android.bean.ANRBean;
 public class ANRWatchDog extends Thread {
 
     private static final int DEFAULT_ANR_TIMEOUT = 5000;
-
-    private ANRListener _anrListener = DEFAULT_ANR_LISTENER;
-
-    private InterruptionListener _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
-
+    private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
+        @Override
+        public void onAppNotResponding(ANRBean error) {
+            throw error;
+        }
+    };
+    private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
+        @Override
+        public void onInterrupted(InterruptedException exception) {
+            Log.w("ANRWatchdog", "Interrupted: " + exception.getMessage());
+        }
+    };
     private final Handler _uiHandler = new Handler(Looper.getMainLooper());
     private final int _timeoutInterval;
-
+    private ANRListener _anrListener = DEFAULT_ANR_LISTENER;
+    private InterruptionListener _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
     private String _namePrefix = "";
     private boolean _logThreadsWithoutStackTrace = false;
     private boolean _ignoreDebugger = false;
-
     private volatile int _tick = 0;
-
     private final Runnable _ticker = new Runnable() {
-        @Override public void run() {
+        @Override
+        public void run() {
             _tick = (_tick + 1) % Integer.MAX_VALUE;
         }
     };
@@ -62,8 +69,7 @@ public class ANRWatchDog extends Thread {
     public ANRWatchDog setANRListener(ANRListener listener) {
         if (listener == null) {
             _anrListener = DEFAULT_ANR_LISTENER;
-        }
-        else {
+        } else {
             _anrListener = listener;
         }
         return this;
@@ -79,8 +85,7 @@ public class ANRWatchDog extends Thread {
     public ANRWatchDog setInterruptionListener(InterruptionListener listener) {
         if (listener == null) {
             _interruptionListener = DEFAULT_INTERRUPTION_LISTENER;
-        }
-        else {
+        } else {
             _interruptionListener = listener;
         }
         return this;
@@ -149,27 +154,25 @@ public class ANRWatchDog extends Thread {
             _uiHandler.post(_ticker);
             try {
                 Thread.sleep(_timeoutInterval);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 _interruptionListener.onInterrupted(e);
-                return ;
+                return;
             }
 
             // If the main thread has not handled _ticker, it is blocked. ANR.
             if (_tick == lastTick) {
                 if (!_ignoreDebugger && Debug.isDebuggerConnected()) {
-                    if (_tick != lastIgnored){
+                    if (_tick != lastIgnored) {
                         Log.w("ANRWatchdog", "An ANR was detected but ignored because the debugger is connected (you can prevent this with setIgnoreDebugger(true))");
                     }
                     lastIgnored = _tick;
-                    continue ;
+                    continue;
                 }
 
                 ANRBean error;
-                if (_namePrefix != null){
+                if (_namePrefix != null) {
                     error = ANRBean.New(_namePrefix, _logThreadsWithoutStackTrace);
-                }
-                else{
+                } else {
                     error = ANRBean.NewMainOnly();
                 }
                 _anrListener.onAppNotResponding(error);
@@ -178,23 +181,11 @@ public class ANRWatchDog extends Thread {
         }
     }
 
-    private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
-        @Override public void onAppNotResponding(ANRBean error) {
-            throw error;
-        }
-    };
-
-    private static final InterruptionListener DEFAULT_INTERRUPTION_LISTENER = new InterruptionListener() {
-        @Override public void onInterrupted(InterruptedException exception) {
-            Log.w("ANRWatchdog", "Interrupted: " + exception.getMessage());
-        }
-    };
-
-    public interface ANRListener{
+    public interface ANRListener {
         public void onAppNotResponding(ANRBean error);
     }
 
-    public interface InterruptionListener{
+    public interface InterruptionListener {
         public void onInterrupted(InterruptedException exception);
     }
 }

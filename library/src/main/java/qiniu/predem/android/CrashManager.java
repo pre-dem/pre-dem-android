@@ -32,23 +32,22 @@ import qiniu.predem.android.util.NetworkUtil;
 
 public class CrashManager {
     private static final String TAG = "CrashManager";
+    private static final int STACK_TRACES_FOUND_NONE = 0;
+    private static final int STACK_TRACES_FOUND_NEW = 1;
+    private static final int STACK_TRACES_FOUND_CONFIRMED = 2;
     /**
      * Stack traces are currently submitted
      */
     private static boolean submitting = false;
-
     private static long initializeTimestamp;
-
-    private static final int STACK_TRACES_FOUND_NONE = 0;
-    private static final int STACK_TRACES_FOUND_NEW = 1;
-    private static final int STACK_TRACES_FOUND_CONFIRMED = 2;
 
     /**
      * Registers new crash manager and handles existing crash logs.
      * App Identifier is read from configuration values in AndroidManifest.xml
+     *
      * @param context
      */
-    public static void register(Context context){
+    public static void register(Context context) {
 //        String appIdentifier = Util.getAppIdentifier(context);
 //        if (TextUtils.isEmpty()) {
 //            throw new IllegalArgumentException("HockeyApp app identifier was not configured correctly in manifest or build configuration.");
@@ -58,9 +57,9 @@ public class CrashManager {
         execute(context);
     }
 
-    public static void initialize(Context context, boolean registerHandler){
-        if (context != null){
-            if (CrashManager.initializeTimestamp == 0){
+    public static void initialize(Context context, boolean registerHandler) {
+        if (context != null) {
+            if (CrashManager.initializeTimestamp == 0) {
                 CrashManager.initializeTimestamp = System.currentTimeMillis();
             }
 
@@ -80,7 +79,7 @@ public class CrashManager {
         int foundOrSend = hasStackTraces(weakContext);
         if (foundOrSend == STACK_TRACES_FOUND_NEW || foundOrSend == STACK_TRACES_FOUND_CONFIRMED) {
             sendCrashes(weakContext, ignoreDefaultHandler);
-        }else {
+        } else {
             registerHandler(weakContext, ignoreDefaultHandler);
         }
     }
@@ -119,7 +118,7 @@ public class CrashManager {
             Context context = weakContext.get();
             if (context != null) {
                 SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                String[] res = preferences.getString("ConfirmedFilenames","").split("\\|");
+                String[] res = preferences.getString("ConfirmedFilenames", "").split("\\|");
                 result = Arrays.asList(res);
             }
         }
@@ -166,7 +165,7 @@ public class CrashManager {
 //            if (currentHandler instanceof ExceptionHandler) {
 //                ((ExceptionHandler) currentHandler).setListener(null);
 //            } else {
-                Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(currentHandler, ignoreDefaultHandler));
+            Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(currentHandler, ignoreDefaultHandler));
 //            }
         } else {
             LogUtils.d("Exception handler not set because version or package is null.");
@@ -204,7 +203,7 @@ public class CrashManager {
     /**
      * Submits all stack traces in the files dir to HockeyApp.
      *
-     * @param weakContext   The context to use. Usually your Activity object.
+     * @param weakContext The context to use. Usually your Activity object.
      */
     public static void submitStackTraces(WeakReference<Context> weakContext) {
         String[] list = searchForStackTraces();
@@ -466,7 +465,7 @@ public class CrashManager {
 //    }
 
     public static CrashBean getLastCrashDetails() {
-        if (FileConfig.FILES_PATH == null ) {
+        if (FileConfig.FILES_PATH == null) {
             return null;
         }
 

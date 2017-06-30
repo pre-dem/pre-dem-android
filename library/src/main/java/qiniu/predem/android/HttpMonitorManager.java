@@ -27,7 +27,7 @@ public class HttpMonitorManager {
     private static final int MSG_WHAT_REPORT = 1;
     private static final int MSG_WHAT_BYEBYE = 2;
     private static final int MSG_BYEBYTE_DELAY = 10; //ms
-    private static final int reportIntervalTime = 1 * 60 * 1000;
+    private static final int reportIntervalTime = 60 * 1000;
 
     private static boolean initialized = false;
 
@@ -56,18 +56,14 @@ public class HttpMonitorManager {
         }
     };
 
-    private HttpMonitorManager(){
+    private HttpMonitorManager() {
     }
 
-    public static HttpMonitorManager getInstance(){
+    public static HttpMonitorManager getInstance() {
         return HttpMonitorManagerHolder.instance;
     }
 
-    private static class HttpMonitorManagerHolder {
-        public final static HttpMonitorManager instance = new HttpMonitorManager();
-    }
-
-    public void register(Context context){
+    public void register(Context context) {
         if (initialized || context == null) {
             return;
         }
@@ -76,7 +72,7 @@ public class HttpMonitorManager {
         initialize(context);
     }
 
-    public void unregister(){
+    public void unregister() {
         destroy();
         initialized = false;
     }
@@ -128,10 +124,10 @@ public class HttpMonitorManager {
         try {
             httpConn = (HttpURLConnection) new URL(url).openConnection();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         }
         httpConn.setConnectTimeout(3000);
@@ -139,12 +135,12 @@ public class HttpMonitorManager {
         try {
             httpConn.setRequestMethod("POST");
         } catch (ProtocolException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         }
         httpConn.setRequestProperty("Content-Type", "application/x-gzip");
         httpConn.setRequestProperty("Accept-Encoding", "identity");
-        httpConn.setRequestProperty("Content-Encoding","gzip");
+        httpConn.setRequestProperty("Content-Encoding", "gzip");
 
         try {
             byte[] bytes = content.getBytes();
@@ -159,17 +155,17 @@ public class HttpMonitorManager {
             httpConn.getOutputStream().write(compressed.toByteArray());
             httpConn.getOutputStream().flush();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         }
         int responseCode = 0;
         try {
             responseCode = httpConn.getResponseCode();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         }
         if (responseCode != 201) {
@@ -185,10 +181,10 @@ public class HttpMonitorManager {
         try {
             is = httpConn.getInputStream();
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         }
         byte[] data = new byte[length];
@@ -196,20 +192,17 @@ public class HttpMonitorManager {
         try {
             read = is.read(data);
         } catch (IOException e) {
-            LogUtils.e(TAG,e.toString());
+            LogUtils.e(TAG, e.toString());
             return false;
         } finally {
             try {
                 is.close();
             } catch (IOException e) {
-                LogUtils.e(TAG,e.toString());
+                LogUtils.e(TAG, e.toString());
                 return false;
             }
         }
-        if (read <= 0) {
-            return false;
-        }
-        return true;
+        return read > 0;
     }
 
     private void destroy() {
@@ -218,5 +211,9 @@ public class HttpMonitorManager {
         }
         mReportHandler.removeCallbacksAndMessages(null);
         mReportHandler.sendEmptyMessageDelayed(MSG_WHAT_BYEBYE, MSG_BYEBYTE_DELAY);
+    }
+
+    private static class HttpMonitorManagerHolder {
+        public final static HttpMonitorManager instance = new HttpMonitorManager();
     }
 }

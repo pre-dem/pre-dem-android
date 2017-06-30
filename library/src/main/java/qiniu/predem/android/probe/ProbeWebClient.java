@@ -10,9 +10,8 @@ import java.util.Set;
  */
 
 public class ProbeWebClient extends WebViewClient {
-    private static final String TAG = "ProbeWebClient";
-
     protected static final Set<String> excludeIPs = new HashSet<>();
+    private static final String TAG = "ProbeWebClient";
 
     public static boolean isExcludeIPs(String ip) {
         return excludeIPs.contains(ip);

@@ -6,27 +6,25 @@ language: android
 jdk:
   - oraclejdk8
 
+addons:
+  apt:
+    packages:
+      - lynx
+
 android:
   components:
-    # Uncomment the lines below if you want to
-    # use the latest revision of Android SDK Tools
+    - tools
     - platform-tools
     - tools
 
-    # The BuildTools version used by your project
-    - build-tools-25.0.0
+    - build-tools-26.0.0
 
-    # The SDK version used to compile your project
-    - android-23
-
-    # Specify at least one system image
-    # if you need to run emulator(s) during your tests
+    - android-25
     - sys-img-armeabi-v7a-android-19
 
     - extra-android-support
     - extra-android-m2repository
 
-# Emulator Management: Create, Start and Wait
 before_script:
   - echo no | android create avd --force -n test -t android-19 --abi armeabi-v7a
   - echo y | android update sdk --no-ui --all --filter "tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository"
@@ -38,7 +36,9 @@ before_script:
 script:
   - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
   - ./gradlew clean build
-# - ./gradlew connectedAndroidTest  --info
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+after_failure:
+  - if [ -f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html; fi

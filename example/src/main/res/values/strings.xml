@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">AndroidPreSniff</string>
+    <string name="app_name">AndroidPreDem</string>
+    <string name="crashbutton">点击产生一个Crash</string>
+    <string name="httpbutton">点击产生一个联网请求</string>
 </resources>

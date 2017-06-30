@@ -23,7 +23,7 @@ public class HttpReportTest extends AndroidTestCase {
         // Context of the app under test.
 //        Context appContext = InstrumentationRegistry.getTargetContext();
 //
-//        assertEquals("qiniu.presniff.library", appContext.getPackageName());
+//        assertEquals("qiniu.predem.library", appContext.getPackageName());
     }
 
     @Test

@@ -34,50 +34,31 @@ public class DEMManager {
 
         //获取AppBean信息
         Configuration.init(context);
-        if (askForConfiguration(context)){
+        if (askForConfiguration(context)) {
             updateAppConfig(context);
         }
 
-        if (Configuration.httpMonitorEnable){
+        if (Configuration.httpMonitorEnable) {
             HttpMonitorManager.getInstance().register(context);
         }
-        if (Configuration.crashReportEnable){
+        if (Configuration.crashReportEnable) {
             CrashManager.register(context);
         }
     }
 
-    private void signOut(Context context){
-        if (isApplicationBroughtToBackground(context)){
-            unInit();
-        }
-    }
-
-    //需要申请GETTask权限
-    private boolean isApplicationBroughtToBackground(Context context) {
-        ActivityManager am = (ActivityManager)context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
-        if (!tasks.isEmpty()) {
-            ComponentName topActivity = tasks.get(0).topActivity;
-            if (!topActivity.getPackageName().equals(AppBean.APP_PACKAGE)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static void unInit(){
-        if (Configuration.httpMonitorEnable){
+    public static void unInit() {
+        if (Configuration.httpMonitorEnable) {
             HttpMonitorManager.getInstance().unregister();
         }
     }
 
-    private static boolean askForConfiguration(Context context){
+    private static boolean askForConfiguration(Context context) {
         long lastTime = SharedPreUtil.getConfigurationLastTime(context);
-        if (lastTime == -1){
+        if (lastTime == -1) {
             return true;
         }
         long now = System.currentTimeMillis();
-        if ((now - lastTime) > 86400000){
+        if ((now - lastTime) > 86400000) {
             return true;
         }
         return false;
@@ -102,7 +83,7 @@ public class DEMManager {
                     }
 
                     try {
-                        if (conn.getResponseCode() == 200){
+                        if (conn.getResponseCode() == 200) {
                             JSONObject jo = new JSONObject(jsonStr.toString());
                             Configuration.appKey = jo.optString("app_key");
                             Configuration.userId = jo.optString("user_id");
@@ -124,11 +105,30 @@ public class DEMManager {
 
     }
 
-    public static void startDiagnosisNetWork(Context context, String domain , String address, NetDiagnosis.Callback callback){
+    public static void startDiagnosisNetWork(Context context, String domain, String address, NetDiagnosis.Callback callback) {
         NetDiagnosis.start(context, domain, address, callback);
     }
 
-    public static String getApp(){
-        return "app_key:"+Configuration.appKey+",user_id:"+Configuration.userId+",platform:"+Configuration.platform+",http_monitor_enabled:"+Configuration.httpMonitorEnable+",crash_report_enable:"+Configuration.crashReportEnable+",telemetry_enable:"+Configuration.telemetryEnable;
+    public static String getApp() {
+        return "app_key:" + Configuration.appKey + ",user_id:" + Configuration.userId + ",platform:" + Configuration.platform + ",http_monitor_enabled:" + Configuration.httpMonitorEnable + ",crash_report_enable:" + Configuration.crashReportEnable + ",telemetry_enable:" + Configuration.telemetryEnable;
+    }
+
+    private void signOut(Context context) {
+        if (isApplicationBroughtToBackground(context)) {
+            unInit();
+        }
+    }
+
+    //需要申请GETTask权限
+    private boolean isApplicationBroughtToBackground(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+        if (!tasks.isEmpty()) {
+            ComponentName topActivity = tasks.get(0).topActivity;
+            if (!topActivity.getPackageName().equals(AppBean.APP_PACKAGE)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

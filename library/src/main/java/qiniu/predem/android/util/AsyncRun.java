@@ -1,5 +1,6 @@
 package qiniu.predem.android.util;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
@@ -64,6 +65,7 @@ public class AsyncRun {
         h.post(r);
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public static void runInBack(Runnable r) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             AsyncTask.execute(r);

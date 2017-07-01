@@ -10,28 +10,28 @@ import qiniu.predem.android.config.HttpConfig;
  */
 
 public class GlobalConfig {
-    private static final String TAG = "GlobalConfig";
-
     //不需要收集的域名
     protected static final List<String> ExcludeDomains = new ArrayList<>();
+    //想要收集的域名
+    protected static final List<String> IncludeDomains = new ArrayList<>();
+    private static final String TAG = "GlobalConfig";
+
     static {
         ExcludeDomains.add(HttpConfig.domain);
 //        ExcludeDomains.add("jkbkolos.bq.cloudappl.com");
     }
-
-    //想要收集的域名
-    protected static final List<String> IncludeDomains = new ArrayList<>();
 //    static {
 //        IncludeDomains.add("www.baidu.com");
 //    }
 
     /**
      * 不包含
+     *
      * @param domain
      * @return
      */
     public static boolean isExcludeHost(String domain) {
-        for (String bean: ExcludeDomains) {
+        for (String bean : ExcludeDomains) {
             if (match(bean, domain)) {
                 return true;
             }
@@ -41,11 +41,12 @@ public class GlobalConfig {
 
     /**
      * 包含
+     *
      * @param domain
      * @return
      */
     public static boolean isIncludeHost(String domain) {
-        for (String bean: IncludeDomains) {
+        for (String bean : IncludeDomains) {
             if (match(bean, domain)) {
                 return true;
             }
@@ -55,7 +56,7 @@ public class GlobalConfig {
 
     protected static boolean match(String pattern, String domain) {
         int index = 0;
-        for (String part: pattern.split("\\*")) {
+        for (String part : pattern.split("\\*")) {
             if (part.length() == 0) continue;
             index = domain.indexOf(part, index);
             if (index < 0) return false;

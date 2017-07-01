@@ -15,7 +15,7 @@ public class ManagerTest {
     private static final String TAG = "ManagerTest";
 
     @Test
-    public void testInit(){
+    public void testInit() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
         DEMManager.init(appContext);

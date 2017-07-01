@@ -10,21 +10,21 @@ import android.os.Bundle;
 
 public class ManifestUtil {
     private static final String APP_KEY = "qiniu.predem.android.appKey";
-    private static final String APP_DOMAIN= "qiniu.predem.android.domain";
+    private static final String APP_DOMAIN = "qiniu.predem.android.domain";
 
-    public static String getDomain(Context context){
+    public static String getDomain(Context context) {
         return getManifestString(context, APP_DOMAIN);
     }
 
-    public static String getAppKey(Context context){
+    public static String getAppKey(Context context) {
         return getManifestString(context, APP_KEY);
     }
 
-    public static String getManifestString(Context context, String key){
+    public static String getManifestString(Context context, String key) {
         return getBundle(context).getString(key);
     }
 
-    public static Bundle getBundle(Context context){
+    public static Bundle getBundle(Context context) {
         Bundle bundle;
         try {
             bundle = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA).metaData;

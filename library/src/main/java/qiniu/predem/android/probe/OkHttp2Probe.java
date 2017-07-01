@@ -24,9 +24,8 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 @Aspect
 public class OkHttp2Probe {
-    private static final String TAG = "OkHttp2Probe";
-
     protected static final HashMap<Object, LogBean> reportMap = new HashMap<>();
+    private static final String TAG = "OkHttp2Probe";
 
     @Around("call(* com.squareup.okhttp.OkHttpClient+.newCall(..))")
     public Object onOkHttpNew(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -81,18 +80,18 @@ public class OkHttp2Probe {
         URL url = response.request().url();
         try {
             synchronized (reportMap) {
-                if (reportMap.containsKey(url.toString())){
+                if (reportMap.containsKey(url.toString())) {
                     LogBean urlTraceRecord = reportMap.get(url.toString());
                     reportMap.remove(url.toString());
                     if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain())) {//!GlobalConfig.isIncludeHost(urlTraceRecord.getDomain())
                         return joinPoint.proceed();
                     }
-                    if (Configuration.dnsEnable){
+                    if (Configuration.dnsEnable) {
                         long s = System.currentTimeMillis();
                         String ip = InetAddress.getByName(url.getHost()).getHostAddress();
                         urlTraceRecord.setHostIP(ip);
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
-                    }else{
+                    } else {
                         urlTraceRecord.setHostIP("-");
                         urlTraceRecord.setDnsTime(-1);
                     }
@@ -101,15 +100,15 @@ public class OkHttp2Probe {
                     urlTraceRecord.setStatusCode(response.code());
                     urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
                     urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
-                    return ProbeResponse2.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
-                }else {
+                    return ProbeResponse2.obtain((ResponseBody) joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                } else {
                     LogBean urlTraceRecord = LogBean.obtain();
-                    if (Configuration.dnsEnable){
+                    if (Configuration.dnsEnable) {
                         long s = System.currentTimeMillis();
                         String ip = InetAddress.getByName(response.request().url().getHost()).getHostAddress();
                         urlTraceRecord.setHostIP(ip);
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
-                    }else{
+                    } else {
                         urlTraceRecord.setHostIP("-");
                         urlTraceRecord.setDnsTime(-1);
                     }
@@ -120,10 +119,10 @@ public class OkHttp2Probe {
                     urlTraceRecord.setStatusCode(response.code());
                     urlTraceRecord.setNetworkErrorCode(response.networkResponse().code());
                     urlTraceRecord.setNetworkErrorMsg(response.networkResponse().message());
-                    return ProbeResponse2.obtain((ResponseBody)joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
+                    return ProbeResponse2.obtain((ResponseBody) joinPoint.proceed(), urlTraceRecord);//ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtils.e(TAG, e.toString());
             return joinPoint.proceed();
         }

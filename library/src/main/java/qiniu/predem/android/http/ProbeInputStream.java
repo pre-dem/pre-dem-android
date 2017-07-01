@@ -18,38 +18,14 @@ import qiniu.predem.android.util.LogUtils;
 public class ProbeInputStream extends InputStream {
     private static final String TAG = "ProbeInputStream";
 
-//    protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
-
+    //    protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
+    private static final List<ProbeInputStream> mPool = new LinkedList<>();
     protected long timeout;
     protected boolean replied;
     protected AtomicBoolean isFinish;
     protected Runnable runTimeOut;
-
     protected InputStream source;
     protected LogBean record;
-
-    private static final List<ProbeInputStream> mPool = new LinkedList<>();
-
-    public static ProbeInputStream obtain(InputStream is, LogBean record) {
-        if (mPool.size() > 0) {
-            synchronized (mPool) {
-                if (mPool.size() > 0) {
-                    ProbeInputStream obj = mPool.get(0);
-                    mPool.remove(0);
-                    obj.init(is, record, HttpConfig.DEFAULT_TIMEOUT);
-                    return obj;
-                }
-            }
-        }
-        return new ProbeInputStream(is, record, HttpConfig.DEFAULT_TIMEOUT);
-    }
-
-    public void release() {
-        synchronized (mPool) {
-            this.source = null;
-            if (mPool.size() < 256) mPool.add(this);
-        }
-    }
 
     protected ProbeInputStream(InputStream is, LogBean record) {
         this(is, record, HttpConfig.DEFAULT_TIMEOUT);
@@ -72,11 +48,32 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG,"-------isFinish addReportContent");
+                    LogUtils.d(TAG, "-------isFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }
         };
+    }
+
+    public static ProbeInputStream obtain(InputStream is, LogBean record) {
+        if (mPool.size() > 0) {
+            synchronized (mPool) {
+                if (mPool.size() > 0) {
+                    ProbeInputStream obj = mPool.get(0);
+                    mPool.remove(0);
+                    obj.init(is, record, HttpConfig.DEFAULT_TIMEOUT);
+                    return obj;
+                }
+            }
+        }
+        return new ProbeInputStream(is, record, HttpConfig.DEFAULT_TIMEOUT);
+    }
+
+    public void release() {
+        synchronized (mPool) {
+            this.source = null;
+            if (mPool.size() < 256) mPool.add(this);
+        }
     }
 
     protected void init(InputStream is, LogBean record, long timeout) {
@@ -97,7 +94,7 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG,"-------checkFinish addReportContent");
+                    LogUtils.d(TAG, "-------checkFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }
@@ -111,7 +108,7 @@ public class ProbeInputStream extends InputStream {
             result = source.read();
         } catch (IOException e) {
             // 提交数据
-            LogUtils.d(TAG,"-------IOException addReportContent");
+            LogUtils.d(TAG, "-------IOException addReportContent");
             FileUtil.getInstance().addReportContent(record.toString());
             throw e;
         }

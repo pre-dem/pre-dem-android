@@ -27,7 +27,7 @@ public class HttpReportTest extends AndroidTestCase {
     }
 
     @Test
-    public void testManagerInit(){
+    public void testManagerInit() {
         Context appContext = InstrumentationRegistry.getTargetContext();
         HttpMonitorManager.getInstance().register(appContext);
 

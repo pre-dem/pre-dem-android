@@ -28,32 +28,33 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 @Aspect
 public class HttpURLConnProbe {
-    private static final String TAG = "HttpURLConnProbe";
-
     protected static final HashMap<Object, LogBean> reportMap = new HashMap<>();
+    private static final String TAG = "HttpURLConnProbe";
 //    protected static final Set<String> ExcludeIPs = new HashSet<>();
 
     @Pointcut("call(* java.net.URL+.openConnection(..))")
-    public void callOpenConnection(){}
+    public void callOpenConnection() {
+    }
 
     @Pointcut("call(* java.net.HttpURLConnection+.setRequestMethod(..))")
-    public void callRequestMethod(){}
+    public void callRequestMethod() {
+    }
 
     @Around("callOpenConnection() || callRequestMethod()")
     public Object onHttpURLOpenConnect(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!Configuration.httpMonitorEnable || joinPoint.getArgs().length > 1){
+        if (!Configuration.httpMonitorEnable || joinPoint.getArgs().length > 1) {
             return joinPoint.proceed();
         }
         LogBean urlTraceRecord = LogBean.obtain();
 
-        if (joinPoint.getArgs().length == 1){
+        if (joinPoint.getArgs().length == 1) {
             //获取method
             String method = joinPoint.getArgs()[0].toString();
             urlTraceRecord.setMethod(method);
             return joinPoint.proceed();
-        }else if (joinPoint.getArgs().length == 0){
+        } else if (joinPoint.getArgs().length == 0) {
             try {
-                if (!joinPoint.getTarget().toString().startsWith("http://") && !joinPoint.getTarget().toString().startsWith("https://")){
+                if (!joinPoint.getTarget().toString().startsWith("http://") && !joinPoint.getTarget().toString().startsWith("https://")) {
                     return joinPoint.proceed();
                 }
 
@@ -78,7 +79,7 @@ public class HttpURLConnProbe {
                         }
                     }
                     return joinPoint.proceed();
-                }else {
+                } else {
                     String ipUrl;
                     URLConnection conn;
                     if (Configuration.dnsEnable) {
@@ -111,11 +112,11 @@ public class HttpURLConnProbe {
                     }
                     return conn;
                 }
-            }catch (Exception e){
-                LogUtils.e(TAG,e.toString());
+            } catch (Exception e) {
+                LogUtils.e(TAG, e.toString());
                 return joinPoint.proceed();
             }
-        }else{
+        } else {
             return joinPoint.proceed();
         }
     }
@@ -135,13 +136,13 @@ public class HttpURLConnProbe {
                 return joinPoint.proceed();
             }
 
-            if (GlobalConfig.isExcludeHost(url.getHost()) || ProbeWebClient.isExcludeIPs(url.getHost())){
+            if (GlobalConfig.isExcludeHost(url.getHost()) || ProbeWebClient.isExcludeIPs(url.getHost())) {
                 return joinPoint.proceed();
             }
 
             try {
                 synchronized (reportMap) {
-                    if (reportMap.containsKey(url.toString())){
+                    if (reportMap.containsKey(url.toString())) {
                         LogBean urlTraceRecord = reportMap.get(url.toString());
                         reportMap.remove(url.toString());
                         if (GlobalConfig.isExcludeHost(urlTraceRecord.getDomain()) || ProbeWebClient.isExcludeIPs(urlTraceRecord.getDomain())) { //||!GlobalConfig.isIncludeHost(urlTraceRecord.getDomain())
@@ -151,7 +152,7 @@ public class HttpURLConnProbe {
                         urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
                         urlTraceRecord.setStatusCode(((HttpURLConnection) conn).getResponseCode());
                         return ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
-                    }else {
+                    } else {
                         // exclude url
                         if (!GlobalConfig.isIncludeHost(url.getHost())) return joinPoint.proceed();
 
@@ -165,12 +166,12 @@ public class HttpURLConnProbe {
                         return ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
                     }
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 LogUtils.e(TAG, e.toString());
                 return joinPoint.proceed();
             }
-        }catch (Exception e){
-            LogUtils.e(TAG,e.toString());
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.toString());
             return joinPoint.proceed();
         }
     }

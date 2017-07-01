@@ -14,38 +14,9 @@ import java.util.TreeMap;
 public class ANRBean extends Error {
     private static final long serialVersionUID = 1L;
 
-    private static class $ implements Serializable{
-        private final String name;
-        private final StackTraceElement[] stackTrace;
-
-        private class _Thread extends Throwable{
-            private _Thread(_Thread other){
-                super(name,other);
-            }
-
-            @Override
-            public Throwable fillInStackTrace() {
-                setStackTrace(stackTrace);
-                return this;
-            }
-        }
-
-        private $(String name, StackTraceElement[] stackTrace){
-            this.name = name;
-            this.stackTrace = stackTrace;
-        }
-    }
-
-    private ANRBean($._Thread st){
+    private ANRBean($._Thread st) {
         super("Application Not Responding", st);
     }
-
-    @Override
-    public Throwable fillInStackTrace() {
-        setStackTrace(new StackTraceElement[]{});
-        return this;
-    }
-
 
     public static ANRBean New(String prefix, boolean logThreadsWithoutStackTrace) {
         final Thread mainThread = Looper.getMainLooper().getThread();
@@ -88,5 +59,33 @@ public class ANRBean extends Error {
 
     private static String getThreadTitle(Thread thread) {
         return thread.getName() + " (state = " + thread.getState() + ")";
+    }
+
+    @Override
+    public Throwable fillInStackTrace() {
+        setStackTrace(new StackTraceElement[]{});
+        return this;
+    }
+
+    private static class $ implements Serializable {
+        private final String name;
+        private final StackTraceElement[] stackTrace;
+
+        private $(String name, StackTraceElement[] stackTrace) {
+            this.name = name;
+            this.stackTrace = stackTrace;
+        }
+
+        private class _Thread extends Throwable {
+            private _Thread(_Thread other) {
+                super(name, other);
+            }
+
+            @Override
+            public Throwable fillInStackTrace() {
+                setStackTrace(stackTrace);
+                return this;
+            }
+        }
     }
 }

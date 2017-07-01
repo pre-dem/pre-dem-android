@@ -11,10 +11,10 @@
 
         <meta-data
             android:name="qiniu.predem.android.appKey"
-            android:value="test"></meta-data>
+            android:value="9a9c127726b746e5b5fa7fc816a17407" />
         <meta-data
             android:name="qiniu.predem.android.domain"
-            android:value="hriygkee.bq.cloudappl.com"></meta-data>
+            android:value="hriygkee.bq.cloudappl.com" />
         <!--<meta-data android:name="qiniu.predem.library.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>-->
 
     </application>

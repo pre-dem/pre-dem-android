@@ -1,5 +1,6 @@
 package qiniu.predem.android.http;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.TextUtils;
 
@@ -85,6 +86,7 @@ public class HttpURLConnectionBuilder {
         return this;
     }
 
+    @SuppressLint("ObsoleteSdkInt")
     public HttpURLConnection build() throws IOException {
         HttpURLConnection connection;
         URL url = new URL(mUrlString);

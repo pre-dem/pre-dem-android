@@ -1,5 +1,6 @@
 package qiniu.predem.android.util;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -351,6 +352,7 @@ public class FileUtil {
     }
 
     public static class FileUtilHolder {
+        @SuppressLint("StaticFieldLeak")
         public final static FileUtil instance = new FileUtil();
     }
 }

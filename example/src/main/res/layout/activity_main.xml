@@ -9,7 +9,8 @@
         android:layout_width="368dp"
         android:layout_height="495dp"
         tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp">
+        tools:layout_editor_absoluteY="8dp"
+        tools:ignore="MissingConstraints">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -20,43 +21,50 @@
                 android:id="@+id/http_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我发送HttpURLConnection请求" />
+                android:text="点我发送HttpURLConnection请求"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/okhttp2_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我发送OkHttp2.0+请求" />
+                android:text="点我发送OkHttp2.0+请求"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/okhttp3_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我发送OkHttp3.0+请求" />
+                android:text="点我发送OkHttp3.0+请求"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/webview_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我打开一个网页请求" />
+                android:text="点我打开一个网页请求"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/crash_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我触发一次 crash" />
+                android:text="点我触发一次 crash"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/diagnosis_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点我诊断一下网络" />
+                android:text="点我诊断一下网络"
+                tools:ignore="HardcodedText" />
 
             <Button
                 android:id="@+id/anr_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="点击产生一个ANR" />
+                android:text="点击产生一个ANR"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
 

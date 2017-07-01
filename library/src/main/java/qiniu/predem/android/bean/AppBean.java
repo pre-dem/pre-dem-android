@@ -89,8 +89,13 @@ public class AppBean {
 //        loadDeviceIdentifier(context);
     }
 
+    @SuppressLint("HardwareIds")
+    private static String getId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
     private static void loadCrashIdentifier(Context context) {
-        String deviceIdentifier = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String deviceIdentifier = getId(context);
         if (!TextUtils.isEmpty(APP_PACKAGE) && !TextUtils.isEmpty(deviceIdentifier)) {
             String combined = APP_PACKAGE + ":" + deviceIdentifier + ":" + createSalt(context);
             try {

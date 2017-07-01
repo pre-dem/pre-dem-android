@@ -1,5 +1,7 @@
 package qiniu.predem.android.crash;
 
+import android.annotation.SuppressLint;
+
 import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,6 +21,7 @@ import qiniu.predem.android.util.FileUtil;
 
 public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "ExceptionHandler";
+    @SuppressLint("StaticFieldLeak")
     private static FileUtil fileLogManager;
     private Thread.UncaughtExceptionHandler mDefaultExceptionHandler;
     private boolean mIgnoreDefaultHandler = false;

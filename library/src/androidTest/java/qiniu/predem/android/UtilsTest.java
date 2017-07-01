@@ -32,6 +32,6 @@ public class UtilsTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
         String appKey = ManifestUtil.getAppKey(appContext);
-        Assert.assertEquals(appKey, "test");
+        Assert.assertEquals(appKey, "9a9c127726b746e5b5fa7fc816a17407");
     }
 }

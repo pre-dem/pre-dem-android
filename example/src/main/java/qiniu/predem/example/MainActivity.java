@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import qiniu.predem.android.DEMManager;
-import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.util.AsyncRun;
 import qiniu.predem.android.util.LogUtils;
 
@@ -129,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         diagnosis_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DEMManager.startDiagnosisNetWork(mContext, "www.baidu.com", "http://www.baidu.com", new NetDiagnosis.Callback() {
+                DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
                     @Override
                     public void complete(boolean isSuccessful, final Exception e) {
                         LogUtils.d(TAG,"-------net diagnosis : " + isSuccessful);
@@ -165,13 +164,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DEMManager.init(this);
+        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", this.getApplicationContext());
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        DEMManager.unInit();
+//        DEMManager.unInit();
     }
 
     //用于进行网络请求的AsyncTask

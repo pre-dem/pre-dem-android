@@ -13,7 +13,7 @@ import java.net.ProtocolException;
 import java.net.URL;
 import java.util.zip.GZIPOutputStream;
 
-import qiniu.predem.android.config.HttpConfig;
+import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 
@@ -92,7 +92,7 @@ public class HttpMonitorManager {
 
     private void onReportMessage(boolean again) {
         String report = mLogFileManager.getReportContent();
-        if (report != null && sendRequest(HttpConfig.getHttpUrl(), report)) {
+        if (report != null && sendRequest(Configuration.getHttpUrl(), report)) {
             mLogFileManager.setReportSuccess();
         }
         if (again && mReportHandler != null) {

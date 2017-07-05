@@ -19,8 +19,8 @@ import java.util.Map;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.bean.CrashBean;
+import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
-import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
@@ -257,7 +257,7 @@ public class CrashManager {
                         parameters.put("sdk", AppBean.SDK_NAME);
                         parameters.put("sdk_version", AppBean.ANDROID_VERSION);
 
-                        urlConnection = new HttpURLConnectionBuilder(HttpConfig.getCrashUrl())
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
                                 .setRequestMethod("POST")
                                 .writeFormFields(parameters)
                                 .build();

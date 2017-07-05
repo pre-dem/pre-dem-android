@@ -29,8 +29,7 @@ public class MyApplication extends Application {
                 // Some tools like ACRA are serializing the exception, so we must make sure the exception serializes correctly
                 try {
                     new ObjectOutputStream(new ByteArrayOutputStream()).writeObject(error);
-                }
-                catch (IOException ex) {
+                } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
 

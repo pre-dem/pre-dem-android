@@ -9,7 +9,6 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.UUID;
 
-import qiniu.predem.android.CrashManager;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;

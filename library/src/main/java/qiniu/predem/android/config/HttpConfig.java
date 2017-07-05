@@ -16,12 +16,6 @@ public class HttpConfig {
     private static String ak = null;
     private static String scheme = "http://";
 
-    public static void loadFromManifest(Context context) {
-        domain = ManifestUtil.getDomain(context);
-        appKey = ManifestUtil.getAppKey(context);
-        ak = getAk(appKey);
-    }
-
     private static String getAk(String appKey) {
         return appKey.substring(0, 8);
     }

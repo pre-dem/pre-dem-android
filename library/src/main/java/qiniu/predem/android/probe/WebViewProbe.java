@@ -14,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/7/4.
@@ -30,7 +29,6 @@ public class WebViewProbe {
         if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable){
             return joinPoint.proceed();
         }
-        LogUtils.d(TAG, "-------onWebViewSetClient");
         try {
             if (joinPoint.getArgs().length != 1 || !(joinPoint.getArgs()[0] instanceof WebViewClient)
                     || joinPoint.getArgs()[0] instanceof ProbeWebClientAgent
@@ -64,7 +62,6 @@ public class WebViewProbe {
         if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable){
             return;
         }
-        LogUtils.d(TAG, "------onWebViewLoadUrl");
         try {
             if (joinPoint.getTarget() instanceof WebView) {
                 WebView web = (WebView) joinPoint.getTarget();

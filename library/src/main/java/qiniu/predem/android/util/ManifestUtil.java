@@ -9,16 +9,7 @@ import android.os.Bundle;
  */
 
 public class ManifestUtil {
-    private static final String APP_KEY = "qiniu.predem.android.appKey";
-    private static final String APP_DOMAIN = "qiniu.predem.android.domain";
-
-    public static String getDomain(Context context) {
-        return getManifestString(context, APP_DOMAIN);
-    }
-
-    public static String getAppKey(Context context) {
-        return getManifestString(context, APP_KEY);
-    }
+    private final static String TAG = "ManifestUtil";
 
     public static String getManifestString(Context context, String key) {
         return getBundle(context).getString(key);

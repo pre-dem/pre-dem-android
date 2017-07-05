@@ -20,7 +20,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 
-import qiniu.predem.android.bean.TelemetryBean;
+import qiniu.predem.android.DEMManager;
+import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.util.AsyncRun;
@@ -45,11 +46,11 @@ public class NetDiagnosis implements Task {
 
     private final String address;
     private final String url;
-    private final Callback complete;
+    private final DEMManager.NetDiagCallback complete;
     private volatile boolean stopped;
     private Context mContext;
 
-    private NetDiagnosis(Context context, String domainn, String url, Callback complete) {
+    private NetDiagnosis(Context context, String domainn, String url, DEMManager.NetDiagCallback complete) {
         this.mContext = context;
         this.address = domainn;
         this.url = url;
@@ -57,7 +58,7 @@ public class NetDiagnosis implements Task {
         this.stopped = false;
     }
 
-    public static void start(Context context, String domain, String url, Callback complete) {
+    public static void start(Context context, String domain, String url, DEMManager.NetDiagCallback complete) {
         if (!Configuration.networkDiagnosis) {
             complete.complete(false, new Exception("the diagnosis isn't open"));
         }
@@ -76,7 +77,7 @@ public class NetDiagnosis implements Task {
     }
 
     private void run() {
-        TelemetryBean result = new TelemetryBean();
+        NetDiagBean result = new NetDiagBean();
         String ip = null;
         try {
             ip = getIp(address);
@@ -125,7 +126,7 @@ public class NetDiagnosis implements Task {
             }
         }
         //TODO 解析ping结果
-        result.pingResult = new TelemetryBean.PingResult(str.toString(), ip, 56);
+        result.pingResult = new NetDiagBean.PingResult(str.toString(), ip, 56);
 
         ///////////////////////////////////////
         InetSocketAddress server = new InetSocketAddress(ip, 80);
@@ -172,7 +173,7 @@ public class NetDiagnosis implements Task {
 
         /////////////////////////////////////////////////
         int hop = 1;
-        TelemetryBean.TraceRouteResult r = new TelemetryBean.TraceRouteResult(ip);
+        NetDiagBean.TraceRouteResult r = new NetDiagBean.TraceRouteResult(ip);
         Process p;
         while (hop < MaxHop && !stopped) {
             long t1 = System.currentTimeMillis();
@@ -235,9 +236,9 @@ public class NetDiagnosis implements Task {
             long duration = System.currentTimeMillis() - start;
             is.close();
             if (read <= 0) {
-                result.httpResult = new TelemetryBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
+                result.httpResult = new NetDiagBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
             } else if (read < data.length) {
-                result.httpResult = new TelemetryBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
+                result.httpResult = new NetDiagBean.HttpResult(responseCode, headers, null, (int) duration, "no body");
             }
 
             //上报
@@ -246,7 +247,7 @@ public class NetDiagnosis implements Task {
 //            complete.complete(res, null);
         } catch (IOException e) {
             e.printStackTrace();
-            result.httpResult = new TelemetryBean.HttpResult(-1, null, null, 0, null);
+            result.httpResult = new NetDiagBean.HttpResult(-1, null, null, 0, null);
             complete.complete(false, e);
         }
     }
@@ -351,7 +352,7 @@ public class NetDiagnosis implements Task {
         return true;
     }
 
-    private TelemetryBean.TCPResult buildResult(int[] times, int index, String ip, int dropped) {
+    private NetDiagBean.TCPResult buildResult(int[] times, int index, String ip, int dropped) {
         int sum = 0;
         int min = 1000000;
         int max = 0;
@@ -365,7 +366,7 @@ public class NetDiagnosis implements Task {
             }
             sum += t;
         }
-        return new TelemetryBean.TCPResult(0, ip, max, min, sum / (index + 1), sum, 0, index + 1, dropped);
+        return new NetDiagBean.TCPResult(0, ip, max, min, sum / (index + 1), sum, 0, index + 1, dropped);
     }
 
     private String getPingtOutput(Process process) {
@@ -446,7 +447,4 @@ public class NetDiagnosis implements Task {
         stopped = true;
     }
 
-    public interface Callback {
-        void complete(boolean isSuccessful, Exception e);
-    }
 }

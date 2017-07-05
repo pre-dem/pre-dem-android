@@ -28,12 +28,10 @@ public class OkHttp3Probe {
     private static final String TAG = "OkHttp3Probe";
 
     @Around("call(* okhttp3.OkHttpClient+.newCall(..))")
-//    @Around("call(* okhttp3.OkHttpClient.new(..))")
     public Object onOkHttpNew(ProceedingJoinPoint joinPoint) throws Throwable {
         if (!Configuration.httpMonitorEnable || joinPoint.getArgs().length != 1) {
             return joinPoint.proceed();
         }
-//        LogUtils.d(TAG,"------onOkHttp3  onOkHttpNew");
 
         LogBean urlTraceRecord = LogBean.obtain();
 
@@ -77,8 +75,6 @@ public class OkHttp3Probe {
         if (!Configuration.httpMonitorEnable) {
             return joinPoint.proceed();
         }
-
-//        LogUtils.d(TAG,"------onOkHttp3  onOkHttpResponse");
 
         Response response = (Response) joinPoint.getTarget();
         HttpUrl url = response.request().url();

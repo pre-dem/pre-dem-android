@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -26,9 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import qiniu.predem.android.DEMManager;
-import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.util.AsyncRun;
-import qiniu.predem.android.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -80,11 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 http_btn.setEnabled(false);
                 networkAsyncTask = new NetworkAsyncTask();
                 networkAsyncTask.execute("NETWORK_GET");
-//                networkAsyncTask.setUrl("https","www.163.com").setPort(9096).execute("NETWORK_GET");
-//                networkAsyncTask.setUrl("http","www.qq.com").setPort(9097).execute("NETWORK_GET");
-//                networkAsyncTask.setUrl("https","www.qiniu.com").setPort(9098).execute("NETWORK_GET");
-//                networkAsyncTask.setUrl("http","www.taobao.com").setPort(9099).execute("NETWORK_GET");
-//                networkAsyncTask.setUrl("http","www.alipay.com").setPort(9100).execute("NETWORK_GET");
             }
         });
 
@@ -139,10 +133,10 @@ public class MainActivity extends AppCompatActivity {
         diagnosis_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DEMManager.startDiagnosisNetWork(mContext, "www.baidu.com", "http://www.baidu.com", new NetDiagnosis.Callback() {
+                DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
                     @Override
                     public void complete(boolean isSuccessful, final Exception e) {
-                        LogUtils.d(TAG,"-------net diagnosis : " + isSuccessful);
+                        Log.d(TAG,"-------net diagnosis : " + isSuccessful);
                         if (isSuccessful){
                             AsyncRun.runInMain(new Runnable() {
                                 @Override
@@ -175,13 +169,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DEMManager.init(this);
+        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", this.getApplicationContext());
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        DEMManager.unInit();
     }
 
     //用于进行网络请求的AsyncTask

@@ -30,12 +30,6 @@
             <!--</intent-filter>-->
         </activity>
 
-        <meta-data
-            android:name="qiniu.predem.android.appKey"
-            android:value="9a9c127726b746e5b5fa7fc816a17407" />
-        <meta-data
-            android:name="qiniu.predem.android.appId"
-            android:value="9a9c1277" />
     </application>
 
 </manifest>

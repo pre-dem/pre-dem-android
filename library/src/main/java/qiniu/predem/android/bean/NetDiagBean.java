@@ -7,8 +7,8 @@ import java.util.Map;
  * Created by Misty on 17/6/15.
  */
 
-public class TelemetryBean {
-    private static final String TAG = "TelemetryBean";
+public class NetDiagBean {
+    private static final String TAG = "NetDiagBean";
 
     public String resultId;
     public PingResult pingResult;
@@ -45,7 +45,6 @@ public class TelemetryBean {
         public final String result;
         public final String ip;
         public final int size;
-        //        public final int interval;
         private final String lastLinePrefix = "rtt min/avg/max/mdev = ";
         private final String packetWords = " packets transmitted";
         private final String receivedWords = " received";

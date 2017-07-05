@@ -18,8 +18,8 @@ import qiniu.predem.android.util.LogUtils;
  * Created by Misty on 17/6/7.
  */
 @RunWith(AndroidJUnit4.class)
-public class TelemetryTest {
-    private static final String TAG = "TelemetryTest";
+public class NetDiagTest {
+    private static final String TAG = "NetDiagTest";
 
 //    private Ping.Result pingResult;
 //    private TcpPing.Result tcpPingResult;
@@ -28,7 +28,7 @@ public class TelemetryTest {
 //    @Test
 //    public void pingTest() throws InterruptedException{
 //        final CountDownLatch c = new CountDownLatch(1);
-//        Task t = Ping.start("www.baidu.com", 10, new Ping.Callback() {
+//        Task t = Ping.start("www.baidu.com", 10, new Ping.NetDiagCallback() {
 //            @Override
 //            public void complete(Ping.Result r) {
 //                pingResult = r;
@@ -51,7 +51,7 @@ public class TelemetryTest {
 //    @Test
 //    public void tcpPingTest() throws InterruptedException{
 //        final CountDownLatch c = new CountDownLatch(1);
-//        TcpPing.start("www.baidu.com", new TcpPing.Callback() {
+//        TcpPing.start("www.baidu.com", new TcpPing.NetDiagCallback() {
 //            @Override
 //            public void complete(TcpPing.Result r) {
 //                tcpPingResult = r;
@@ -85,7 +85,7 @@ public class TelemetryTest {
 //            public void write(String line) {
 //                System.out.println("test> " + line);
 //            }
-//        }, new TraceRoute.Callback() {
+//        }, new TraceRoute.NetDiagCallback() {
 //            @Override
 //            public void complete(TraceRoute.Result r) {
 //                System.out.println(r.content());
@@ -108,7 +108,7 @@ public class TelemetryTest {
 //        Context appContext = InstrumentationRegistry.getTargetContext();
 //        DEMManager.init(appContext);
 //
-//        HttpPing.start("http://www.baidu.com", new HttpPing.Callback() {
+//        HttpPing.start("http://www.baidu.com", new HttpPing.NetDiagCallback() {
 //            @Override
 //            public void complete(HttpPing.Result result) {
 //                httpResult = result;
@@ -145,7 +145,8 @@ public class TelemetryTest {
     public void TelemetryTest() throws InterruptedException {
         Context appContext = InstrumentationRegistry.getTargetContext();
         final CountDownLatch c = new CountDownLatch(1);
-        NetDiagnosis.start(appContext, "www.baidu.com", "http://www.baidu.com", new NetDiagnosis.Callback() {
+        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", InstrumentationRegistry.getTargetContext());
+        DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
             @Override
             public void complete(boolean isSuccessful, Exception e) {
                 LogUtils.d(TAG, "-----" + isSuccessful);
@@ -153,8 +154,8 @@ public class TelemetryTest {
                 c.countDown();
             }
         });
-//        c.await(200,TimeUnit.SECONDS);
     }
+
 
     @Test
     public void IpAddressTest() throws UnknownHostException {

@@ -18,7 +18,8 @@ public class ManagerTest {
     public void testInit() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
-        DEMManager.init(appContext);
+        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", appContext);
+
 
 //        try {
 //            Thread.sleep(4000);

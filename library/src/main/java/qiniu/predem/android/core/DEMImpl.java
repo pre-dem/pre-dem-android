@@ -9,9 +9,11 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +22,6 @@ import java.util.zip.GZIPOutputStream;
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
@@ -35,20 +36,23 @@ public final class DEMImpl {
     private static final String TAG = "DEMManager";
 
     private static final DEMImpl _instance = new DEMImpl();
+    private WeakReference<Context> context;
 
-    public static DEMImpl instance(){
+    public static DEMImpl instance() {
         return _instance;
     }
 
-    private WeakReference<Context> context;
+    public static String getApp() {
+        return "app_key:" + Configuration.appKey
+                + ",http_monitor_enabled:" + Configuration.httpMonitorEnable
+                + ",crash_report_enable:" + Configuration.crashReportEnable;
+    }
 
-    public void start(String domain, String appKey, Context context){
-        HttpConfig.appKey = appKey;
-        HttpConfig.domain = domain;
+    public void start(String domain, String appKey, Context context) {
         this.context = new WeakReference<>(context);
 
         //获取AppBean信息
-        Configuration.init(context);
+        Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
             updateAppConfig();
         }
@@ -60,7 +64,6 @@ public final class DEMImpl {
             CrashManager.register(context);
         }
     }
-
 
     public void unInit() {
         if (Configuration.httpMonitorEnable) {
@@ -84,7 +87,6 @@ public final class DEMImpl {
         new Thread(new Runnable() {
             @Override
             public void run() {
-//                URL url = null;
                 try {
                     JSONObject parameters = new JSONObject();
                     parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
@@ -97,7 +99,7 @@ public final class DEMImpl {
                     parameters.put("sdk_id",AppBean.ANDROID_BUILD);
                     parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
 
-                    HttpURLConnection httpConn = (HttpURLConnection) new URL(HttpConfig.getConfigUrl()).openConnection();
+                    HttpURLConnection httpConn = (HttpURLConnection) new URL(Configuration.getConfigUrl()).openConnection();
 
                     httpConn.setConnectTimeout(3000);
                     httpConn.setReadTimeout(10000);
@@ -140,10 +142,6 @@ public final class DEMImpl {
         NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
     }
 
-    public static String getApp() {
-        return "app_key:" + Configuration.appKey + ",user_id:" + Configuration.userId + ",platform:" + Configuration.platform + ",http_monitor_enabled:" + Configuration.httpMonitorEnable + ",crash_report_enable:" + Configuration.crashReportEnable + ",telemetry_enable:" + Configuration.telemetryEnable;
-    }
-
     private void signOut(Context context) {
         if (isApplicationBroughtToBackground(context)) {
             unInit();
@@ -163,11 +161,89 @@ public final class DEMImpl {
         return false;
     }
 
-    public void trackEvent(String eventName, Map<String, Object> event){
-
+    public void trackEvent(String eventName, Map<String, Object> event) {
+        JSONObject obj = new JSONObject(event);
+        trackEvent(eventName, event);
     }
 
-    public void trackEvent(String eventName, JSONObject event){
+    public void trackEvent(String eventName, JSONObject event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+    }
 
+    private boolean sendRequest(String url, String content) {
+        LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
+
+        HttpURLConnection httpConn;
+        try {
+            httpConn = (HttpURLConnection) new URL(url).openConnection();
+        } catch (IOException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        }
+        httpConn.setConnectTimeout(3000);
+        httpConn.setReadTimeout(10000);
+        try {
+            httpConn.setRequestMethod("POST");
+        } catch (ProtocolException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        }
+        httpConn.setRequestProperty("Content-Type", "application/json");
+        httpConn.setRequestProperty("Accept-Encoding", "identity");
+
+        try {
+            httpConn.getOutputStream().write(content.getBytes());
+            httpConn.getOutputStream().flush();
+        } catch (IOException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        }
+        int responseCode = 0;
+        try {
+            responseCode = httpConn.getResponseCode();
+        } catch (IOException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        }
+        if (responseCode != 201 && responseCode != 200) {
+            return false;
+        }
+        int length = httpConn.getContentLength();
+        if (length == 0) {
+            return false;
+        } else if (length < 0) {
+            length = 16 * 1024;
+        }
+        InputStream is;
+        try {
+            is = httpConn.getInputStream();
+        } catch (IOException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        }
+        byte[] data = new byte[length];
+        int read = 0;
+        try {
+            read = is.read(data);
+        } catch (IOException e) {
+            LogUtils.e(TAG, e.toString());
+            return false;
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                LogUtils.e(TAG, e.toString());
+            }
+        }
+        return read > 0;
     }
 }

@@ -89,7 +89,7 @@ public class AppBean {
     }
 
     @SuppressLint("HardwareIds")
-    private static String getId(Context context){
+    private static String getId(Context context) {
         return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 

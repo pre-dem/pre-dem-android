@@ -3,8 +3,7 @@ package qiniu.predem.android.probe;
 import java.util.ArrayList;
 import java.util.List;
 
-import qiniu.predem.android.config.HttpConfig;
-import qiniu.predem.android.util.LogUtils;
+import qiniu.predem.android.config.Configuration;
 
 /**
  * Created by Misty on 17/6/15.
@@ -18,7 +17,7 @@ public class GlobalConfig {
     private static final String TAG = "GlobalConfig";
 
     static {
-        ExcludeDomains.add(HttpConfig.domain);
+        ExcludeDomains.add(Configuration.domain);
     }
 
     /**

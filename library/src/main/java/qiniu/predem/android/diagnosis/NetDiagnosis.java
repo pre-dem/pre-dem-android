@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.util.AsyncRun;
 import qiniu.predem.android.util.LogUtils;
 
@@ -242,7 +241,7 @@ public class NetDiagnosis implements Task {
             }
 
             //上报
-            sendRequest(HttpConfig.getDiagnosisUrl(), result.toJsonString());
+            sendRequest(Configuration.getDiagnosisUrl(), result.toJsonString());
 
 //            complete.complete(res, null);
         } catch (IOException e) {

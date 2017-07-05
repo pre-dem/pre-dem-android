@@ -21,8 +21,6 @@ import java.util.Map;
  */
 
 public class HttpUrlConnectionThread extends AsyncTask<String, Integer, Map<String, Object>> {
-    private static final String TAG = "HttpUrlConnectionThread";
-
     //NETWORK_GET表示发送GET请求
     public static final String NETWORK_GET = "NETWORK_GET";
     //NETWORK_POST_KEY_VALUE表示用POST发送键值对数据
@@ -31,23 +29,23 @@ public class HttpUrlConnectionThread extends AsyncTask<String, Integer, Map<Stri
     public static final String NETWORK_POST_XML = "NETWORK_POST_XML";
     //NETWORK_POST_JSON表示用POST发送JSON数据
     public static final String NETWORK_POST_JSON = "NETWORK_POST_JSON";
-
+    private static final String TAG = "HttpUrlConnectionThread";
     private String url;
     private int port;
 
-    public HttpUrlConnectionThread setUrl(String url){
+    public HttpUrlConnectionThread setUrl(String url) {
         this.url = url;
         return this;
     }
 
-    public HttpUrlConnectionThread setPort(int port){
+    public HttpUrlConnectionThread setPort(int port) {
         this.port = port;
         return this;
     }
 
     @Override
     protected Map<String, Object> doInBackground(String... params) {
-        Map<String,Object> result = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
         URL url = null;//请求的URL地址
         HttpURLConnection conn = null;
         String requestHeader = null;//请求头
@@ -105,7 +103,7 @@ public class HttpUrlConnectionThread extends AsyncTask<String, Integer, Map<Stri
     @Override
     protected void onPostExecute(Map<String, Object> result) {
         super.onPostExecute(result);
-        String url = (String)result.get("url");//请求的URL地址
+        String url = (String) result.get("url");//请求的URL地址
         String action = (String) result.get("action");//http请求的操作类型
         String requestHeader = (String) result.get("requestHeader");//请求头
         byte[] requestBody = (byte[]) result.get("requestBody");//请求体
@@ -121,11 +119,11 @@ public class HttpUrlConnectionThread extends AsyncTask<String, Integer, Map<Stri
         }
 
         //更新tvRequestBody，显示请求体
-        if(requestBody != null){
-            try{
+        if (requestBody != null) {
+            try {
                 String request = new String(requestBody, "UTF-8");
 //                tvRequestBody.setText(request);
-            }catch (UnsupportedEncodingException e){
+            } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
         }
@@ -164,7 +162,7 @@ public class HttpUrlConnectionThread extends AsyncTask<String, Integer, Map<Stri
         Map<String, List<String>> responseHeaderMap = conn.getHeaderFields();
         int size = responseHeaderMap.size();
         StringBuilder sbResponseHeader = new StringBuilder();
-        for(int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             String responseHeaderKey = conn.getHeaderFieldKey(i);
             String responseHeaderValue = conn.getHeaderField(i);
             sbResponseHeader.append(responseHeaderKey);

@@ -4,15 +4,17 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+<<<<<<< HEAD
 import android.util.Log;
+=======
+import android.support.v7.app.AppCompatActivity;
+>>>>>>> 320c3d1c9a424e63d93b85b6bf75762fd0ec52cb
 import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
-
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,13 +28,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.util.AsyncRun;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private NetworkAsyncTask networkAsyncTask ;
+    private NetworkAsyncTask networkAsyncTask;
 
     private Button http_btn;
     private Button crash_btn;
@@ -46,6 +49,25 @@ public class MainActivity extends AppCompatActivity {
 
     private Context mContext;
 
+    /**
+     * 产生一个ANR
+     */
+    private static void SleepAMinute() {
+        try {
+            Thread.sleep(20 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 产生一个错误
+     */
+    private static void fakeCrashReport() {
+        RuntimeException exception = new RuntimeException("Just a test exception");
+        throw exception;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,15 +78,15 @@ public class MainActivity extends AppCompatActivity {
 
         mContext = this.getApplicationContext();
 
-        http_btn = (Button)findViewById(R.id.http_btn);
-        crash_btn = (Button)findViewById(R.id.crash_btn);
-        okhttp3_btn = (Button)findViewById(R.id.okhttp3_btn);
-        okhttp2_btn = (Button)findViewById(R.id.okhttp2_btn);
-        diagnosis_btn = (Button)findViewById(R.id.diagnosis_btn);
-        anr_btn = (Button)findViewById(R.id.anr_btn);
-        webview_btn = (Button)findViewById(R.id.webview_btn);
+        http_btn = (Button) findViewById(R.id.http_btn);
+        crash_btn = (Button) findViewById(R.id.crash_btn);
+        okhttp3_btn = (Button) findViewById(R.id.okhttp3_btn);
+        okhttp2_btn = (Button) findViewById(R.id.okhttp2_btn);
+        diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
+        anr_btn = (Button) findViewById(R.id.anr_btn);
+        webview_btn = (Button) findViewById(R.id.webview_btn);
 
-        webView = (WebView)findViewById(R.id.webview1);
+        webView = (WebView) findViewById(R.id.webview1);
 
         crash_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,14 +123,14 @@ public class MainActivity extends AppCompatActivity {
         okhttp2_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
+                try {
                     okhttp2Client.run("http://www.baidu.com");
                     okhttp2Client.run("https://www.163.com");
                     okhttp2Client.run("http://www.qq.com");
                     okhttp2Client.run("https://www.qiniu.com");
                     okhttp2Client.run("http://www.taobao.com");
                     okhttp2Client.run("http://www.alipay.com");
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -136,15 +158,20 @@ public class MainActivity extends AppCompatActivity {
                 DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
                     @Override
                     public void complete(boolean isSuccessful, final Exception e) {
+<<<<<<< HEAD
                         Log.d(TAG,"-------net diagnosis : " + isSuccessful);
                         if (isSuccessful){
+=======
+                        LogUtils.d(TAG, "-------net diagnosis : " + isSuccessful);
+                        if (isSuccessful) {
+>>>>>>> 320c3d1c9a424e63d93b85b6bf75762fd0ec52cb
                             AsyncRun.runInMain(new Runnable() {
                                 @Override
                                 public void run() {
                                     showDialog("Successful!");
                                 }
                             });
-                        }else{
+                        } else {
                             AsyncRun.runInMain(new Runnable() {
                                 @Override
                                 public void run() {
@@ -177,6 +204,25 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
     }
 
+    private void showDialog(final String content) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);        //先得到构造器
+        builder.setTitle("提示");                                         //设置标题
+        builder.setMessage(content);       //设置内容
+        builder.setIcon(R.mipmap.ic_launcher);   //自定义图标
+        builder.setCancelable(false);           //设置是否能点击，对话框的其他区域取消
+
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {     //设置其确认按钮和监听事件
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //  which，是哪一个按钮被触发
+                dialog.dismiss();
+            }
+        });
+
+        builder.create();       //创建对话框
+        builder.show();         //显示对话框
+    }
+
     //用于进行网络请求的AsyncTask
     class NetworkAsyncTask extends AsyncTask<String, Integer, Map<String, Object>> {
         //NETWORK_GET表示发送GET请求
@@ -184,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected Map<String, Object> doInBackground(String... params) {
-            Map<String,Object> result = new HashMap<>();
+            Map<String, Object> result = new HashMap<>();
             URL url = null;//请求的URL地址
             HttpURLConnection conn = null;
             String requestHeader = null;//请求头
@@ -266,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             Map<String, List<String>> responseHeaderMap = conn.getHeaderFields();
             int size = responseHeaderMap.size();
             StringBuilder sbResponseHeader = new StringBuilder();
-            for(int i = 0; i < size; i++){
+            for (int i = 0; i < size; i++) {
                 String responseHeaderKey = conn.getHeaderFieldKey(i);
                 String responseHeaderValue = conn.getHeaderField(i);
                 sbResponseHeader.append(responseHeaderKey);
@@ -308,44 +354,5 @@ public class MainActivity extends AppCompatActivity {
 
             return bytes;
         }
-    }
-
-    /**
-     * 产生一个ANR
-     */
-    private static void SleepAMinute() {
-        try {
-            Thread.sleep(20 * 1000);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 产生一个错误
-     */
-    private static void fakeCrashReport() {
-        RuntimeException exception = new RuntimeException("Just a test exception");
-        throw exception;
-    }
-
-    private void showDialog(final String content){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);        //先得到构造器
-        builder.setTitle("提示");                                         //设置标题
-        builder.setMessage(content);       //设置内容
-        builder.setIcon(R.mipmap.ic_launcher);   //自定义图标
-        builder.setCancelable(false);           //设置是否能点击，对话框的其他区域取消
-
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {     //设置其确认按钮和监听事件
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //  which，是哪一个按钮被触发
-                dialog.dismiss();
-            }
-        });
-
-        builder.create();       //创建对话框
-        builder.show();         //显示对话框
     }
 }

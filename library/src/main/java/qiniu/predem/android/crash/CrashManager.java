@@ -1,4 +1,4 @@
-package qiniu.predem.android;
+package qiniu.predem.android.crash;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -21,7 +21,6 @@ import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.config.HttpConfig;
-import qiniu.predem.android.crash.ExceptionHandler;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;

@@ -1,4 +1,4 @@
-package qiniu.predem.android;
+package qiniu.predem.android.http;
 
 import android.content.Context;
 import android.os.Handler;

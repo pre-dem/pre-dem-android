@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.crash.ExceptionHandler;
 
 /**
@@ -25,6 +26,7 @@ public class CrashReportTest extends AndroidTestCase {
 
     @Before
     public void setUp() {
+        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", InstrumentationRegistry.getTargetContext());
         CrashManager.register(InstrumentationRegistry.getTargetContext());
     }
 

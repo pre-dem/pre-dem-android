@@ -7,8 +7,8 @@ import java.util.Map;
  * Created by Misty on 17/6/15.
  */
 
-public class TelemetryBean {
-    private static final String TAG = "TelemetryBean";
+public class NetDiagBean {
+    private static final String TAG = "NetDiagBean";
 
     public String resultId;
     public PingResult pingResult;

@@ -8,15 +8,6 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true">
-
-        <meta-data
-            android:name="qiniu.predem.android.appKey"
-            android:value="9a9c127726b746e5b5fa7fc816a17407" />
-        <meta-data
-            android:name="qiniu.predem.android.domain"
-            android:value="hriygkee.bq.cloudappl.com" />
-        <!--<meta-data android:name="qiniu.predem.library.appId" android:value="9a9c127726b746e5b5fa7fc816a17407"></meta-data>-->
-
     </application>
 
 </manifest>

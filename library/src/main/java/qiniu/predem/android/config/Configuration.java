@@ -32,8 +32,6 @@ public final class Configuration {
             return;
         }
 
-        //初始化domain 和 appkey
-        HttpConfig.loadFromManifest(context);
         //初始化 app 信息
         AppBean.loadFromContext(context);
         //初始化文件路径

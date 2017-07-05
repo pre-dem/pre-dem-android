@@ -36,11 +36,7 @@ public class OkhttpThreeThread {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-<<<<<<< HEAD
                 Log.d(TAG,"------"+response.code());
-=======
-                LogUtils.d(TAG, "------" + response.code());
->>>>>>> 320c3d1c9a424e63d93b85b6bf75762fd0ec52cb
                 String str = response.body().string();
             }
         });

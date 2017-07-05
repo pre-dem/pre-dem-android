@@ -5,11 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-<<<<<<< HEAD
-import android.util.Log;
-=======
 import android.support.v7.app.AppCompatActivity;
->>>>>>> 320c3d1c9a424e63d93b85b6bf75762fd0ec52cb
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
@@ -31,6 +28,7 @@ import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.util.AsyncRun;
+import qiniu.predem.android.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -158,13 +156,8 @@ public class MainActivity extends AppCompatActivity {
                 DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
                     @Override
                     public void complete(boolean isSuccessful, final Exception e) {
-<<<<<<< HEAD
                         Log.d(TAG,"-------net diagnosis : " + isSuccessful);
-                        if (isSuccessful){
-=======
-                        LogUtils.d(TAG, "-------net diagnosis : " + isSuccessful);
                         if (isSuccessful) {
->>>>>>> 320c3d1c9a424e63d93b85b6bf75762fd0ec52cb
                             AsyncRun.runInMain(new Runnable() {
                                 @Override
                                 public void run() {

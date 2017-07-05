@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import qiniu.predem.android.bean.LogBean;
-import qiniu.predem.android.config.HttpConfig;
+import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 
@@ -28,7 +28,7 @@ public class ProbeInputStream extends InputStream {
     protected LogBean record;
 
     protected ProbeInputStream(InputStream is, LogBean record) {
-        this(is, record, HttpConfig.DEFAULT_TIMEOUT);
+        this(is, record, Configuration.DEFAULT_TIMEOUT);
     }
 
     protected ProbeInputStream(InputStream is, final LogBean record, long timeout) {
@@ -61,12 +61,12 @@ public class ProbeInputStream extends InputStream {
                 if (mPool.size() > 0) {
                     ProbeInputStream obj = mPool.get(0);
                     mPool.remove(0);
-                    obj.init(is, record, HttpConfig.DEFAULT_TIMEOUT);
+                    obj.init(is, record, Configuration.DEFAULT_TIMEOUT);
                     return obj;
                 }
             }
         }
-        return new ProbeInputStream(is, record, HttpConfig.DEFAULT_TIMEOUT);
+        return new ProbeInputStream(is, record, Configuration.DEFAULT_TIMEOUT);
     }
 
     public void release() {

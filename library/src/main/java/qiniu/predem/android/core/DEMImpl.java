@@ -20,7 +20,6 @@ import java.util.Map;
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
@@ -44,12 +43,10 @@ public final class DEMImpl {
     private WeakReference<Context> context;
 
     public void start(String domain, String appKey, Context context){
-        HttpConfig.appKey = appKey;
-        HttpConfig.domain = domain;
         this.context = new WeakReference<>(context);
 
         //获取AppBean信息
-        Configuration.init(context);
+        Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
             updateAppConfig(context);
         }
@@ -88,7 +85,7 @@ public final class DEMImpl {
             public void run() {
                 URL url = null;
                 try {
-                    url = new URL(HttpConfig.getConfigUrl());
+                    url = new URL(Configuration.getConfigUrl());
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
                     StringBuffer jsonStr = new StringBuffer();
@@ -102,12 +99,8 @@ public final class DEMImpl {
                     try {
                         if (conn.getResponseCode() == 200) {
                             JSONObject jo = new JSONObject(jsonStr.toString());
-                            Configuration.appKey = jo.optString("app_key");
-                            Configuration.userId = jo.optString("user_id");
-                            Configuration.platform = jo.optInt("platform");
                             Configuration.httpMonitorEnable = jo.optBoolean("http_monitor_enabled");
                             Configuration.crashReportEnable = jo.optBoolean("crash_report_enabled");
-                            Configuration.telemetryEnable = jo.optBoolean("telemetry_enabled");
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -127,7 +120,9 @@ public final class DEMImpl {
     }
 
     public static String getApp() {
-        return "app_key:" + Configuration.appKey + ",user_id:" + Configuration.userId + ",platform:" + Configuration.platform + ",http_monitor_enabled:" + Configuration.httpMonitorEnable + ",crash_report_enable:" + Configuration.crashReportEnable + ",telemetry_enable:" + Configuration.telemetryEnable;
+        return "app_key:" + Configuration.appKey
+                + ",http_monitor_enabled:" + Configuration.httpMonitorEnable
+                + ",crash_report_enable:" + Configuration.crashReportEnable;
     }
 
     private void signOut(Context context) {

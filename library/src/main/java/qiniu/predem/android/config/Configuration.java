@@ -1,7 +1,6 @@
 package qiniu.predem.android.config;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 
 import qiniu.predem.android.bean.AppBean;
 
@@ -10,18 +9,16 @@ import qiniu.predem.android.bean.AppBean;
  */
 
 public final class Configuration {
+    public static final long DEFAULT_TIMEOUT = 5000;
     private static final String TAG = "Configuration";
-
     public static String appKey = null;
     public static String domain = null;
-
     public static boolean httpMonitorEnable = true;
-
     public static boolean crashReportEnable = true;
-
     public static boolean networkDiagnosis = true; //网络诊断上报
-
     public static boolean dnsEnable = true; //默认是否使用dns
+    private static String ak = null;
+    private static String scheme = "http://";
 
     public static void init(Context context, String appKey, String domain) {
         if (context == null) {
@@ -37,10 +34,6 @@ public final class Configuration {
         FileConfig.loadFilesPath(context);
     }
 
-    public static final long DEFAULT_TIMEOUT = 5000;
-    private static String ak = null;
-    private static String scheme = "http://";
-
     private static String getAppId(String appKey) {
         return appKey.substring(0, 8);
     }
@@ -49,7 +42,7 @@ public final class Configuration {
         scheme = s;
     }
 
-    private static String baseUrl(){
+    private static String baseUrl() {
         return scheme + domain + "/v1/" + getAppId(appKey);
     }
 
@@ -70,6 +63,6 @@ public final class Configuration {
     }
 
     public static String getEventUrl(String name) {
-        return baseUrl() + "/events/"+name;
+        return baseUrl() + "/events/" + name;
     }
 }

@@ -13,19 +13,19 @@ import qiniu.predem.android.core.DEMImpl;
  */
 
 public final class DEMManager {
-    public static void start(String domain, String appKey, Context context){
+    public static void start(String domain, String appKey, Context context) {
         DEMImpl.instance().start(domain, appKey, context.getApplicationContext());
     }
 
-    public static void trackEvent(String eventName, Map<String, Object> event){
+    public static void trackEvent(String eventName, Map<String, Object> event) {
         DEMImpl.instance().trackEvent(eventName, event);
     }
 
-    public static void trackEvent(String eventName, JSONObject event){
+    public static void trackEvent(String eventName, JSONObject event) {
         DEMImpl.instance().trackEvent(eventName, event);
     }
 
-    public static void netDiag(String domain, String address, NetDiagCallback netDiagCallback){
+    public static void netDiag(String domain, String address, NetDiagCallback netDiagCallback) {
         DEMImpl.instance().netDiag(domain, address, netDiagCallback);
     }
 

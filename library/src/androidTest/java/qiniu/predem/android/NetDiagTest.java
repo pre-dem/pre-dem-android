@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 
-import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.util.LogUtils;
 
 /**

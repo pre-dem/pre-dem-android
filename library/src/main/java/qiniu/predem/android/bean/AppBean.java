@@ -8,11 +8,11 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v7.appcompat.BuildConfig;
 import android.text.TextUtils;
 
 import java.security.MessageDigest;
 
+import qiniu.predem.android.BuildConfig;
 import qiniu.predem.android.util.LogUtils;
 
 /**
@@ -82,11 +82,10 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
+        DEVICE_IDENTIFIER = Build.FINGERPRINT;
 
         loadPackageData(context);
         loadCrashIdentifier(context);
-
-//        loadDeviceIdentifier(context);
     }
 
     @SuppressLint("HardwareIds")

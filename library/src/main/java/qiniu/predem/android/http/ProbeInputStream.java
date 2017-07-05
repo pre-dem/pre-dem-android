@@ -48,7 +48,6 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG, "-------isFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }
@@ -94,7 +93,6 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG, "-------checkFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }

@@ -7,18 +7,19 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.HttpConfig;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
+import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
 
 /**
@@ -31,11 +32,10 @@ public class DEMManager {
     protected static boolean enable = true;
 
     public static void init(Context context) {
-
         //获取AppBean信息
         Configuration.init(context);
         if (askForConfiguration(context)) {
-            updateAppConfig(context);
+            updateAppConfig();
         }
 
         if (Configuration.httpMonitorEnable) {
@@ -64,40 +64,56 @@ public class DEMManager {
         return false;
     }
 
-    public static void updateAppConfig(final Context context) {
+    public static void updateAppConfig() {
         enable = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 URL url = null;
                 try {
-                    url = new URL(HttpConfig.getConfigUrl());
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    JSONObject parameters = new JSONObject();
+                    parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
+                    parameters.put("app_name", AppBean.APP_NAME);
+                    parameters.put("app_version", AppBean.APP_VERSION);
+                    parameters.put("device_model", AppBean.PHONE_MODEL);
+                    parameters.put("os_platform","a");
+                    parameters.put("os_version",AppBean.ANDROID_VERSION);
+                    parameters.put("sdk_version", AppBean.SDK_VERSION);
+                    parameters.put("sdk_id",AppBean.ANDROID_BUILD);
+                    parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
 
-                    StringBuffer jsonStr = new StringBuffer();
-                    byte[] buf = new byte[1024];
-                    int len;
-                    InputStream in = conn.getInputStream();
-                    while ((len = in.read(buf)) != -1) {
-                        jsonStr.append(new String(Arrays.copyOfRange(buf, 0, len)));
-                    }
+                    HttpURLConnection httpConn = (HttpURLConnection) new URL(HttpConfig.getConfigUrl()).openConnection();
 
+                    httpConn.setConnectTimeout(3000);
+                    httpConn.setReadTimeout(10000);
+                    httpConn.setRequestMethod("POST");
+
+                    httpConn.setRequestProperty("Content-Type", "application/json");
+                    httpConn.setRequestProperty("Accept-Encoding", "identity");
+
+                    byte[] bytes = parameters.toString().getBytes();
+
+                    ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+                    GZIPOutputStream gzip = new GZIPOutputStream(compressed);
+                    gzip.write(bytes);
+                    gzip.close();
+                    httpConn.getOutputStream().write(compressed.toByteArray());
+                    httpConn.getOutputStream().flush();
+
+                    int responseCode = 0;
                     try {
-                        if (conn.getResponseCode() == 200) {
-                            JSONObject jo = new JSONObject(jsonStr.toString());
-                            Configuration.appKey = jo.optString("app_key");
-                            Configuration.userId = jo.optString("user_id");
-                            Configuration.platform = jo.optInt("platform");
-                            Configuration.httpMonitorEnable = jo.optBoolean("http_monitor_enabled");
-                            Configuration.crashReportEnable = jo.optBoolean("crash_report_enabled");
-                            Configuration.telemetryEnable = jo.optBoolean("telemetry_enabled");
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        responseCode = httpConn.getResponseCode();
+                    } catch (IOException e) {
+                        LogUtils.e(TAG, e.toString());
                     }
+
+                    LogUtils.e("-----configuration code : " + responseCode);
+                    LogUtils.e("-----configuration body : " + httpConn.getResponseMessage());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }

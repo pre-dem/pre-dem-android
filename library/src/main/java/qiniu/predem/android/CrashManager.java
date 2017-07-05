@@ -48,10 +48,6 @@ public class CrashManager {
      * @param context
      */
     public static void register(Context context) {
-//        String appIdentifier = Util.getAppIdentifier(context);
-//        if (TextUtils.isEmpty()) {
-//            throw new IllegalArgumentException("HockeyApp app identifier was not configured correctly in manifest or build configuration.");
-//        }
         // TODO: 17/6/15 判断appkey是否为null
         initialize(context, false);
         execute(context);
@@ -299,7 +295,7 @@ public class CrashManager {
         if (weakContext != null) {
             context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("HockeySDK", Context.MODE_PRIVATE);
+                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
 
                 int retryCounter = preferences.getInt("RETRY_COUNT: " + filename, 0);
@@ -323,7 +319,7 @@ public class CrashManager {
         if (weakContext != null) {
             context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("HockeySDK", Context.MODE_PRIVATE);
+                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
                 editor.remove("RETRY_COUNT: " + filename);
                 editor.apply();
@@ -341,7 +337,7 @@ public class CrashManager {
             if (context != null) {
                 try {
                     String[] filenames = searchForStackTraces();
-                    SharedPreferences preferences = context.getSharedPreferences("HockeySDK", Context.MODE_PRIVATE);
+                    SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putString("ConfirmedFilenames", joinArray(filenames, "|"));
                     editor.apply();

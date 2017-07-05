@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import qiniu.predem.android.config.HttpConfig;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -18,11 +19,7 @@ public class GlobalConfig {
 
     static {
         ExcludeDomains.add(HttpConfig.domain);
-//        ExcludeDomains.add("jkbkolos.bq.cloudappl.com");
     }
-//    static {
-//        IncludeDomains.add("www.baidu.com");
-//    }
 
     /**
      * 不包含
@@ -55,6 +52,9 @@ public class GlobalConfig {
     }
 
     protected static boolean match(String pattern, String domain) {
+        if (pattern == null){
+            return false;
+        }
         int index = 0;
         for (String part : pattern.split("\\*")) {
             if (part.length() == 0) continue;

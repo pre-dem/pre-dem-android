@@ -19,6 +19,8 @@ public final class Configuration {
 
     public static boolean httpMonitorEnable = true;
 
+    public static boolean webviewEnable = true;
+
     public static boolean crashReportEnable = true;
 
     public static boolean telemetryEnable = true;

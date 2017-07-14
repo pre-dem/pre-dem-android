@@ -36,34 +36,15 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         final Date startDate = new Date(CrashManager.getInitializeTimestamp());
         final Writer result = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(result);
-        BufferedWriter writer = null;
         exception.printStackTrace(printWriter);
 
         String filename = UUID.randomUUID().toString();
 
         CrashBean crashBean = new CrashBean(filename, exception);
-        crashBean.setAppPackage(AppBean.APP_PACKAGE);
-        crashBean.setAppVersionCode(AppBean.APP_VERSION);
-        crashBean.setAppVersionName(AppBean.APP_VERSION_NAME);
-        crashBean.setAppStartDate(startDate);
-        crashBean.setAppCrashDate(now);
+        crashBean.setStartTime(FileUtil.DATE_FORMAT.format(startDate));
+        crashBean.setCrashTime(FileUtil.DATE_FORMAT.format(now));
 
-        //device data
-        crashBean.setOsVersion(AppBean.ANDROID_VERSION);
-        crashBean.setOsBuild(AppBean.ANDROID_BUILD);
-        crashBean.setDeviceManufacturer(AppBean.PHONE_MANUFACTURER);
-        crashBean.setDeviceModel(AppBean.PHONE_MODEL);
-
-        //thread data
-        crashBean.setThreadName(thread.getName() + "-" + thread.getId());
-
-        if (AppBean.CRASH_IDENTIFIER != null) {
-            crashBean.setReporterKey(AppBean.CRASH_IDENTIFIER);
-        }
-
-
-        // TODO: 17/6/15 将crash信息写入文件
-//        crashBean.writeCrashReport();
+        //将crash信息写入文件
         fileLogManager.writeCrashReport(crashBean);
     }
 

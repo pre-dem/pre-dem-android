@@ -26,7 +26,7 @@ public final class Configuration {
         }
 
         Configuration.appKey = appKey;
-        Configuration.domain = domain;
+        Configuration.domain = domain;//"100.100.32.147:8080";
         //初始化 app 信息
         AppBean.loadFromContext(context);
         //初始化文件路径
@@ -63,5 +63,9 @@ public final class Configuration {
 
     public static String getEventUrl(String name) {
         return baseUrl() + "/events/" + name;
+    }
+
+    public static String getUpToken(){
+        return baseUrl() +"/lag-report-token/a";
     }
 }

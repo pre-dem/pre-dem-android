@@ -26,17 +26,6 @@ import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;
 
 import static qiniu.predem.android.config.FileConfig.CACHE_FILE_NAME;
-import static qiniu.predem.android.config.FileConfig.FIELD_APP_CRASH_DATE;
-import static qiniu.predem.android.config.FileConfig.FIELD_APP_PACKAGE;
-import static qiniu.predem.android.config.FileConfig.FIELD_APP_START_DATE;
-import static qiniu.predem.android.config.FileConfig.FIELD_APP_VERSION_CODE;
-import static qiniu.predem.android.config.FileConfig.FIELD_APP_VERSION_NAME;
-import static qiniu.predem.android.config.FileConfig.FIELD_CRASH_REPORTER_KEY;
-import static qiniu.predem.android.config.FileConfig.FIELD_DEVICE_MANUFACTURER;
-import static qiniu.predem.android.config.FileConfig.FIELD_DEVICE_MODEL;
-import static qiniu.predem.android.config.FileConfig.FIELD_OS_BUILD;
-import static qiniu.predem.android.config.FileConfig.FIELD_OS_VERSION;
-import static qiniu.predem.android.config.FileConfig.FIELD_THREAD_NAME;
 import static qiniu.predem.android.config.FileConfig.INDEX_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_INDEX;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_POSITION;
@@ -265,33 +254,15 @@ public class FileUtil {
     public void writeCrashReport(final String path, CrashBean crashBean) {
         LogUtils.d(TAG, "Writing unhandled exception to: " + path);
 
-        BufferedWriter writer = null;
+        if (crashBean.ToJsonString() == null){
+            return;
+        }
 
+        BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(path));
-
-            writeHeader(writer, FIELD_APP_PACKAGE, crashBean.getAppPackage());
-            writeHeader(writer, FIELD_APP_VERSION_CODE, crashBean.getAppPackage());
-            writeHeader(writer, FIELD_APP_VERSION_NAME, crashBean.getAppVersionName());
-            writeHeader(writer, FIELD_OS_VERSION, crashBean.getOsVersion());
-            writeHeader(writer, FIELD_OS_BUILD, crashBean.getOsBuild());
-            writeHeader(writer, FIELD_DEVICE_MANUFACTURER, crashBean.getDeviceManufacturer());
-            writeHeader(writer, FIELD_DEVICE_MODEL, crashBean.getDeviceModel());
-            writeHeader(writer, FIELD_THREAD_NAME, crashBean.getThreadName());
-            writeHeader(writer, FIELD_CRASH_REPORTER_KEY, crashBean.getReporterKey());
-
-            writeHeader(writer, FIELD_APP_START_DATE, DATE_FORMAT.format(crashBean.getAppStartDate()));
-            writeHeader(writer, FIELD_APP_CRASH_DATE, DATE_FORMAT.format(crashBean.getAppCrashDate()));
-
-            if (crashBean.getXamarinException()) {
-                writeHeader(writer, FIELD_FORMAT, FIELD_FORMAT_VALUE);
-            }
-
-            writer.write("\n");
-            writer.write(crashBean.getThrowableStackTrace());
-
+            writer.write(crashBean.ToJsonString());
             writer.flush();
-
         } catch (IOException e) {
             LogUtils.e(TAG, "Error saving crash report!" + e.toString());
         } finally {

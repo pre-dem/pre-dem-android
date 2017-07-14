@@ -3,12 +3,26 @@ package qiniu.predem.android.crash;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
+
+import com.qiniu.android.common.AutoZone;
+import com.qiniu.android.common.FixedZone;
+import com.qiniu.android.common.Zone;
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.utils.AsyncRun;
+import com.qiniu.android.utils.UrlSafeBase64;
+
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
@@ -24,6 +38,14 @@ import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
+import qiniu.predem.android.util.ToolUtil;
+
+import static android.R.attr.key;
+import static android.R.id.list;
+import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
+import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
+import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
+import static qiniu.predem.android.config.FileConfig.FILELD_START_TIME;
 
 /**
  * Created by Misty on 17/6/15.
@@ -68,7 +90,7 @@ public class CrashManager {
 
     @SuppressWarnings("deprecation")
     public static void execute(Context context) {
-        Boolean ignoreDefaultHandler = false;//(listener != null) && (listener.ignoreDefaultHandler());
+        Boolean ignoreDefaultHandler = false;
         WeakReference<Context> weakContext = new WeakReference<Context>(context);
 
         int foundOrSend = hasStackTraces(weakContext);
@@ -80,7 +102,6 @@ public class CrashManager {
     }
 
     public static int hasStackTraces(WeakReference<Context> weakContext) {
-        //filter .stacktrace files
         String[] filenames = searchForStackTraces();
         List<String> confirmedFilenames = null;
         int result = STACK_TRACES_FOUND_NONE;
@@ -88,7 +109,8 @@ public class CrashManager {
             try {
                 confirmedFilenames = getConfirmedFilenames(weakContext);
             } catch (Exception e) {
-                // Just in case, we catch all exceptions here
+                LogUtils.e(TAG,e.toString());
+                e.printStackTrace();
             }
 
             if (confirmedFilenames != null) {
@@ -124,14 +146,12 @@ public class CrashManager {
         if (FileConfig.FILES_PATH != null) {
             LogUtils.d("Looking for exceptions in: " + FileConfig.FILES_PATH);
 
-            // Try to create the files folder if it doesn't exist
             File dir = new File(FileConfig.FILES_PATH + "/");
             boolean created = dir.mkdir();
             if (!created && !dir.exists()) {
                 return new String[0];
             }
 
-            // Filter for ".stacktrace" files
             FilenameFilter filter = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     return name.endsWith(".stacktrace");
@@ -144,7 +164,6 @@ public class CrashManager {
         }
     }
 
-
     /**
      * Registers the exception handler.
      */
@@ -156,12 +175,7 @@ public class CrashManager {
                 LogUtils.d("Current handler class = " + currentHandler.getClass().getName());
             }
 
-            // Update listener if already registered, otherwise set new handler
-//            if (currentHandler instanceof ExceptionHandler) {
-//                ((ExceptionHandler) currentHandler).setListener(null);
-//            } else {
             Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler(currentHandler, ignoreDefaultHandler));
-//            }
         } else {
             LogUtils.d("Exception handler not set because version or package is null.");
         }
@@ -177,14 +191,11 @@ public class CrashManager {
 
         Context ctx = weakContext.get();
         if (ctx != null && !NetworkUtil.isConnectedToNetwork(ctx)) {
-            // Not connected to network, not trying to submit stack traces
-//            listener.onCrashesNotSent();
             return;
         }
 
         if (!submitting) {
             submitting = true;
-
             new Thread() {
                 @Override
                 public void run() {
@@ -200,84 +211,126 @@ public class CrashManager {
      *
      * @param weakContext The context to use. Usually your Activity object.
      */
-    public static void submitStackTraces(WeakReference<Context> weakContext) {
-        String[] list = searchForStackTraces();
-        Boolean successful = false;
+    public static void submitStackTraces(final WeakReference<Context> weakContext) {
+        final String[] list = searchForStackTraces();
 
         if ((list != null) && (list.length > 0)) {
-            LogUtils.e("-----Found " + list.length + " stacktrace(s).");
-
             for (int index = 0; index < list.length; index++) {
                 HttpURLConnection urlConnection = null;
+                InputStream is = null;
                 try {
-                    // Read contents of stack trace
                     String filename = list[index];
                     String stacktrace = contentsOfFile(weakContext, filename);
                     if (stacktrace.length() > 0) {
-                        // Transmit stack trace with POST request
-
-                        LogUtils.e("----Transmitting crash data: \n" + stacktrace);
-
-                        // Retrieve user ID and contact information if given
-                        String userID = contentsOfFile(weakContext, filename.replace(".stacktrace", ".user"));
-                        String contact = contentsOfFile(weakContext, filename.replace(".stacktrace", ".contact"));
-
-//                        if (crashMetaData != null) {
-//                            final String crashMetaDataUserID = crashMetaData.getUserID();
-//                            if (!TextUtils.isEmpty(crashMetaDataUserID)) {
-//                                userID = crashMetaDataUserID;
-//                            }
-//                            final String crashMetaDataContact = crashMetaData.getUserEmail();
-//                            if (!TextUtils.isEmpty(crashMetaDataContact)) {
-//                                contact = crashMetaDataContact;
-//                            }
-//                        }
-
-                        // Append application log to user provided description if present, if not, just send application log
-                        final String applicationLog = contentsOfFile(weakContext, filename.replace(".stacktrace", ".description"));
-                        String description = "";//crashMetaData != null ? crashMetaData.getUserDescription() : "";
-                        if (!TextUtils.isEmpty(applicationLog)) {
-                            if (!TextUtils.isEmpty(description)) {
-                                description = String.format("%s\n\nLog:\n%s", description, applicationLog);
-                            } else {
-                                description = String.format("Log:\n%s", applicationLog);
-                            }
-                        }
-
-                        Map<String, String> parameters = new HashMap<String, String>();
-
-                        parameters.put("raw", stacktrace);
-                        parameters.put("userID", userID);
-                        parameters.put("contact", contact);
-                        parameters.put("description", description);
-                        parameters.put("sdk", AppBean.SDK_NAME);
-                        parameters.put("sdk_version", AppBean.ANDROID_VERSION);
-
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
-                                .setRequestMethod("POST")
-                                .writeFormFields(parameters)
+                        JSONObject crashBean = new JSONObject(stacktrace);
+                        //1、getuptoken
+                        String crash = crashBean.optString(FILELD_CRASH_CONTENT);
+                        String md5 = ToolUtil.getStringMd5(crash);
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getUpToken() + "?md5="+md5)
+                                .setRequestMethod("GET")
                                 .build();
 
                         int responseCode = urlConnection.getResponseCode();
+                        String token = null;
+                        String key = null;
+                        if (responseCode == 200){
+                            try {
+                                is = urlConnection.getInputStream();
+                                byte[] data = new byte[8 * 1024];
+                                is.read(data);
+                                String content = new String(data);
+                                JSONObject jsonObject = new JSONObject(content);
+                                token = jsonObject.optString("token");
+                                key = jsonObject.optString("key");
+                            }catch (Exception e){
+                                LogUtils.e(TAG, "------" + e.toString());
+                            }finally {
+                                if (is != null){
+                                    is.close();
+                                }
+                            }
+                        }
+                        if (token == null){
+                            return;
+                        }
 
-                        LogUtils.e("-----code : " + responseCode);
-
-                        successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-
+                        //2、上传信息到七牛云
+                        final String ls = list[index];
+                        final JSONObject bean = crashBean;
+                        Zone zone = FixedZone.zone0;
+                        com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
+                        UploadManager uploadManager = new UploadManager(config);
+                        uploadManager.put(crash.getBytes(), key, token, new UpCompletionHandler() {
+                            @Override
+                            public void complete(final String key, ResponseInfo info, JSONObject response) {
+                                if (info.isOK()) {
+                                    new Thread(){
+                                        @Override
+                                        public void run() {
+                                            sendRequest(weakContext,key,bean,ls);
+                                        }
+                                    }.start();
+                                }else{
+                                    return;
+                                }
+                            }
+                        }, null);
                     }
                 } catch (Exception e) {
+                    LogUtils.e(TAG,"-----"+e.toString());
                     e.printStackTrace();
                 } finally {
                     if (urlConnection != null) {
                         urlConnection.disconnect();
                     }
-                    if (successful) {
-                        LogUtils.d("-----Transmission succeeded");
-                        deleteStackTrace(weakContext, list[index]);
-                    } else {
-                        LogUtils.d("-----Transmission failed, will retry on next register() call");
-                    }
                 }
+            }
+        }
+    }
+
+    private static void sendRequest(WeakReference<Context> weakContext, String key, JSONObject bean, String list){
+        //3、上报服务器
+        HttpURLConnection url = null;
+        boolean successful = false;
+        try {
+            JSONObject parameters = new JSONObject();
+
+            parameters.put("app_bundle_id",AppBean.APP_PACKAGE);
+            parameters.put("app_name",AppBean.APP_NAME);
+            parameters.put("app_version",AppBean.APP_VERSION);
+            parameters.put("device_model",AppBean.PHONE_MODEL);
+            parameters.put("os_platform","a");
+            parameters.put("os_version",AppBean.ANDROID_VERSION);
+            parameters.put("os_build",AppBean.ANDROID_BUILD);
+            parameters.put("sdk_version",AppBean.SDK_VERSION);
+            parameters.put("sdk_id",AppBean.SDK_NAME);
+            parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
+            parameters.put("report_uuid",bean.optString(FIELD_REPORT_UUID));
+            parameters.put("crash_log_key",key);
+            parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
+            parameters.put("start_time",bean.optString(FILELD_START_TIME));
+            parameters.put("crash_time",bean.optString(FILELD_CRASH_TIME));
+
+            url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
+                    .setRequestMethod("POST")
+                    .setHeader("Content-Type","application/json")
+                    .setRequestBody(parameters.toString())
+                    .build();
+
+            int responseCode = url.getResponseCode();
+
+            successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
+        }catch (Exception e){
+            LogUtils.e(TAG,"----"+e.toString());
+            e.printStackTrace();
+        } finally {
+            if (url != null) {
+                url.disconnect();
+            }
+            if (successful) {
+                deleteStackTrace(weakContext,list);
+            } else {
+                LogUtils.d("-----Transmission failed, will retry on next register() call");
             }
         }
     }
@@ -390,7 +443,6 @@ public class CrashManager {
                         }
                     }
                 }
-
                 return contents.toString();
             }
         }
@@ -454,10 +506,6 @@ public class CrashManager {
     public static long getInitializeTimestamp() {
         return initializeTimestamp;
     }
-
-//    public static boolean didCrashInLastSession() {
-////        return didCrashInLastSession;
-//    }
 
     public static CrashBean getLastCrashDetails() {
         if (FileConfig.FILES_PATH == null) {

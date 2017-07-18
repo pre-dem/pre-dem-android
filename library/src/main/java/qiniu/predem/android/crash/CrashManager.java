@@ -3,19 +3,13 @@ package qiniu.predem.android.crash;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
-import android.util.Log;
-
-import com.qiniu.android.common.AutoZone;
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
-import com.qiniu.android.utils.AsyncRun;
-import com.qiniu.android.utils.UrlSafeBase64;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,9 +21,7 @@ import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.bean.CrashBean;
@@ -39,9 +31,6 @@ import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
 import qiniu.predem.android.util.ToolUtil;
-
-import static android.R.attr.key;
-import static android.R.id.list;
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
@@ -69,7 +58,6 @@ public class CrashManager {
      * @param context
      */
     public static void register(Context context) {
-        // TODO: 17/6/15 判断appkey是否为null
         initialize(context, false);
         execute(context);
     }

@@ -9,16 +9,25 @@ import qiniu.predem.android.bean.AppBean;
  */
 
 public final class Configuration {
-    public static final long DEFAULT_TIMEOUT = 5000;
     private static final String TAG = "Configuration";
+
+    public static final String HTTP_MONITOR_ENABLE = "http_monitor_enabled";
+    public static final String CRASH_REPORT_ENABLE = "crash_report_enabled";
+    public static final String DEVICE_SYMBOLICATION_ENABLE = "on_device_symbolication_enabled";
+    public static final String LAG_MONITOR_ENABLE = "lag_monitor_enable";
+    public static final String WEBVIEW_ENABLE = "webview_enable";
+
+    public static final long DEFAULT_TIMEOUT = 5000;
     public static String appKey = null;
     public static String domain = null;
-    public static boolean httpMonitorEnable = true;
-    public static boolean webviewEnable = true;
-    public static boolean crashReportEnable = true;
+    private static String scheme = "http://";
+
+    public static boolean httpMonitorEnable = true;//http上报
+    public static boolean webviewEnable = true;//webview上报
+    public static boolean crashReportEnable = true;//crash上报
+    public static boolean symbilicationEnable = true;//自定义数据上报
     public static boolean networkDiagnosis = true; //网络诊断上报
     public static boolean dnsEnable = true; //默认是否使用dns
-    private static String scheme = "http://";
 
     public static void init(Context context, String appKey, String domain) {
         if (context == null) {
@@ -26,7 +35,7 @@ public final class Configuration {
         }
 
         Configuration.appKey = appKey;
-        Configuration.domain = domain;//"100.100.32.147:8080";
+        Configuration.domain = domain;
         //初始化 app 信息
         AppBean.loadFromContext(context);
         //初始化文件路径

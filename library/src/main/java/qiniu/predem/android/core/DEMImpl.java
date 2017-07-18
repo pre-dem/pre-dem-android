@@ -1,13 +1,8 @@
 package qiniu.predem.android.core;
 
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -15,18 +10,24 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
+import qiniu.predem.android.block.TraceInfoCatcher;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
+import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
+
+import static qiniu.predem.android.config.Configuration.CRASH_REPORT_ENABLE;
+import static qiniu.predem.android.config.Configuration.DEVICE_SYMBOLICATION_ENABLE;
+import static qiniu.predem.android.config.Configuration.HTTP_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.LAG_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.WEBVIEW_ENABLE;
 
 /**
  * Created by long on 2017/7/4.
@@ -54,8 +55,15 @@ public final class DEMImpl {
         //获取AppBean信息
         Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
-            updateAppConfig();
+            updateAppConfig(context);
         }
+
+        //获取各项上报开关
+        Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
+        Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
+        Configuration.symbilicationEnable = SharedPreUtil.getDeviceSymbolicationEable(context);
+        Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
+        Configuration.networkDiagnosis = SharedPreUtil.getNetWorkDiagnosisEnable(context);
 
         if (Configuration.httpMonitorEnable) {
             HttpMonitorManager.getInstance().register(context);
@@ -63,30 +71,28 @@ public final class DEMImpl {
         if (Configuration.crashReportEnable) {
             CrashManager.register(context);
         }
-    }
-
-    public void unInit() {
-        if (Configuration.httpMonitorEnable) {
-            HttpMonitorManager.getInstance().unregister();
+        if (Configuration.crashReportEnable){
+            TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
+            traceInfoCatcher.start();
         }
     }
 
     private static boolean askForConfiguration(Context context) {
         long lastTime = SharedPreUtil.getConfigurationLastTime(context);
-        if (lastTime == -1) {
-            return true;
-        }
         long now = System.currentTimeMillis();
-        if ((now - lastTime) > 86400000) {
+        //超过一天更新config
+        if (lastTime == -1 || (now - lastTime) > 86400000) {
+            SharedPreUtil.setLastTime(context);
             return true;
         }
         return false;
     }
 
-    public  void updateAppConfig() {
+    public  void updateAppConfig(final Context cxt) {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                InputStream in = null;
                 try {
                     JSONObject parameters = new JSONObject();
                     parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
@@ -99,66 +105,46 @@ public final class DEMImpl {
                     parameters.put("sdk_id",AppBean.ANDROID_BUILD);
                     parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
 
-                    HttpURLConnection httpConn = (HttpURLConnection) new URL(Configuration.getConfigUrl()).openConnection();
+                    HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())
+                            .setRequestMethod("POST")
+                            .setHeader("Content-Type", "application/json")
+                            .setRequestBody(parameters.toString())
+                            .build();
 
-                    httpConn.setConnectTimeout(3000);
-                    httpConn.setReadTimeout(10000);
-                    httpConn.setRequestMethod("POST");
-
-                    httpConn.setRequestProperty("Content-Type", "application/json");
-                    httpConn.setRequestProperty("Accept-Encoding", "identity");
-
-                    byte[] bytes = parameters.toString().getBytes();
-
-                    ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-                    GZIPOutputStream gzip = new GZIPOutputStream(compressed);
-                    gzip.write(bytes);
-                    gzip.close();
-                    httpConn.getOutputStream().write(compressed.toByteArray());
-                    httpConn.getOutputStream().flush();
-
-                    int responseCode = 0;
-                    try {
-                        responseCode = httpConn.getResponseCode();
-                    } catch (IOException e) {
-                        LogUtils.e(TAG, e.toString());
+                    int responseCode = httpConn.getResponseCode();
+                    boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
+                    if (successful){
+                        byte[] data = new byte[4*1024];
+                        in = httpConn.getInputStream();
+                        in.read(data);
+                        JSONObject jsonObject = new JSONObject(new String(data));
+                        SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
+                        SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
+                        SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
+                        SharedPreUtil.setDeviceSymbolicationEable(cxt,jsonObject.optBoolean(DEVICE_SYMBOLICATION_ENABLE));
+                        SharedPreUtil.setNetWorkDiagnosisEable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
                     }
-
-                    LogUtils.e("-----configuration code : " + responseCode);
-                    LogUtils.e("-----configuration body : " + httpConn.getResponseMessage());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
+                }finally {
+                    try {
+                        if (in != null) {
+                            in.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();
-
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
         NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
-    }
-
-    private void signOut(Context context) {
-        if (isApplicationBroughtToBackground(context)) {
-            unInit();
-        }
-    }
-
-    //需要申请GETTask权限
-    private boolean isApplicationBroughtToBackground(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
-        if (!tasks.isEmpty()) {
-            ComponentName topActivity = tasks.get(0).topActivity;
-            if (!topActivity.getPackageName().equals(AppBean.APP_PACKAGE)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {

@@ -87,7 +87,7 @@ public class FileUtil {
             }
             return result;
         } catch (FileNotFoundException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (OutOfMemoryError e) {

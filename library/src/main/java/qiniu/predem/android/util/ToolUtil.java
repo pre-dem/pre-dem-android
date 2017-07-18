@@ -1,8 +1,12 @@
 package qiniu.predem.android.util;
 
+import android.app.ActivityManager;
+import android.content.Context;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 /**
  * Created by Misty on 17/7/14.
@@ -28,5 +32,20 @@ public class ToolUtil {
             result += temp;
         }
         return result;
+    }
+
+    public static boolean isBackground(Context context) {
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
+            if (appProcess.processName.equals(context.getPackageName())) {
+                if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -106,7 +106,7 @@ public class AppBean {
                 CRASH_IDENTIFIER = bytesToHex(bytes);
             } catch (Throwable e) {
                 LogUtils.e(TAG, "Couldn't create CrashIdentifier with Exception:" + e.toString());
-                //TODO handle the exception
+                e.printStackTrace();
             }
         }
     }

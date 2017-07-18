@@ -28,7 +28,6 @@ import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.util.AsyncRun;
-import qiniu.predem.android.util.LogUtils;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -134,7 +133,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final String url = "http://blog.csdn.net/shenyuanqing/article/details/49099019";
+//        final String url = "http://blog.csdn.net/shenyuanqing/article/details/49099019";
+        final String url = "http://www.taobao.com";
         webview_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -189,31 +189,34 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", this.getApplicationContext());
+        //000000020007gokq1tfju5if
+        //9a9c127726b746e5b5fa7fc816a17407
+        //000000010004qpc2443vpvai
+        DEMManager.start("hriygkee.bq.cloudappl.com", "000000010004qpc2443vpvai", this.getApplicationContext());
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+//        unregist();
     }
 
     private void showDialog(final String content) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);        //先得到构造器
-        builder.setTitle("提示");                                         //设置标题
-        builder.setMessage(content);       //设置内容
-        builder.setIcon(R.mipmap.ic_launcher);   //自定义图标
-        builder.setCancelable(false);           //设置是否能点击，对话框的其他区域取消
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("提示");
+        builder.setMessage(content);
+        builder.setIcon(R.mipmap.ic_launcher);
+        builder.setCancelable(false);
 
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {     //设置其确认按钮和监听事件
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //  which，是哪一个按钮被触发
                 dialog.dismiss();
             }
         });
 
-        builder.create();       //创建对话框
-        builder.show();         //显示对话框
+        builder.create();
+        builder.show();
     }
 
     //用于进行网络请求的AsyncTask
@@ -235,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 if (NETWORK_GET.equals(action)) {
                     //发送GET请求
-                    url = new URL("http://www.baidu.com");
+                    url = new URL("http://www.qq.com");
                     conn = (HttpURLConnection) url.openConnection();
                     //HttpURLConnection默认就是用GET发送请求，所以下面的setRequestMethod可以省略
                     conn.setRequestMethod("GET");
@@ -285,7 +288,6 @@ public class MainActivity extends AppCompatActivity {
 
         //读取请求头
         private String getReqeustHeader(HttpURLConnection conn) {
-            //https://github.com/square/okhttp/blob/master/okhttp-urlconnection/src/main/java/okhttp3/internal/huc/HttpURLConnectionImpl.java#L236
             Map<String, List<String>> requestHeaderMap = conn.getRequestProperties();
             Iterator<String> requestHeaderIterator = requestHeaderMap.keySet().iterator();
             StringBuilder sbRequestHeader = new StringBuilder();
@@ -348,4 +350,27 @@ public class MainActivity extends AppCompatActivity {
             return bytes;
         }
     }
+
+//    //
+//    LocalBroadcastManager manager ;
+//    BroadcastReceiver mBroadcastReceiver;
+//    public void register(){
+//         mBroadcastReceiver= new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                //ANR
+//                if (intent.getAction().equals(ACTION_ANR)){
+//                    //TODO 处理ANR
+//                    LogUtils.d(TAG,"------this is anr operation");
+//                }
+//            }
+//        };
+//        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
+//    }
+//
+//    public void unregist(){
+//        if (manager != null){
+//            manager.unregisterReceiver(mBroadcastReceiver);
+//        }
+//    }
 }

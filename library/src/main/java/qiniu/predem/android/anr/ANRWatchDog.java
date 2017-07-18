@@ -12,7 +12,6 @@ import qiniu.predem.android.bean.ANRBean;
  */
 
 public class ANRWatchDog extends Thread {
-
     private static final int DEFAULT_ANR_TIMEOUT = 5000;
     private static final ANRListener DEFAULT_ANR_LISTENER = new ANRListener() {
         @Override
@@ -146,7 +145,6 @@ public class ANRWatchDog extends Thread {
     @Override
     public void run() {
         setName("|ANR-WatchDog|");
-
         int lastTick;
         int lastIgnored = -1;
         while (!isInterrupted()) {

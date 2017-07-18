@@ -10,7 +10,7 @@ import java.util.List;
 public class LogBean {
     private static final String TAG = "LogBean";
     private static final List<LogBean> mPool = new LinkedList<>();
-    protected int platform;
+    protected String platform;
     protected String appName;
     protected String appBundleId;
     protected String osVersion;
@@ -34,7 +34,7 @@ public class LogBean {
         init();
     }
 
-    //TODO 用list保存数据，我们直接保存到文件中，这里应该是写文件操作
+    //TODO 用list保存数据，这里应该是写文件操作
     public static LogBean obtain() {
         if (mPool.size() > 0) {
             synchronized (mPool) {
@@ -56,12 +56,12 @@ public class LogBean {
     }
 
     public void init() {
-        platform = 1;
+        platform = "a";
         appName = AppBean.APP_NAME;
         appBundleId = AppBean.APP_PACKAGE;
         osVersion = AppBean.ANDROID_VERSION;
         deviceModel = AppBean.PHONE_MODEL;
-        deviceUUID = AppBean.DEVICE_IDENTIFIER;
+        deviceUUID = AppBean.APP_PACKAGE;
         domain = "-";
         path = "-";
         method = "GET";
@@ -76,11 +76,11 @@ public class LogBean {
         networkErrorMsg = "-";
     }
 
-    public int getPlatform() {
+    public String getPlatform() {
         return platform;
     }
 
-    public void setPlatform(int platform) {
+    public void setPlatform(String platform) {
         this.platform = platform;
     }
 
@@ -229,17 +229,17 @@ public class LogBean {
         jsonStr.append("\"osVersion\": \"").append(osVersion).append("\", ");
         jsonStr.append("\"deviceModel\": \"").append(deviceModel).append("\", ");
         jsonStr.append("\"deviceUUID\": \"").append(deviceUUID).append("\", ");
-        if (domain != null) {
-            jsonStr.append("\"domain\": \"").append(domain).append("\", ");
+        if (domain == null || domain.equals("")) {
+            jsonStr.append("\"domain\": \"").append("-").append("\", ");
         }
-        if (path != null) {
-            jsonStr.append("\"path\": \"").append(path).append("\", ");
+        if (path == null || path.equals("")) {
+            jsonStr.append("\"path\": \"").append("-").append("\", ");
         }
-        if (method != null) {
-            jsonStr.append("\"method\": \"").append(method).append("\", ");
+        if (method == null || method.equals("")) {
+            jsonStr.append("\"method\": \"").append("GET").append("\", ");
         }
-        if (hostIP != null) {
-            jsonStr.append("\"hostIpSet\": \"").append(hostIP).append("\", ");
+        if (hostIP == null || hostIP.equals("")) {
+            jsonStr.append("\"hostIpSet\": \"").append("-").append("\", ");
         }
         jsonStr.append("\"startTimestamp\": ").append(startTimestamp).append(", ");
         jsonStr.append("\"endTimestamp\": ").append(endTimestamp).append(", ");
@@ -255,24 +255,36 @@ public class LogBean {
 
     public String toString() {
         StringBuffer str = new StringBuffer();
-        str.append(platform).append("\\t");
-        str.append(appName).append("\\t");
-        str.append(appBundleId).append("\\t");
-        str.append(osVersion).append("\\n");
-        str.append(deviceModel).append("\\t");
-        str.append(deviceUUID).append("\\t");
-        str.append(domain).append("\\t");
-        str.append(path).append("\\n");
-        str.append(method).append("\\t");
-        str.append(hostIP).append("\\t");
-        str.append(statusCode).append("\\t");
-        str.append(startTimestamp).append("\\n");
-        str.append(responseTimestamp).append("\\t");
-        str.append(endTimestamp).append("\\t");
-        str.append(dnsTime).append("\\t");
-        str.append(dataLength).append("\\n");
-        str.append(networkErrorCode).append("\\t");
-        str.append(networkErrorMsg).append("\\t");
+        str.append(platform).append("\t");
+        str.append(appName).append("\t");
+        str.append(appBundleId).append("\t");
+        str.append(osVersion).append("\t");
+        str.append(deviceModel).append("\t");
+        str.append(deviceUUID).append("\t");
+        if (domain == null || domain.equals("")) {
+            str.append("-").append("\t");
+        }else{
+            str.append(domain).append("\t");
+        }
+        if (path == null || path.equals("")) {
+            str.append("-").append("\t");
+        }else{
+            str.append(path).append("\t");
+        }
+        str.append(method).append("\t");
+        if (hostIP == null || hostIP.equals("")) {
+            str.append("-").append("\t");
+        }else{
+            str.append(hostIP).append("\t");
+        }
+        str.append(statusCode).append("\t");
+        str.append(startTimestamp).append("\t");
+        str.append(responseTimestamp).append("\t");
+        str.append(endTimestamp).append("\t");
+        str.append(dnsTime).append("\t");
+        str.append(dataLength).append("\t");
+        str.append(networkErrorCode).append("\t");
+        str.append(networkErrorMsg).append("\n");
         return str.toString();
     }
 }

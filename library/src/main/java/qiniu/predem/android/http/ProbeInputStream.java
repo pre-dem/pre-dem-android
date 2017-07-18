@@ -18,7 +18,6 @@ import qiniu.predem.android.util.LogUtils;
 public class ProbeInputStream extends InputStream {
     private static final String TAG = "ProbeInputStream";
 
-    //    protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
     private static final List<ProbeInputStream> mPool = new LinkedList<>();
     protected long timeout;
     protected boolean replied;
@@ -48,7 +47,6 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG, "-------isFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }
@@ -94,7 +92,6 @@ public class ProbeInputStream extends InputStream {
                 if (isFinish.compareAndSet(false, true)) {
                     // 提交数据
                     record.setEndTimestamp(System.currentTimeMillis());
-                    LogUtils.d(TAG, "-------checkFinish addReportContent");
                     FileUtil.getInstance().addReportContent(record.toString());
                 }
             }

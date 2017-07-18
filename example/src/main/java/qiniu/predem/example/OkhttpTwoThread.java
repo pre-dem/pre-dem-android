@@ -1,5 +1,7 @@
 package qiniu.predem.example;
 
+import android.util.Log;
+
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.OkHttpClient;
@@ -7,8 +9,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import java.io.IOException;
-
-import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/19.
@@ -36,9 +36,8 @@ public class OkhttpTwoThread {
 
             @Override
             public void onResponse(final Response response) throws IOException {
-                LogUtils.d(TAG, "------okhttp2 : " + response.code());
+                Log.d(TAG,"------okhttp2 : " + response.code());
                 String str = response.body().string();
-//                LogUtils.d(TAG,"------" + str);
             }
         });
     }

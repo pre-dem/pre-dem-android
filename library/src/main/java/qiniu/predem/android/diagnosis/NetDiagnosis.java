@@ -23,9 +23,11 @@ import java.util.regex.Matcher;
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.config.Configuration;
+import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.AsyncRun;
 import qiniu.predem.android.util.LogUtils;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.L;
 import static java.lang.Runtime.getRuntime;
 import static qiniu.predem.android.util.MatcherUtil.getIpFromTraceMatcher;
 import static qiniu.predem.android.util.MatcherUtil.ipMatcher;
@@ -82,7 +84,7 @@ public class NetDiagnosis implements Task {
             ip = getIp(address);
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            //TODO ping 失败
+            // ping 失败
             complete.complete(false, e);
         }
         String cmd = String.format(Locale.getDefault(), "ping -n -i %f -s %d -c %d %s", ((double) 200 / 1000), 56, 10, ip);
@@ -124,7 +126,7 @@ public class NetDiagnosis implements Task {
                 e.printStackTrace();
             }
         }
-        //TODO 解析ping结果
+        // 解析ping结果
         result.pingResult = new NetDiagBean.PingResult(str.toString(), ip, 56);
 
         ///////////////////////////////////////
@@ -143,9 +145,8 @@ public class NetDiagnosis implements Task {
                     code = TimeOut;
                 }
                 if (i == 0) {
-                    //TODO tcpping 失败
+                    // tcpping 失败
                     complete.complete(false, e);
-//                    return null;
                 } else {
                     dropped++;
                 }
@@ -163,11 +164,10 @@ public class NetDiagnosis implements Task {
             }
         }
         if (index == -1) {
-            //TODO tcpping 失败
+            //tcpping 失败
             complete.complete(false, new Exception("tcp ping failure"));
-//            return null;
         }
-        // TODO: 17/6/8  解析 tcpping
+        // tcpping
         result.tcpResult = buildResult(times, index, ip, dropped);
 
         /////////////////////////////////////////////////
@@ -180,14 +180,14 @@ public class NetDiagnosis implements Task {
                 p = executePingCmd(ip, hop);
             } catch (IOException e) {
                 e.printStackTrace();
-                // TODO: 17/6/8 tr 失败
+                // 失败
                 complete.complete(false, e);
                 break;
             }
             long t2 = System.currentTimeMillis();
             String pingtOutput = getPingtOutput(p);
             if (str.length() == 0) {
-                // TODO: 17/6/8 tr 失败
+                // 失败
                 complete.complete(false, new Exception("TraceRoute failure"));
                 break;
             }
@@ -208,7 +208,7 @@ public class NetDiagnosis implements Task {
             }
             hop++;
         }
-        // TODO: 17/6/8 解析tr
+        // 解析tr
         result.trResult = r;
 
         /////////////////////////////////////////////////
@@ -242,8 +242,6 @@ public class NetDiagnosis implements Task {
 
             //上报
             sendRequest(Configuration.getDiagnosisUrl(), result.toJsonString());
-
-//            complete.complete(res, null);
         } catch (IOException e) {
             e.printStackTrace();
             result.httpResult = new NetDiagBean.HttpResult(-1, null, null, 0, null);
@@ -256,36 +254,20 @@ public class NetDiagnosis implements Task {
 
         HttpURLConnection httpConn;
         try {
-            httpConn = (HttpURLConnection) new URL(url).openConnection();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        }
-        httpConn.setConnectTimeout(3000);
-        httpConn.setReadTimeout(10000);
-        try {
-            httpConn.setRequestMethod("POST");
-        } catch (ProtocolException e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        }
-        httpConn.setRequestProperty("Content-Type", "application/json");
-        httpConn.setRequestProperty("Accept-Encoding", "identity");
+            httpConn = new HttpURLConnectionBuilder(url)
+                    .setRequestMethod("POST")
+                    .setHeader("Content-Type","application/json")
+                    .setRequestBody(content)
+                    .build();
 
-        try {
-            byte[] bytes = content.getBytes();
-            if (bytes == null) {
-                complete.complete(false, new Exception("response body empty"));
+            int responseCode = httpConn.getResponseCode();
+            boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
+            if (!successful) {
+                complete.complete(false, new Exception("response error, code " + responseCode));
                 return false;
             }
-            httpConn.getOutputStream().write(content.getBytes());
-            httpConn.getOutputStream().flush();
+            complete.complete(true,null);
+            return true;
         } catch (IOException e) {
             LogUtils.e(TAG, e.toString());
             complete.complete(false, e);
@@ -295,60 +277,6 @@ public class NetDiagnosis implements Task {
             complete.complete(false, e);
             return false;
         }
-        int responseCode = 0;
-        try {
-            responseCode = httpConn.getResponseCode();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        }
-        if (responseCode != 201) {
-            complete.complete(false, new Exception("response error, code " + responseCode));
-            return false;
-        }
-        int length = httpConn.getContentLength();
-        if (length == 0) {
-            complete.complete(false, new Exception("response body empty"));
-            return false;
-        } else if (length < 0) {
-            length = 16 * 1024;
-        }
-        InputStream is;
-        try {
-            is = httpConn.getInputStream();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        }
-        byte[] data = new byte[length];
-        int read = 0;
-        try {
-            read = is.read(data);
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            complete.complete(false, e);
-            return false;
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                LogUtils.e(TAG, e.toString());
-                complete.complete(false, e);
-                return false;
-            }
-        }
-        if (read <= 0) {
-            complete.complete(false, new Exception("response body empty"));
-            return false;
-        }
-        complete.complete(true, null);
-        return true;
     }
 
     private NetDiagBean.TCPResult buildResult(int[] times, int index, String ip, int dropped) {

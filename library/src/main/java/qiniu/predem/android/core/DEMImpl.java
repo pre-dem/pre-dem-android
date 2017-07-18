@@ -1,12 +1,8 @@
 package qiniu.predem.android.core;
 
-import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -14,18 +10,24 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
+import qiniu.predem.android.block.TraceInfoCatcher;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
+import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
+
+import static qiniu.predem.android.config.Configuration.CRASH_REPORT_ENABLE;
+import static qiniu.predem.android.config.Configuration.DEVICE_SYMBOLICATION_ENABLE;
+import static qiniu.predem.android.config.Configuration.HTTP_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.LAG_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.WEBVIEW_ENABLE;
 
 /**
  * Created by long on 2017/7/4.
@@ -35,23 +37,10 @@ public final class DEMImpl {
     private static final String TAG = "DEMManager";
 
     private static final DEMImpl _instance = new DEMImpl();
-    private boolean enable = true;
     private WeakReference<Context> context;
 
     public static DEMImpl instance() {
         return _instance;
-    }
-
-    private static boolean askForConfiguration(Context context) {
-        long lastTime = SharedPreUtil.getConfigurationLastTime(context);
-        if (lastTime == -1) {
-            return true;
-        }
-        long now = System.currentTimeMillis();
-        if ((now - lastTime) > 86400000) {
-            return true;
-        }
-        return false;
     }
 
     public static String getApp() {
@@ -69,78 +58,93 @@ public final class DEMImpl {
             updateAppConfig(context);
         }
 
+        //获取各项上报开关
+        Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
+        Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
+        Configuration.symbilicationEnable = SharedPreUtil.getDeviceSymbolicationEable(context);
+        Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
+        Configuration.networkDiagnosis = SharedPreUtil.getNetWorkDiagnosisEnable(context);
+
         if (Configuration.httpMonitorEnable) {
             HttpMonitorManager.getInstance().register(context);
         }
         if (Configuration.crashReportEnable) {
             CrashManager.register(context);
         }
-    }
-
-    public void unInit() {
-        if (Configuration.httpMonitorEnable) {
-            HttpMonitorManager.getInstance().unregister();
+        if (Configuration.crashReportEnable){
+            TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
+            traceInfoCatcher.start();
         }
     }
 
-    public void updateAppConfig(final Context context) {
-        enable = false;
+    private static boolean askForConfiguration(Context context) {
+        long lastTime = SharedPreUtil.getConfigurationLastTime(context);
+        long now = System.currentTimeMillis();
+        //超过一天更新config
+        if (lastTime == -1 || (now - lastTime) > 86400000) {
+            SharedPreUtil.setLastTime(context);
+            return true;
+        }
+        return false;
+    }
+
+    public  void updateAppConfig(final Context cxt) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                URL url = null;
+                InputStream in = null;
                 try {
-                    url = new URL(Configuration.getConfigUrl());
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    JSONObject parameters = new JSONObject();
+                    parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
+                    parameters.put("app_name", AppBean.APP_NAME);
+                    parameters.put("app_version", AppBean.APP_VERSION);
+                    parameters.put("device_model", AppBean.PHONE_MODEL);
+                    parameters.put("os_platform","a");
+                    parameters.put("os_version",AppBean.ANDROID_VERSION);
+                    parameters.put("sdk_version", AppBean.SDK_VERSION);
+                    parameters.put("sdk_id",AppBean.ANDROID_BUILD);
+                    parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
 
-                    StringBuffer jsonStr = new StringBuffer();
-                    byte[] buf = new byte[1024];
-                    int len;
-                    InputStream in = conn.getInputStream();
-                    while ((len = in.read(buf)) != -1) {
-                        jsonStr.append(new String(Arrays.copyOfRange(buf, 0, len)));
-                    }
+                    HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())
+                            .setRequestMethod("POST")
+                            .setHeader("Content-Type", "application/json")
+                            .setRequestBody(parameters.toString())
+                            .build();
 
-                    try {
-                        if (conn.getResponseCode() == 200) {
-                            JSONObject jo = new JSONObject(jsonStr.toString());
-                            Configuration.httpMonitorEnable = jo.optBoolean("http_monitor_enabled");
-                            Configuration.crashReportEnable = jo.optBoolean("crash_report_enabled");
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    int responseCode = httpConn.getResponseCode();
+                    boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
+                    if (successful){
+                        byte[] data = new byte[4*1024];
+                        in = httpConn.getInputStream();
+                        in.read(data);
+                        JSONObject jsonObject = new JSONObject(new String(data));
+                        SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
+                        SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
+                        SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
+                        SharedPreUtil.setDeviceSymbolicationEable(cxt,jsonObject.optBoolean(DEVICE_SYMBOLICATION_ENABLE));
+                        SharedPreUtil.setNetWorkDiagnosisEable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }finally {
+                    try {
+                        if (in != null) {
+                            in.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();
-
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
         NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
-    }
-
-    private void signOut(Context context) {
-        if (isApplicationBroughtToBackground(context)) {
-            unInit();
-        }
-    }
-
-    //需要申请GETTask权限
-    private boolean isApplicationBroughtToBackground(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
-        if (!tasks.isEmpty()) {
-            ComponentName topActivity = tasks.get(0).topActivity;
-            if (!topActivity.getPackageName().equals(AppBean.APP_PACKAGE)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {

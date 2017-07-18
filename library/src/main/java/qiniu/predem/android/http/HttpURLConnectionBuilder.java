@@ -24,20 +24,20 @@ import qiniu.predem.android.bean.AppBean;
  */
 
 public class HttpURLConnectionBuilder {
+    private static final String TAG = "HttpURLConnectionBuilder";
+
     public static final String DEFAULT_CHARSET = "UTF-8";
     public static final long FORM_FIELD_LIMIT = 4 * 1024 * 1024;
-    private static final String TAG = "HttpURLConnectionBuilder";
     private static final int DEFAULT_TIMEOUT = 2 * 60 * 1000;
     private final String mUrlString;
     private final Map<String, String> mHeaders;
     private String mRequestMethod;
     private String mRequestBody;
-    //    private SimpleMultipartEntity mMultipartEntity;
     private int mTimeout = DEFAULT_TIMEOUT;
 
     public HttpURLConnectionBuilder(String urlString) {
         mUrlString = urlString;
-        mHeaders = new HashMap<String, String>();
+        mHeaders = new HashMap<>();
         mHeaders.put("User-Agent", AppBean.SDK_USER_AGENT);
     }
 
@@ -117,14 +117,6 @@ public class HttpURLConnectionBuilder {
             writer.flush();
             writer.close();
         }
-
-//        if (mMultipartEntity != null) {
-//            connection.setRequestProperty("Content-Length", String.valueOf(mMultipartEntity.getContentLength()));
-//            BufferedOutputStream outputStream = new BufferedOutputStream(connection.getOutputStream());
-//            outputStream.write(mMultipartEntity.getOutputStream().toByteArray());
-//            outputStream.flush();
-//            outputStream.close();
-//        }
 
         return connection;
     }

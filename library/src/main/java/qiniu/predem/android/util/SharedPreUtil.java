@@ -16,8 +16,9 @@ public class SharedPreUtil {
 
     private static final String HTTP_MONITOR_ENABLE = "http_monitor_enable";
     private static final String CRASH_REPORT_ENABLE = "crash_report_enable";
-    private static final String TELEMETRY_ENABLE = "telemetry_enable";
-    private static final String NETWORK_DIAGNOSIS_ENABLE = "network_diagnosis_enable";
+    private static final String WEBVIEW_ENABLE = "webview_enable";
+    private static final String DEVICE_SYMBOLICATION_ENABLE = "on_device_symbolication_enabled";
+    private static final String NETWORK_DIAGNOSIS_ENABLE = "lag_monitor_enable";
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(FILE_NAME, context.MODE_PRIVATE);
@@ -28,24 +29,55 @@ public class SharedPreUtil {
         return sh.edit();
     }
 
+    /**
+     * http 上报开关
+     * @param context
+     * @param enable
+     */
     public static void setHttpMonitorEnable(Context context, boolean enable) {
         SharedPreferences.Editor editor = getEditor(context);
         editor.putBoolean(HTTP_MONITOR_ENABLE, enable);
         editor.apply();
     }
 
+    /**
+     * crash 上报开关
+     * @param context
+     * @param enable
+     */
     public static void setCrashReportEable(Context context, boolean enable) {
         SharedPreferences.Editor editor = getEditor(context);
         editor.putBoolean(CRASH_REPORT_ENABLE, enable);
         editor.apply();
     }
 
-    public static void setTelemetryEable(Context context, boolean enable) {
+    /**
+     * webview 上报开关
+     * @param context
+     * @param enable
+     */
+    public static void setWebviewEnable(Context context, boolean enable){
         SharedPreferences.Editor editor = getEditor(context);
-        editor.putBoolean(TELEMETRY_ENABLE, enable);
+        editor.putBoolean(WEBVIEW_ENABLE, enable);
         editor.apply();
     }
 
+    /**
+     * 自定义数据上报开关
+     * @param context
+     * @param enable
+     */
+    public static void setDeviceSymbolicationEable(Context context, boolean enable) {
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putBoolean(DEVICE_SYMBOLICATION_ENABLE, enable);
+        editor.apply();
+    }
+
+    /**
+     * 网络诊断上报开关
+     * @param context
+     * @param enable
+     */
     public static void setNetWorkDiagnosisEable(Context context, boolean enable) {
         SharedPreferences.Editor editor = getEditor(context);
         editor.putBoolean(NETWORK_DIAGNOSIS_ENABLE, enable);
@@ -69,14 +101,19 @@ public class SharedPreUtil {
         return sh.getBoolean(CRASH_REPORT_ENABLE, false);
     }
 
+    public static boolean getWebviewEnable(Context context){
+        SharedPreferences sh = getSharedPreferences(context);
+        return sh.getBoolean(WEBVIEW_ENABLE, false);
+    }
+
     public static boolean getNetWorkDiagnosisEnable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
         return sh.getBoolean(NETWORK_DIAGNOSIS_ENABLE, false);
     }
 
-    public static boolean getTelemetryEnable(Context context) {
+    public static boolean getDeviceSymbolicationEable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(TELEMETRY_ENABLE, false);
+        return sh.getBoolean(DEVICE_SYMBOLICATION_ENABLE, false);
     }
 
     public static long getConfigurationLastTime(Context context) {

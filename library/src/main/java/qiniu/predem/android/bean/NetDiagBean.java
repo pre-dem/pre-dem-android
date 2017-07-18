@@ -3,6 +3,8 @@ package qiniu.predem.android.bean;
 import java.util.List;
 import java.util.Map;
 
+import qiniu.predem.android.util.LogUtils;
+
 /**
  * Created by Misty on 17/6/15.
  */
@@ -20,7 +22,16 @@ public class NetDiagBean {
     public String toJsonString() {
         StringBuilder jsonStr = new StringBuilder();
         jsonStr.append("{ ");
-        jsonStr.append("\"result_id\": \"").append(resultId).append("\", ");
+        jsonStr.append("\"app_bundle_id\":\"").append(AppBean.APP_PACKAGE).append("\",");
+        jsonStr.append("\"app_name\":\"").append(AppBean.APP_NAME).append("\",");
+        jsonStr.append("\"app_version\":\"").append(AppBean.APP_VERSION).append("\",");
+        jsonStr.append("\"device_model\":\"").append(AppBean.PHONE_MODEL).append("\",");
+        jsonStr.append("\"os_platform\":\"").append("a").append("\",");
+        jsonStr.append("\"os_version\":\"").append(AppBean.ANDROID_VERSION).append("\",");
+        jsonStr.append("\"sdk_version\":\"").append(AppBean.SDK_VERSION).append("\",");
+        jsonStr.append("\"sdk_id\":\"").append(AppBean.SDK_NAME).append("\",");
+        jsonStr.append("\"device_id\":\"").append(AppBean.DEVICE_IDENTIFIER).append("\",");
+        jsonStr.append("\"result_id\": \"").append("").append("\", ");
         jsonStr.append(pingResult.toJsonString());
         jsonStr.append(tcpResult.toJsonString());
         jsonStr.append(trResult.toJsonString());
@@ -45,7 +56,6 @@ public class NetDiagBean {
         public final String result;
         public final String ip;
         public final int size;
-        //        public final int interval;
         private final String lastLinePrefix = "rtt min/avg/max/mdev = ";
         private final String packetWords = " packets transmitted";
         private final String receivedWords = " received";
@@ -140,7 +150,7 @@ public class NetDiagBean {
             jsonStr.append("\"ping_avg_rtt\": ").append(avg).append(", ");
             jsonStr.append("\"ping_loss\": ").append(dropped).append(", ");
             jsonStr.append("\"ping_count\": ").append(count).append(", ");
-            jsonStr.append("\"ping_total_time\": ").append(totalTime).append(", ");
+            jsonStr.append("\"ping_total_time\": ").append(time).append(", ");
             jsonStr.append("\"ping_stddev\": ").append(stddev).append(", ");
             return jsonStr.toString();
         }
@@ -271,7 +281,7 @@ public class NetDiagBean {
         public String toJsonString() {
             StringBuilder jsonStr = new StringBuilder();
             jsonStr.append("\"http_code\": ").append(code).append(", ");
-//            jsonStr.append("\"http_ip\": \"").append(httpIp).append("\", ");
+            jsonStr.append("\"http_ip\": \"").append("58.217.200.15").append("\", ");
             jsonStr.append("\"http_duration\": ").append(duration).append(", ");
             jsonStr.append("\"http_body_size\": ").append(body == null ? 0 : body.length);
             return jsonStr.toString();

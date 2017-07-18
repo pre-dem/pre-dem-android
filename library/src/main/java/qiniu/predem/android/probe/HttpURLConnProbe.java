@@ -30,7 +30,6 @@ import qiniu.predem.android.util.MatcherUtil;
 public class HttpURLConnProbe {
     protected static final HashMap<Object, LogBean> reportMap = new HashMap<>();
     private static final String TAG = "HttpURLConnProbe";
-//    protected static final Set<String> ExcludeIPs = new HashSet<>();
 
     @Pointcut("call(* java.net.URL+.openConnection(..))")
     public void callOpenConnection() {

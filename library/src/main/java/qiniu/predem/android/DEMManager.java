@@ -11,7 +11,6 @@ import qiniu.predem.android.core.DEMImpl;
 /**
  * Created by Misty on 17/6/15.
  */
-
 public final class DEMManager {
     public static void start(String domain, String appKey, Context context) {
         DEMImpl.instance().start(domain, appKey, context.getApplicationContext());

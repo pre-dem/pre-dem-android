@@ -34,9 +34,11 @@ public class ANRBean extends Error {
             }
         });
 
-        for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet())
-            if (entry.getKey() == mainThread || (entry.getKey().getName().startsWith(prefix) && (logThreadsWithoutStackTrace || entry.getValue().length > 0)))
+        for (Map.Entry<Thread, StackTraceElement[]> entry : Thread.getAllStackTraces().entrySet()){
+            if (entry.getKey() == mainThread || (entry.getKey().getName().startsWith(prefix) && (logThreadsWithoutStackTrace || entry.getValue().length > 0))) {
                 stackTraces.put(entry.getKey(), entry.getValue());
+            }
+        }
 
         // Sometimes main is not returned in getAllStackTraces() - ensure that we list it
         if (!stackTraces.containsKey(mainThread)) {
@@ -44,8 +46,9 @@ public class ANRBean extends Error {
         }
 
         $._Thread tst = null;
-        for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet())
+        for (Map.Entry<Thread, StackTraceElement[]> entry : stackTraces.entrySet()){
             tst = new $(getThreadTitle(entry.getKey()), entry.getValue()).new _Thread(tst);
+        }
 
         return new ANRBean(tst);
     }

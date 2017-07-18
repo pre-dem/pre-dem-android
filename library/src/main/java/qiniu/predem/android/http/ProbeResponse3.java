@@ -78,11 +78,9 @@ public class ProbeResponse3 extends ResponseBody {
             @Override
             public long read(Buffer sink, long byteCount) throws IOException {
                 long bytesRead = super.read(sink, byteCount);
-                // read() returns the number of bytes read, or -1 if this source is exhausted.
                 if (bytesRead == -1) {
                     // TODO: 17/6/13
                     record.setEndTimestamp(System.currentTimeMillis());
-//                    LogUtils.d(TAG,"------info : " + record.toJsonString());
                     FileUtil.getInstance().addReportContent(record.toString());
                 } else {
                     totalBytes += bytesRead;

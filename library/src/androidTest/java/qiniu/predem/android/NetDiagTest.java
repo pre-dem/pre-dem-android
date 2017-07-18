@@ -153,7 +153,6 @@ public class NetDiagTest {
                 c.countDown();
             }
         });
-//        c.await(200,TimeUnit.SECONDS);
     }
 
 

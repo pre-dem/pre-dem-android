@@ -60,9 +60,10 @@ public class NetDiagnosis implements Task {
     }
 
     public static void start(Context context, String domain, String url, DEMManager.NetDiagCallback complete) {
-        if (!Configuration.networkDiagnosis) {
-            complete.complete(false, new Exception("the diagnosis isn't open"));
-        }
+        // TODO: 17/7/19 网络诊断还需要开关吗? 
+//        if (!Configuration.networkDiagnosis) {
+//            complete.complete(false, new Exception("the diagnosis isn't open"));
+//        }
         final NetDiagnosis p = new NetDiagnosis(context, domain, url, complete);
         AsyncRun.runInBack(new Runnable() {
             @Override

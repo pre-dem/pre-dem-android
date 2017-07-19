@@ -24,7 +24,6 @@ import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
 
 import static qiniu.predem.android.config.Configuration.CRASH_REPORT_ENABLE;
-import static qiniu.predem.android.config.Configuration.DEVICE_SYMBOLICATION_ENABLE;
 import static qiniu.predem.android.config.Configuration.HTTP_MONITOR_ENABLE;
 import static qiniu.predem.android.config.Configuration.LAG_MONITOR_ENABLE;
 import static qiniu.predem.android.config.Configuration.WEBVIEW_ENABLE;
@@ -56,24 +55,23 @@ public final class DEMImpl {
         Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
             updateAppConfig(context);
-        }
+        }else{
+            //设置开关
+            Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
+            Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
+            Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
+            Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
 
-        //获取各项上报开关
-        Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
-        Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
-        Configuration.symbilicationEnable = SharedPreUtil.getDeviceSymbolicationEable(context);
-        Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
-        Configuration.networkDiagnosis = SharedPreUtil.getNetWorkDiagnosisEnable(context);
-
-        if (Configuration.httpMonitorEnable) {
-            HttpMonitorManager.getInstance().register(context);
-        }
-        if (Configuration.crashReportEnable) {
-            CrashManager.register(context);
-        }
-        if (Configuration.crashReportEnable){
-            TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
-            traceInfoCatcher.start();
+            if (Configuration.httpMonitorEnable){
+                HttpMonitorManager.getInstance().register(context);
+            }
+            if (Configuration.crashReportEnable){
+                CrashManager.register(context);
+            }
+            if (Configuration.lagMonitorEnable){
+                TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
+                traceInfoCatcher.start();
+            }
         }
     }
 
@@ -121,8 +119,23 @@ public final class DEMImpl {
                         SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
                         SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
                         SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
-                        SharedPreUtil.setDeviceSymbolicationEable(cxt,jsonObject.optBoolean(DEVICE_SYMBOLICATION_ENABLE));
-                        SharedPreUtil.setNetWorkDiagnosisEable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
+                        SharedPreUtil.setLagMonitorEnable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
+                    }
+                    //设置开关
+                    Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(cxt);
+                    Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(cxt);
+                    Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(cxt);
+                    Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(cxt);
+
+                    if (Configuration.httpMonitorEnable){
+                        HttpMonitorManager.getInstance().register(cxt);
+                    }
+                    if (Configuration.crashReportEnable){
+                        CrashManager.register(cxt);
+                    }
+                    if (Configuration.lagMonitorEnable){
+                        TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(cxt);
+                        traceInfoCatcher.start();
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();

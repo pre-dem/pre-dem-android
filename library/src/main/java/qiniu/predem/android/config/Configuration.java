@@ -25,8 +25,8 @@ public final class Configuration {
     public static boolean httpMonitorEnable = true;//http上报
     public static boolean webviewEnable = true;//webview上报
     public static boolean crashReportEnable = true;//crash上报
-    public static boolean symbilicationEnable = true;//自定义数据上报
-    public static boolean networkDiagnosis = true; //网络诊断上报
+    public static boolean lagMonitorEnable = true;//view卡顿上报
+//    public static boolean networkDiagnosis = true; //网络诊断上报
     public static boolean dnsEnable = true; //默认是否使用dns
 
     public static void init(Context context, String appKey, String domain) {

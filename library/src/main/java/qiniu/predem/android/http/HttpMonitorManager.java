@@ -7,7 +7,9 @@ import android.os.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.zip.GZIPOutputStream;
 
@@ -15,6 +17,8 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.ToolUtil;
+
+import static android.R.string.ok;
 
 /**
  * Created by Misty on 17/6/15.
@@ -47,6 +51,18 @@ public class HttpMonitorManager {
                 LogUtils.d(TAG,"-----on byebye message");
                 onByeByeMessage();
             }
+//            switch (msg.what) {
+//                case MSG_WHAT_REPORT:
+//                    //发送上报数据
+//                    onReportMessage(true);
+//                    break;
+//                case MSG_WHAT_BYEBYE:
+//                    //注销上报数据
+//                    onByeByeMessage();
+//                    break;
+//                default:
+//                    break;
+//            }
             return true;
         }
     };

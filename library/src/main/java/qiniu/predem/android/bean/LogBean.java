@@ -56,7 +56,7 @@ public class LogBean {
     }
 
     public void init() {
-        platform = "2";
+        platform = "a";
         appName = AppBean.APP_NAME;
         appBundleId = AppBean.APP_PACKAGE;
         osVersion = AppBean.ANDROID_VERSION;

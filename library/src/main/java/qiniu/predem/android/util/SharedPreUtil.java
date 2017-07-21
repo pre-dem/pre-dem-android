@@ -17,7 +17,8 @@ public class SharedPreUtil {
     private static final String HTTP_MONITOR_ENABLE = "http_monitor_enable";
     private static final String CRASH_REPORT_ENABLE = "crash_report_enable";
     private static final String WEBVIEW_ENABLE = "webview_enable";
-    private static final String LAG_MONITOR_ENABLE = "lag_monitor_enable";
+    private static final String DEVICE_SYMBOLICATION_ENABLE = "on_device_symbolication_enabled";
+    private static final String NETWORK_DIAGNOSIS_ENABLE = "lag_monitor_enable";
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(FILE_NAME, context.MODE_PRIVATE);
@@ -62,13 +63,24 @@ public class SharedPreUtil {
     }
 
     /**
-     * view卡顿上报
+     * 自定义数据上报开关
      * @param context
      * @param enable
      */
-    public static void setLagMonitorEnable(Context context, boolean enable) {
+    public static void setDeviceSymbolicationEable(Context context, boolean enable) {
         SharedPreferences.Editor editor = getEditor(context);
-        editor.putBoolean(LAG_MONITOR_ENABLE, enable);
+        editor.putBoolean(DEVICE_SYMBOLICATION_ENABLE, enable);
+        editor.apply();
+    }
+
+    /**
+     * 网络诊断上报开关
+     * @param context
+     * @param enable
+     */
+    public static void setNetWorkDiagnosisEable(Context context, boolean enable) {
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putBoolean(NETWORK_DIAGNOSIS_ENABLE, enable);
         editor.apply();
     }
 
@@ -94,9 +106,14 @@ public class SharedPreUtil {
         return sh.getBoolean(WEBVIEW_ENABLE, false);
     }
 
-    public static boolean getLagMonitorEnable(Context context){
+    public static boolean getNetWorkDiagnosisEnable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(LAG_MONITOR_ENABLE, false);
+        return sh.getBoolean(NETWORK_DIAGNOSIS_ENABLE, false);
+    }
+
+    public static boolean getDeviceSymbolicationEable(Context context) {
+        SharedPreferences sh = getSharedPreferences(context);
+        return sh.getBoolean(DEVICE_SYMBOLICATION_ENABLE, false);
     }
 
     public static long getConfigurationLastTime(Context context) {

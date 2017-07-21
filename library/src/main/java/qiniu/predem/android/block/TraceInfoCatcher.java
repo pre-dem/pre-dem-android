@@ -87,6 +87,7 @@ public class TraceInfoCatcher extends Thread {
                     long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info) {
+                        LogUtils.e(TAG, "------find block line");
                         //send reqeust
                         sendRequest(info);
                     } else {
@@ -165,6 +166,7 @@ public class TraceInfoCatcher extends Thread {
                         int responseCode = urlConnection.getResponseCode();
                         String token = null;
                         String key = null;
+                        LogUtils.d(TAG,"-----block response code : " + responseCode);
                         if (responseCode == 200) {
                             try {
                                 is = urlConnection.getInputStream();
@@ -193,6 +195,7 @@ public class TraceInfoCatcher extends Thread {
                         uploadManager.put(info.mLog.getBytes(), key, token, new UpCompletionHandler() {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {
+                                LogUtils.d(TAG,"-----block upload response : " + info.statusCode + ";" + info.error);
                                 if (info.isOK()) {
                                     new Thread(){
                                         @Override
@@ -226,6 +229,7 @@ public class TraceInfoCatcher extends Thread {
                                                         .build();
 
                                                 int responseCode = url.getResponseCode();
+                                                LogUtils.d(TAG,"-------view report code : " + responseCode);
                                             }catch (Exception e){
                                                 LogUtils.e(TAG,"----"+e.toString());
                                                 e.printStackTrace();

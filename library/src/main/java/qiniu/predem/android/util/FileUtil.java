@@ -80,7 +80,6 @@ public class FileUtil {
             String content;
             while ((content = reader.readLine()) != null) {
                 builder.append(content);
-                builder.append("\n");
             }
             String result = builder.toString();
             if ("".equals(result)) {

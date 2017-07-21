@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
@@ -76,6 +75,12 @@ public class TraceInfoCatcher extends Thread {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                //判断应用是否在前台
+                if (!ToolUtil.isBackground(context)){
+                    stopTrace();
+                    return ;
+                }
+                LogUtils.d(TAG,"------trace info");
                 //block
                 if (intent.getAction().equals(ACTION_BLOCK)) {
                     long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
@@ -202,7 +207,7 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("app_name",AppBean.APP_NAME);
                                                 parameters.put("app_version",AppBean.APP_VERSION);
                                                 parameters.put("device_model",AppBean.PHONE_MODEL);
-                                                parameters.put("os_platform","a");
+                                                parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
                                                 parameters.put("os_version",AppBean.ANDROID_VERSION);
                                                 parameters.put("os_build",AppBean.ANDROID_BUILD);
                                                 parameters.put("sdk_version",AppBean.SDK_VERSION);

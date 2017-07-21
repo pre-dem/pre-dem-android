@@ -3,6 +3,7 @@ package qiniu.predem.android.config;
 import android.content.Context;
 
 import qiniu.predem.android.bean.AppBean;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -34,6 +35,7 @@ public final class Configuration {
             return;
         }
 
+        LogUtils.d(TAG,"-----init info");
         Configuration.appKey = appKey;
         Configuration.domain = domain;
         //初始化 app 信息

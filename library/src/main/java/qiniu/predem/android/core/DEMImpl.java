@@ -54,6 +54,7 @@ public final class DEMImpl {
         //获取AppBean信息
         Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
+            LogUtils.d(TAG,"----updateAppConfig");
             updateAppConfig(context);
         }else{
             //设置开关
@@ -97,7 +98,7 @@ public final class DEMImpl {
                     parameters.put("app_name", AppBean.APP_NAME);
                     parameters.put("app_version", AppBean.APP_VERSION);
                     parameters.put("device_model", AppBean.PHONE_MODEL);
-                    parameters.put("os_platform","a");
+                    parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
                     parameters.put("os_version",AppBean.ANDROID_VERSION);
                     parameters.put("sdk_version", AppBean.SDK_VERSION);
                     parameters.put("sdk_id",AppBean.ANDROID_BUILD);

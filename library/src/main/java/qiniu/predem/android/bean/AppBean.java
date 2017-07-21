@@ -58,6 +58,10 @@ public class AppBean {
      * The device's OS build.
      */
     public static String ANDROID_BUILD = "-";
+    /**
+     * The device's platform
+     */
+    public static String ANDROID_PLATFORM = "Android";
 
     /**
      * The device's model name.

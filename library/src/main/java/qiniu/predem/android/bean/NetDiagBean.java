@@ -26,7 +26,7 @@ public class NetDiagBean {
         jsonStr.append("\"app_name\":\"").append(AppBean.APP_NAME).append("\",");
         jsonStr.append("\"app_version\":\"").append(AppBean.APP_VERSION).append("\",");
         jsonStr.append("\"device_model\":\"").append(AppBean.PHONE_MODEL).append("\",");
-        jsonStr.append("\"os_platform\":\"").append("a").append("\",");
+        jsonStr.append("\"os_platform\":\"").append(AppBean.ANDROID_PLATFORM).append("\",");
         jsonStr.append("\"os_version\":\"").append(AppBean.ANDROID_VERSION).append("\",");
         jsonStr.append("\"sdk_version\":\"").append(AppBean.SDK_VERSION).append("\",");
         jsonStr.append("\"sdk_id\":\"").append(AppBean.SDK_NAME).append("\",");

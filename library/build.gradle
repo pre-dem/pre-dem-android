@@ -13,7 +13,6 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'jacoco'
 
 repositories {
     mavenCentral()
@@ -27,7 +26,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -57,7 +56,6 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.okio:okio:1.7.0'
     compile 'com.qiniu:qiniu-android-sdk:7.3.+'
-//    compile 'org.aspectj:aspectjtools:1.8.1'
 
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:0.5'
@@ -103,22 +101,3 @@ android.libraryVariants.all { variant ->
         }
     }
 }
-
-//task clearJar(type: Delete) {
-//    delete 'libs/AndroidDemSDK.jar'
-//}
-//
-//task makeJar(type:org.gradle.api.tasks.bundling.Jar) {
-//    //指定生成的jar名
-//    baseName 'AndroidDemSDK'
-//    //从哪里打包class文件
-//    from('build/intermediates/classes/release/qiniu/predem/android')
-//    //前缀
-//    into('qiniu/predem/android')
-//    //去掉不需要打包的目录和文件
-////    exclude('test/', 'BuildConfig.class', 'R.class')
-//    //去掉R$开头的文件
-////    exclude{ it.name.startsWith('R$');}
-//}
-//
-//makeJar.dependsOn(clearJar,build)

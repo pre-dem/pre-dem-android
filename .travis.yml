@@ -11,6 +11,9 @@ addons:
     packages:
       - lynx
 
+group:
+    - deprecated-2017Q3
+
 android:
   components:
     - tools

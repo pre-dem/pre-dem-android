@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 
 import qiniu.predem.android.BuildConfig;
 import qiniu.predem.android.util.LogUtils;
+import qiniu.predem.android.util.ToolUtil;
 
 /**
  * Created by Misty on 17/6/15.
@@ -86,7 +87,7 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = Build.FINGERPRINT;
+        DEVICE_IDENTIFIER = ToolUtil.generateUUID(context);//Build.FINGERPRINT;
 
         loadPackageData(context);
         loadCrashIdentifier(context);

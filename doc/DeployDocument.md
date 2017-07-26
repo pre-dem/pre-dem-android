@@ -13,9 +13,14 @@
  
  - 下载七牛APM SDK，并导入项目中
  - 打开项目根目录下的build.gradle (Project) 文件
+ 	![](./pic/Pasted Graphic 1.tiff)
  - 在buildscript模块加入代码
- `classpath 'org.aspectj:aspectjtools:1.8.6'`
+ 	`classpath 'org.aspectj:aspectjtools:1.8.6'`
+ 	
+ 	![](./pic/Pasted Graphic.tiff)
+ 
  - 打开项目工程主模块下的build.gradle (Module) 文件
+ 	![](./pic/Pasted Graphic 2.tiff)
  - 在文件中引入 mavenCentral()
 
 	```json
@@ -25,6 +30,8 @@
 	```
 - 在dependencies模块添加依赖
 	`compile 'org.aspectj:aspectjrt:1.8.6'`
+	
+	![](./pic/Pasted Graphic 3.tiff)
 ￼￼￼
 - 添加依赖插件
  
@@ -85,8 +92,6 @@ variants.all { variant ->
 
 `DEMManager.start("hriygkee.bq.cloudappl.com", "000000010004qpc2443vpvai", this.getApplicationContext());`
 
-``在 “Application”中的 onCreat()方法中初始化 Android SDK (该配置仅仅只限于有多进程性能监控需求的应用)``
-
 ### 使用 Gradle 命令打包编译
 `gradle clean build`
 
@@ -97,5 +102,6 @@ variants.all { variant ->
 ### 嵌码完整性校验
 - 数据收集服务器校验
 - 嵌码完成后可通过 “LogCat” 查看 SDK 日志输出结果，用以进行数据收集服务器校验，TAG 为 DEMManager， 标准日志输出结果如下所示
+![](./pic/Pasted Graphic 7.tiff)
 
  

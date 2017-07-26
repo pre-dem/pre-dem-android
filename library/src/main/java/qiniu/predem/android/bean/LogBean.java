@@ -61,7 +61,7 @@ public class LogBean {
         appBundleId = AppBean.APP_PACKAGE;
         osVersion = AppBean.ANDROID_VERSION;
         deviceModel = AppBean.PHONE_MODEL;
-        deviceUUID = AppBean.APP_PACKAGE;
+        deviceUUID = AppBean.DEVICE_IDENTIFIER;
         domain = "-";
         path = "-";
         method = "GET";

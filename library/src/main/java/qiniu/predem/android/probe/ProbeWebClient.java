@@ -21,6 +21,7 @@ import qiniu.predem.android.bean.LogBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.http.MySSLSocketFactory;
 import qiniu.predem.android.http.ProbeInputStream;
+import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.MatcherUtil;
 
 /**
@@ -143,6 +144,7 @@ public class ProbeWebClient extends WebViewClient {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
                 wrr.setStatusCodeAndReasonPhrase(conn.getResponseCode(), conn.getResponseMessage());
             }
+            record.setEndTimestamp(System.currentTimeMillis());
             return wrr;
         }
         return null;

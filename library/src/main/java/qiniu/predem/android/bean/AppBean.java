@@ -44,10 +44,6 @@ public class AppBean {
      */
     public static String APP_VERSION = "-";
     /**
-     * The app's version name.
-     */
-    public static String APP_VERSION_NAME = "-";
-    /**
      * The app's package name.
      */
     public static String APP_PACKAGE = "-";
@@ -87,7 +83,7 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = ToolUtil.generateUUID(context);//Build.FINGERPRINT;
+        DEVICE_IDENTIFIER = ToolUtil.generateUUID(context);
 
         loadPackageData(context);
         loadCrashIdentifier(context);
@@ -154,8 +150,8 @@ public class AppBean {
                 PackageManager packageManager = context.getPackageManager();
                 PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
                 APP_PACKAGE = packageInfo.packageName;
-                APP_VERSION = "" + packageInfo.versionCode;
-                APP_VERSION_NAME = packageInfo.versionName;
+                APP_VERSION = packageInfo.versionName;
+//                APP_VERSION_NAME = packageInfo.versionName;
 
                 int buildNumber = loadBuildNumber(context, packageManager);
                 if ((buildNumber != 0) && (buildNumber > packageInfo.versionCode)) {

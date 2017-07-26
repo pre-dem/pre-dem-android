@@ -1,16 +1,15 @@
-import com.android.build.gradle.LibraryPlugin
 import org.aspectj.bridge.IMessage
 import org.aspectj.bridge.MessageHandler
 import org.aspectj.tools.ajc.Main
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'org.aspectj:aspectjtools:1.8.1'
-    }
-}
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath 'org.aspectj:aspectjtools:1.8.6'
+//    }
+//}
 
 apply plugin: 'com.android.library'
 
@@ -47,15 +46,12 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    //    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-    //        exclude group: 'com.android.support', module: 'support-annotations'
-    //    })
     compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'org.aspectj:aspectjrt:1.8.1'
     compile 'com.squareup.okhttp3:okhttp:3.8.0'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.squareup.okio:okio:1.7.0'
     compile 'com.qiniu:qiniu-android-sdk:7.3.+'
+    compile 'org.aspectj:aspectjrt:1.8.6'
 
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:0.5'
@@ -68,11 +64,11 @@ dependencies {
 }
 
 android.libraryVariants.all { variant ->
-    LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
+//    LibraryPlugin plugin = project.plugins.getPlugin(LibraryPlugin)
     JavaCompile javaCompile = variant.javaCompile
     javaCompile.doLast {
         String[] args = ["-showWeaveInfo",
-                         "-1.5",
+                         "-1.8",
                          "-inpath", javaCompile.destinationDir.toString(),
                          "-aspectpath", javaCompile.classpath.asPath,
                          "-d", javaCompile.destinationDir.toString(),
@@ -101,3 +97,22 @@ android.libraryVariants.all { variant ->
         }
     }
 }
+
+task clearJar(type: Delete) {
+    delete 'libs/AndroidAPMSDK.jar'
+}
+
+task makeJar(type:org.gradle.api.tasks.bundling.Jar) {
+    //指定生成的jar名
+    baseName 'AndroidAPMSDK'
+    //从哪里打包class文件
+    from('build/intermediates/classes/release/qiniu/predem/android/')
+    //打包到jar后的目录结构
+    into('qiniu/predem/android/')
+    //去掉不需要打包的目录和文件
+    exclude('test/', 'BuildConfig.class', 'R.class')
+    //去掉R$开头的文件
+    exclude{ it.name.startsWith('R$');}
+}
+
+makeJar.dependsOn(clearJar, build)

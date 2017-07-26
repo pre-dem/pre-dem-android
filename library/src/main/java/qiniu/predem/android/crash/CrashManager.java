@@ -1,7 +1,6 @@
 package qiniu.predem.android.crash;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
@@ -30,6 +29,7 @@ import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
+import qiniu.predem.android.util.SharedPreUtil;
 import qiniu.predem.android.util.ToolUtil;
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
@@ -122,8 +122,7 @@ public class CrashManager {
         if (weakContext != null) {
             Context context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                String[] res = preferences.getString("ConfirmedFilenames", "").split("\\|");
+                String[] res = SharedPreUtil.getCrashConfirmedFilenames(context).split("\\|");
                 result = Arrays.asList(res);
             }
         }
@@ -330,21 +329,16 @@ public class CrashManager {
         if (maxRetryAttempts == -1) {
             return;
         }
-
         Context context = null;
         if (weakContext != null) {
             context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                int retryCounter = preferences.getInt("RETRY_COUNT: " + filename, 0);
+                int retryCounter = SharedPreUtil.getCrashRetryCount(context,"RETRY_COUNT: " + filename);
                 if (retryCounter >= maxRetryAttempts) {
                     deleteStackTrace(weakContext, filename);
                     deleteRetryCounter(weakContext, filename, maxRetryAttempts);
                 } else {
-                    editor.putInt("RETRY_COUNT: " + filename, retryCounter + 1);
-                    editor.apply();
+                    SharedPreUtil.setCrashRetryCount(context,"RETRY_COUNT: " + filename,retryCounter+1);
                 }
             }
         }
@@ -359,10 +353,7 @@ public class CrashManager {
         if (weakContext != null) {
             context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.remove("RETRY_COUNT: " + filename);
-                editor.apply();
+                SharedPreUtil.removeCrashRetryCount(context, "RETRY_COUNT: " + filename);
             }
         }
     }
@@ -377,10 +368,7 @@ public class CrashManager {
             if (context != null) {
                 try {
                     String[] filenames = searchForStackTraces();
-                    SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("ConfirmedFilenames", joinArray(filenames, "|"));
-                    editor.apply();
+                    SharedPreUtil.setCrashConfirmedFilenames(context, joinArray(filenames,"|"));
                 } catch (Exception e) {
                     // Just in case, we catch all exceptions here
                 }

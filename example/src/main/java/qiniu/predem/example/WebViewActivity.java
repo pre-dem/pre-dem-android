@@ -1,58 +1,115 @@
 package qiniu.predem.example;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.http.SslError;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.SslErrorHandler;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ProgressBar;
 
 /**
  * Created by Misty on 17/7/4.
  */
 
 public class WebViewActivity extends Activity {
-    private WebView webView;
+    private static final String TAG = "WebViewActivity";
+
+    private WebView mWebView;
+    private Intent mIntent;
+    private String mUrl;
+    private ProgressBar mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //清除cookie
+        CookieSyncManager.createInstance(WebViewActivity.this);
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.removeAllCookie();
+
         setContentView(R.layout.activity_webview);
 
-        initView();
+        mWebView = (WebView)findViewById(R.id.login_webview);
+
+        mIntent = getIntent();
+        mUrl = mIntent.getStringExtra("extr_url");
+
+        mProgress = (ProgressBar)findViewById(R.id.login_webview_progress);
+
+        init();
     }
 
-    private void initView() {
-        String url = "http://blog.csdn.net/shenyuanqing/article/details/49099019";
-        webView = (WebView) findViewById(R.id.webview);
-//        //启用支持JavaScript
-//        webView.getSettings().setJavaScriptEnabled(true);
-//        //启用支持DOM Storage
-//        webView.getSettings().setDomStorageEnabled(true);
-        //加载web资源
-        webView.loadUrl(url);
-        //覆盖WebView默认使用第三方或系统默认浏览器打开网页的行为，使网页用WebView打开
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
-            }
-        });
+    private void init() {
+        mWebView.setWebViewClient(webViewClient);
+//        mWebView.setWebChromeClient(chromeClient);
+        WebSettings settings = mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        settings.setDefaultZoom(WebSettings.ZoomDensity.FAR);
+
+        settings.setSupportZoom(true);
+        settings.setBuiltInZoomControls(true);
+        settings.setAppCacheEnabled(false);
+        settings.setSavePassword(false);
+
+        mWebView.loadUrl(mUrl);
     }
 
-    //改写物理按键的返回的逻辑
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        // TODO Auto-generated method stub
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (webView.canGoBack()) {
-                webView.goBack();//返回上一页面
-                return true;
-            } else {
-                finish();
-            }
+    private WebViewClient webViewClient = new WebViewClient() {
+        /** 重写点击动作,用webview载入 */
+        @Override
+        public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+            mProgress.setVisibility(View.VISIBLE);
+            mWebView.loadUrl(url);
+            return true;
         }
-        return super.onKeyDown(keyCode, event);
+
+        @Override
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            Log.d(TAG, "onReceivedSslError");
+            handler.proceed(); // 接受所有网站的证书
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view,url,favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+//            checkurl(url);
+        }
+    };
+
+//    private WebChromeClient chromeClient = new WebChromeClient(){
+//        @Override
+//        public void onProgressChanged(WebView view, int newProgress) {
+//            if(newProgress == 100)
+//            {
+//                mProgress.setVisibility(View.GONE);
+//            }
+//            super.onProgressChanged(view,newProgress);
+//        }
+//    };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
+    @Override
+    public void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mWebView.destroy();
+    }
 }

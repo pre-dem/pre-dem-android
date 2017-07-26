@@ -45,24 +45,10 @@ public class HttpMonitorManager {
         @Override
         public boolean handleMessage(Message msg) {
             if (!ToolUtil.isBackground(mContext)){
-                LogUtils.d(TAG,"-----report message");
                 onReportMessage(true);
-            }else{
-                LogUtils.d(TAG,"-----on byebye message");
+            }else {
                 onByeByeMessage();
             }
-//            switch (msg.what) {
-//                case MSG_WHAT_REPORT:
-//                    //发送上报数据
-//                    onReportMessage(true);
-//                    break;
-//                case MSG_WHAT_BYEBYE:
-//                    //注销上报数据
-//                    onByeByeMessage();
-//                    break;
-//                default:
-//                    break;
-//            }
             return true;
         }
     };

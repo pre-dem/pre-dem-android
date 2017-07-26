@@ -27,13 +27,7 @@ import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.ToolUtil;
 
-import static android.R.id.list;
-import static qiniu.predem.android.block.BlockPrinter.ACTION_ANR;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
-import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
-import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
-import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
-import static qiniu.predem.android.config.FileConfig.FILELD_START_TIME;
 
 /**
  * Created by fengcunhan on 16/1/19.
@@ -76,11 +70,10 @@ public class TraceInfoCatcher extends Thread {
             @Override
             public void onReceive(Context context, Intent intent) {
                 //判断应用是否在前台
-                if (!ToolUtil.isBackground(context)){
+                if (ToolUtil.isBackground(context)){
                     stopTrace();
                     return ;
                 }
-                LogUtils.d(TAG,"------trace info");
                 //block
                 if (intent.getAction().equals(ACTION_BLOCK)) {
                     long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
@@ -89,7 +82,7 @@ public class TraceInfoCatcher extends Thread {
                     if (null != info) {
                         LogUtils.e(TAG, "------find block line");
                         //send reqeust
-                        sendRequest(info);
+                        sendRequest(info,startTime+"",endTime+"");
                     } else {
                         LogUtils.e(TAG, "------no block line find");
                     }
@@ -148,7 +141,7 @@ public class TraceInfoCatcher extends Thread {
         return result.toString();
     }
 
-    public void sendRequest(final TraceInfo info){
+    public void sendRequest(final TraceInfo info, final String startTime, final String endTime){
         if (!submitting) {
             submitting = true;
             new Thread() {
@@ -166,7 +159,6 @@ public class TraceInfoCatcher extends Thread {
                         int responseCode = urlConnection.getResponseCode();
                         String token = null;
                         String key = null;
-                        LogUtils.d(TAG,"-----block response code : " + responseCode);
                         if (responseCode == 200) {
                             try {
                                 is = urlConnection.getInputStream();
@@ -219,8 +211,8 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("report_uuid","");
                                                 parameters.put("crash_log_key",key);
                                                 parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
-                                                parameters.put("start_time","");
-                                                parameters.put("crash_time","");
+                                                parameters.put("start_time",startTime);
+                                                parameters.put("crash_time",endTime);
 
                                                 url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
                                                         .setRequestMethod("POST")

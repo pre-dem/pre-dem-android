@@ -3,6 +3,7 @@ package qiniu.predem.example;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -32,8 +33,6 @@ import qiniu.predem.android.util.AsyncRun;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private NetworkAsyncTask networkAsyncTask;
-
     private Button http_btn;
     private Button crash_btn;
     private Button okhttp3_btn;
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private static void SleepAMinute() {
         try {
-            Thread.sleep(20 * 1000);
+            Thread.sleep(25 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -95,9 +94,12 @@ public class MainActivity extends AppCompatActivity {
         http_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                http_btn.setEnabled(false);
-                networkAsyncTask = new NetworkAsyncTask();
-                networkAsyncTask.execute("NETWORK_GET");
+                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
+                new HttpUrlConnectionThread("https://www.163.com",null).start();
+                new HttpUrlConnectionThread("http://www.qq.com",null).start();
+                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
+                new HttpUrlConnectionThread("http://www.taobao.com",null).start();
+                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
             }
         });
 
@@ -133,20 +135,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        final String url = "http://blog.csdn.net/shenyuanqing/article/details/49099019";
-        final String url = "http://www.taobao.com";
+        final String url = "http://www.baidu.com";
         webview_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                webView.setVisibility(View.VISIBLE);
-                webView.loadUrl(url);
-                webView.setWebViewClient(new WebViewClient(){
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                        view.loadUrl(url);
-                        return true;
-                    }
-                });
+                Intent intent = new Intent(mContext,WebViewActivity.class);
+                intent.putExtra("extr_url",url);
+                startActivity(intent);
             }
         });
 

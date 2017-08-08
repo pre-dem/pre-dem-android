@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
@@ -152,7 +153,7 @@ public class TraceInfoCatcher extends Thread {
                     InputStream is = null;
                     try {
                         String md5 = ToolUtil.getStringMd5(info.mLog);
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getUpToken() + "?md5=" + md5)
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getLagMonitorUpToken() + "?md5=" + md5)
                                 .setRequestMethod("GET")
                                 .build();
 
@@ -208,11 +209,11 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("sdk_version",AppBean.SDK_VERSION);
                                                 parameters.put("sdk_id",AppBean.SDK_NAME);
                                                 parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
-                                                parameters.put("report_uuid","");
-                                                parameters.put("crash_log_key",key);
+                                                parameters.put("report_uuid", UUID.randomUUID().toString());
+                                                parameters.put("lag_log_key",key);
                                                 parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
                                                 parameters.put("start_time",startTime);
-                                                parameters.put("crash_time",endTime);
+                                                parameters.put("lag_time",endTime);
 
                                                 url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
                                                         .setRequestMethod("POST")

@@ -25,6 +25,7 @@ import java.util.Locale;
 import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;
 
+import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 import static qiniu.predem.android.config.FileConfig.CACHE_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.INDEX_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_INDEX;
@@ -41,8 +42,9 @@ import static qiniu.predem.android.config.FileConfig.QOS_FILE_PREFIX;
  */
 
 public class FileUtil {
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
     private static final String TAG = "FileUtil";
+    //2017-08-05T02:15:50Z
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     private static final String FIELD_FORMAT = "Format";
     private static final String FIELD_FORMAT_VALUE = "Xamarin";
 

@@ -30,7 +30,7 @@ public class HttpMonitorManager {
     private static final int MSG_WHAT_REPORT = 1;
     private static final int MSG_WHAT_BYEBYE = 2;
     private static final int MSG_BYEBYTE_DELAY = 10; //ms
-    private static final int reportIntervalTime = 60 * 1000;
+    private static final int reportIntervalTime = 10 * 1000;
 
     private static boolean initialized = false;
 

@@ -1,6 +1,8 @@
 package qiniu.predem.android.core;
 
 import android.content.Context;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -22,6 +24,11 @@ import qiniu.predem.android.http.HttpMonitorManager;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
+
+import static qiniu.predem.android.config.Configuration.CRASH_REPORT_ENABLE;
+import static qiniu.predem.android.config.Configuration.HTTP_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.LAG_MONITOR_ENABLE;
+import static qiniu.predem.android.config.Configuration.WEBVIEW_ENABLE;
 
 /**
  * Created by long on 2017/7/4.
@@ -52,7 +59,7 @@ public final class DEMImpl {
         Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
             updateAppConfig(context);
-        }else{
+        }else {
             //获取各项上报开关
             Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
             Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
@@ -60,20 +67,19 @@ public final class DEMImpl {
             Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
 
             if (Configuration.httpMonitorEnable) {
+                LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
                 HttpMonitorManager.getInstance().register(context);
             }
             if (Configuration.crashReportEnable) {
+                LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
                 CrashManager.register(context);
             }
-            if (Configuration.lagMonitorEnable){
+            if (Configuration.lagMonitorEnable) {
+                LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
                 TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
                 traceInfoCatcher.start();
             }
         }
-        LogUtils.d(TAG,"Http monitor " + Configuration.httpMonitorEnable);
-        LogUtils.d(TAG,"Crash report " + Configuration.crashReportEnable);
-        LogUtils.d(TAG,"WebView monitor " + Configuration.webviewEnable);
-        LogUtils.d(TAG,"Lag monitor " + Configuration.lagMonitorEnable);
     }
 
     private static boolean askForConfiguration(Context context) {
@@ -117,10 +123,10 @@ public final class DEMImpl {
                         in = httpConn.getInputStream();
                         in.read(data);
                         JSONObject jsonObject = new JSONObject(new String(data));
-                        SharedPreUtil.setHttpMonitorEnable(cxt, true);//jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
-                        SharedPreUtil.setCrashReportEable(cxt, true);//jsonObject.optBoolean(CRASH_REPORT_ENABLE));
-                        SharedPreUtil.setWebviewEnable(cxt,true);//jsonObject.optBoolean(WEBVIEW_ENABLE));
-                        SharedPreUtil.setLagMonitorEnable(cxt,true);//jsonObject.optBoolean(LAG_MONITOR_ENABLE));
+                        SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
+                        SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
+                        SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
+                        SharedPreUtil.setLagMonitorEnable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
                     }
                     //获取各项上报开关
                     Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(cxt);
@@ -129,12 +135,16 @@ public final class DEMImpl {
                     Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(cxt);
 
                     if (Configuration.httpMonitorEnable) {
+                        LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
                         HttpMonitorManager.getInstance().register(cxt);
                     }
                     if (Configuration.crashReportEnable) {
+                        LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
                         CrashManager.register(cxt);
                     }
+                    LogUtils.d(TAG,"-----"+Configuration.lagMonitorEnable);
                     if (Configuration.lagMonitorEnable){
+                        LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
                         TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(cxt);
                         traceInfoCatcher.start();
                     }
@@ -159,7 +169,8 @@ public final class DEMImpl {
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
-        NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
+//        NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
+        NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {
@@ -167,8 +178,8 @@ public final class DEMImpl {
         trackEvent(eventName, event);
     }
 
-    public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+    public void trackEvent(String eventName, JSONArray event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
     }
 
     private boolean sendRequest(String url, String content) {

@@ -11,6 +11,15 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by Misty on 17/6/19.
@@ -21,6 +30,13 @@ public class HttpUrlConnectionThread extends Thread {
 
     private String mUrl;
     private String mMethod;
+
+    private HostnameVerifier DO_NOT_VERIFY = new HostnameVerifier() {
+
+        public boolean verify(String hostname, SSLSession session) {
+            return true;
+        }
+    };
 
     HttpUrlConnectionThread(String url, String method){
         this.mUrl = url;
@@ -44,8 +60,18 @@ public class HttpUrlConnectionThread extends Thread {
         InputStream in = null;
         try {
             url = new URL(mUrl);
-            URLConnection URLconnection = url.openConnection();
+            URLConnection URLconnection = null;
+            if (url.getProtocol().toLowerCase().equals("https")) {
+                trustAllHosts();
+                HttpsURLConnection https = (HttpsURLConnection) url.openConnection();
+                https.setHostnameVerifier(DO_NOT_VERIFY);
+                URLconnection = https;
+            } else {
+                URLconnection = (HttpURLConnection)url.openConnection();
+            }
+
             httpConnection = (HttpURLConnection) URLconnection;
+
             httpConnection.setConnectTimeout(3000);
             if (mMethod != null && !mMethod.equals("")){
                 httpConnection.setRequestMethod(mMethod);
@@ -74,6 +100,34 @@ public class HttpUrlConnectionThread extends Thread {
             }catch (Exception e1){
                 e1.printStackTrace();
             }
+        }
+    }
+
+    private static void trustAllHosts() {
+        final String TAG = "trustAllHosts";
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new java.security.cert.X509Certificate[] {};
+            }
+
+            public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                Log.i(TAG, "checkClientTrusted");
+            }
+
+            public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                Log.i(TAG, "checkServerTrusted");
+            }
+        } };
+
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

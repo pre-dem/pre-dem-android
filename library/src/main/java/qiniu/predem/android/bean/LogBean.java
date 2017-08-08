@@ -10,7 +10,7 @@ import java.util.List;
 public class LogBean {
     private static final String TAG = "LogBean";
     private static final List<LogBean> mPool = new LinkedList<>();
-    protected String platform;
+    protected int platform;
     protected String appName;
     protected String appBundleId;
     protected String osVersion;
@@ -56,7 +56,7 @@ public class LogBean {
     }
 
     public void init() {
-        platform = "a";
+        platform = 2;
         appName = AppBean.APP_NAME;
         appBundleId = AppBean.APP_PACKAGE;
         osVersion = AppBean.ANDROID_VERSION;
@@ -66,21 +66,21 @@ public class LogBean {
         path = "-";
         method = "GET";
         hostIP = "-";
-        statusCode = -1;
-        startTimestamp = -1;
-        responseTimestamp = -1;
-        endTimestamp = -1;
-        dnsTime = -1;
+        statusCode = 0;
+        startTimestamp = 0;
+        responseTimestamp = 0;
+        endTimestamp = 0;
+        dnsTime = 0;
         dataLength = 0;
-        networkErrorCode = -1;
+        networkErrorCode = 0;
         networkErrorMsg = "-";
     }
 
-    public String getPlatform() {
+    public int getPlatform() {
         return platform;
     }
 
-    public void setPlatform(String platform) {
+    public void setPlatform(int platform) {
         this.platform = platform;
     }
 

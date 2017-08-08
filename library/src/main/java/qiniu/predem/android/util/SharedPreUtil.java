@@ -105,22 +105,22 @@ public class SharedPreUtil {
 
     public static boolean getHttpMonitorEnable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(HTTP_MONITOR_ENABLE, false);
+        return sh.getBoolean(HTTP_MONITOR_ENABLE, true);
     }
 
     public static boolean getCrashReportEnable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(CRASH_REPORT_ENABLE, false);
+        return sh.getBoolean(CRASH_REPORT_ENABLE, true);
     }
 
     public static boolean getWebviewEnable(Context context){
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(WEBVIEW_ENABLE, false);
+        return sh.getBoolean(WEBVIEW_ENABLE, true);
     }
 
     public static boolean getLagMonitorEnable(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getBoolean(LAG_MONITOR_ENABLE, false);
+        return sh.getBoolean(LAG_MONITOR_ENABLE, true);
     }
 
     public static int getCrashRetryCount(Context context,String name){

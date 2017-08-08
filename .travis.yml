@@ -6,14 +6,6 @@ language: android
 jdk:
   - oraclejdk8
 
-addons:
-  apt:
-    packages:
-      - lynx
-
-group:
-    - deprecated-2017Q3
-
 android:
   components:
     - tools
@@ -40,8 +32,20 @@ script:
   - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
   - ./gradlew clean build
 
+dist:
+  - trusty
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
 after_failure:
   - if [ -f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html; fi
+
+before_install:
+- gem install fir-cli
+after_deploy:
+- fir p example/build/outputs/apk/example-release.apk -T $FIR_TOKEN -c "`git cat-file tag $TRAVIS_TAG`"
+
+notifications:
+  email:
+  - ncuboy_045wsq@qq.com

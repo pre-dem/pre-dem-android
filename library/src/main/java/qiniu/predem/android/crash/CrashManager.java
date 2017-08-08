@@ -213,7 +213,7 @@ public class CrashManager {
                         //1、getuptoken
                         String crash = crashBean.optString(FILELD_CRASH_CONTENT);
                         String md5 = ToolUtil.getStringMd5(crash);
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getUpToken() + "?md5="+md5)
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUpToken() + "?md5="+md5)
                                 .setRequestMethod("GET")
                                 .build();
 
@@ -290,7 +290,7 @@ public class CrashManager {
             parameters.put("os_version",AppBean.ANDROID_VERSION);
             parameters.put("os_build",AppBean.ANDROID_BUILD);
             parameters.put("sdk_version",AppBean.SDK_VERSION);
-            parameters.put("sdk_id",AppBean.SDK_NAME);
+            parameters.put("sdk_id","");
             parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
             parameters.put("report_uuid",bean.optString(FIELD_REPORT_UUID));
             parameters.put("crash_log_key",key);

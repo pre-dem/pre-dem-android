@@ -21,12 +21,11 @@ android:
     - extra-android-m2repository
 
 before_script:
-  - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-  - echo y | android update sdk --no-ui --all --filter "tool,extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository"
-  - echo y | $ANDROID_HOME/tools/bin/sdkmanager "extras;m2repository;com;android;support;constraint;constraint-layout-solver;1.0.2"
-  - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
+   - android list targets
+   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+   - emulator -avd test -no-audio -no-window &
+   - android-wait-for-emulator
+   - adb shell input keyevent 82 &
 
 script:
   - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace

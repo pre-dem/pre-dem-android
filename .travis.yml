@@ -30,7 +30,7 @@ before_script:
 
 script:
   - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
-  - ./gradlew clean build
+  - ./gradlew build
 
 dist:
   - trusty

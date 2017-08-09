@@ -21,7 +21,7 @@ android {
     }
     signingConfigs {
         releaseConfig {
-            storeFile file("../predemandroiddemo.jks")
+            storeFile file("predemandroiddemo.jks")
             storePassword "123456"
             keyAlias "key0"
             keyPassword "123456"

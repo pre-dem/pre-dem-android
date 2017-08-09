@@ -169,7 +169,6 @@ public final class DEMImpl {
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
-//        NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
         NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
     }
 

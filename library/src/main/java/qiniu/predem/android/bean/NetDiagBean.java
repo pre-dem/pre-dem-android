@@ -82,7 +82,8 @@ public class NetDiagBean {
     public void setTrResult(TraceRoute.Result result){
         this.trCode = 0;
         this.trIp = result.ip;
-        this.trContent = result.content();
+        String str = result.content().replace("\t","");
+        this.trContent = str;//result.content();
     }
 
     public void setDnsResult(String result){

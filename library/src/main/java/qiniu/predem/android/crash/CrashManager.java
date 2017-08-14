@@ -30,7 +30,7 @@ import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
 import qiniu.predem.android.util.SharedPreUtil;
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
@@ -212,7 +212,7 @@ public class CrashManager {
                         JSONObject crashBean = new JSONObject(stacktrace);
                         //1、getuptoken
                         String crash = crashBean.optString(FILELD_CRASH_CONTENT);
-                        String md5 = ToolUtil.getStringMd5(crash);
+                        String md5 = Functions.getStringMd5(crash);
                         urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUpToken() + "?md5="+md5)
                                 .setRequestMethod("GET")
                                 .build();

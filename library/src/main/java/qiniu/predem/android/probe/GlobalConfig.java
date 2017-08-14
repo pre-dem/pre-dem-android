@@ -12,8 +12,6 @@ import qiniu.predem.android.config.Configuration;
 public class GlobalConfig {
     //不需要收集的域名
     protected static final List<String> ExcludeDomains = new ArrayList<>();
-    //想要收集的域名
-    protected static final List<String> IncludeDomains = new ArrayList<>();
     private static final String TAG = "GlobalConfig";
 
     static {
@@ -28,21 +26,6 @@ public class GlobalConfig {
      */
     public static boolean isExcludeHost(String domain) {
         for (String bean : ExcludeDomains) {
-            if (match(bean, domain)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 包含
-     *
-     * @param domain
-     * @return
-     */
-    public static boolean isIncludeHost(String domain) {
-        for (String bean : IncludeDomains) {
             if (match(bean, domain)) {
                 return true;
             }

@@ -232,7 +232,7 @@ public class LogBean {
         if (domain == null || domain.equals("")) {
             jsonStr.append("\"domain\": \"").append("-").append("\", ");
         }
-        if (path == null || path.equals("")) {
+        if (path == null || path.equals("") || path.equals("/")) {
             jsonStr.append("\"path\": \"").append("-").append("\", ");
         }
         if (method == null || method.equals("")) {
@@ -266,7 +266,7 @@ public class LogBean {
         }else{
             str.append(domain).append("\t");
         }
-        if (path == null || path.equals("")) {
+        if (path == null || path.equals("") || path.equals("/")) {
             str.append("-").append("\t");
         }else{
             str.append(path).append("\t");

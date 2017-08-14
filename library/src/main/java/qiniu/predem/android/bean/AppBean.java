@@ -14,7 +14,7 @@ import java.security.MessageDigest;
 
 import qiniu.predem.android.BuildConfig;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 17/6/15.
@@ -83,7 +83,7 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = ToolUtil.generateUUID(context);
+        DEVICE_IDENTIFIER = Functions.generateUUID(context);
 
         loadPackageData(context);
         loadCrashIdentifier(context);

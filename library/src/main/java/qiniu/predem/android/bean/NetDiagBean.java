@@ -1,6 +1,5 @@
 package qiniu.predem.android.bean;
 
-import com.qiniu.android.netdiag.DNS;
 import com.qiniu.android.netdiag.HttpPing;
 import com.qiniu.android.netdiag.Ping;
 import com.qiniu.android.netdiag.TcpPing;
@@ -9,7 +8,7 @@ import com.qiniu.android.netdiag.TraceRoute;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 2017/8/7.
@@ -102,7 +101,7 @@ public class NetDiagBean {
         String content = System.currentTimeMillis()+this.pingIp +this.trContent+this.dnsRecords;
         String md5 = null;
         try {
-            md5 = ToolUtil.getStringMd5(content);
+            md5 = Functions.getStringMd5(content);
             return md5;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

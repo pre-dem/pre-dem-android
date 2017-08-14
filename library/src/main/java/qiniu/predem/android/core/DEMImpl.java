@@ -181,6 +181,10 @@ public final class DEMImpl {
         sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
     }
 
+    public void trackEvent(String eventName, JSONObject event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
+    }
+
     private boolean sendRequest(String url, String content) {
         LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
 

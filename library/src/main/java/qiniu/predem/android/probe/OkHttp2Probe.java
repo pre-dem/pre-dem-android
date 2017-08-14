@@ -53,7 +53,7 @@ public class OkHttp2Probe {
         // match ip
         Matcher matcher = MatcherUtil.IP_Pattern.matcher(url.getHost());
         if (matcher.find()) {
-            if (!ProbeWebClient.isExcludeIPs(url.getHost()) && GlobalConfig.isIncludeHost(url.getHost())) {
+            if (!ProbeWebClient.isExcludeIPs(url.getHost())) {
                 urlTraceRecord.setHostIP(url.getHost());
                 urlTraceRecord.setDnsTime(0);
                 synchronized (reportMap) {
@@ -93,7 +93,7 @@ public class OkHttp2Probe {
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
                     } else {
                         urlTraceRecord.setHostIP("-");
-                        urlTraceRecord.setDnsTime(-1);
+                        urlTraceRecord.setDnsTime(0);
                     }
 
                     urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
@@ -110,7 +110,7 @@ public class OkHttp2Probe {
                         urlTraceRecord.setDnsTime(System.currentTimeMillis() - s);
                     } else {
                         urlTraceRecord.setHostIP("-");
-                        urlTraceRecord.setDnsTime(-1);
+                        urlTraceRecord.setDnsTime(0);
                     }
 
                     urlTraceRecord.setDomain(url.getHost());

@@ -19,7 +19,7 @@ import java.util.List;
  * Created by Misty on 17/7/14.
  */
 
-public class ToolUtil {
+public class Functions {
     private static final String TAG = "ToolUtil";
 
     public static String getStringMd5(String content) throws NoSuchAlgorithmException, UnsupportedEncodingException {

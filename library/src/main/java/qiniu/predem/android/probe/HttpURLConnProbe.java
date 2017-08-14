@@ -70,7 +70,7 @@ public class HttpURLConnProbe {
                 // 判断host是否是IP
                 Matcher matcher = MatcherUtil.IP_Pattern.matcher(url.getHost());
                 if (matcher.find()) {
-                    if (!ProbeWebClient.isExcludeIPs(url.getHost()) && GlobalConfig.isIncludeHost(url.getHost())) {
+                    if (!ProbeWebClient.isExcludeIPs(url.getHost())) {
                         urlTraceRecord.setHostIP(url.getHost());
                         urlTraceRecord.setDnsTime(0);
                         synchronized (reportMap) {
@@ -152,9 +152,6 @@ public class HttpURLConnProbe {
                         urlTraceRecord.setStatusCode(((HttpURLConnection) conn).getResponseCode());
                         return ProbeInputStream.obtain((InputStream) joinPoint.proceed(), urlTraceRecord);
                     } else {
-                        // exclude url
-                        if (!GlobalConfig.isIncludeHost(url.getHost())) return joinPoint.proceed();
-
                         LogBean urlTraceRecord = LogBean.obtain();
                         urlTraceRecord.setDomain(url.getHost());
                         urlTraceRecord.setPath(url.getPath());

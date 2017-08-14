@@ -7,18 +7,14 @@ import android.os.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.ToolUtil;
-
-import static android.R.string.ok;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 17/6/15.
@@ -44,7 +40,7 @@ public class HttpMonitorManager {
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (!ToolUtil.isBackground(mContext)){
+            if (!Functions.isBackground(mContext)){
                 onReportMessage(true);
             }else {
                 onByeByeMessage();

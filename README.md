@@ -88,6 +88,6 @@ crash 日志收集上报模块主要通过截获宿主 app crash 时的信号，
 
 点击 Demo 界面中的 `点我诊断一下网络` 按钮触发一次网络诊断，Demo 会在所有诊断完成（需要十余秒到一分钟）之后将诊断结果整理上传，此时可以通过 Charles 等抓包软件抓取相应数据包以验证相关行为是否正常
 
-- [点我查看请求细节](https://bitbucket.org/qiniuapm/pre-sniff-server/src/6076269673e814d9f45c5fd99a745bd8030503b6/doc/NetDiagnoseAPI.md?at=master&fileviewer=file-view-default)
+- [点我查看请求细节](https://github.com/pre-dem/pre-dem-objc/blob/master/doc/NetDiagnoseAPI.md)
 
 ## 自定义事件

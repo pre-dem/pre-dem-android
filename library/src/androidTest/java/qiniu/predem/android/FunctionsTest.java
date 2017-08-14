@@ -7,19 +7,19 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 17/7/21.
  */
 @RunWith(AndroidJUnit4.class)
-public class ToolUtilTest {
+public class FunctionsTest {
     private static final String TAG = "ToolUtilTest";
 
     @Test
     public void testGetUUID(){
         Context appContext = InstrumentationRegistry.getTargetContext();
-        String uuid = ToolUtil.generateUUID(appContext);
+        String uuid = Functions.generateUUID(appContext);
         System.out.println("-----uuid : " + uuid);
     }
 }

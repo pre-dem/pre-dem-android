@@ -29,7 +29,7 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 
 import static qiniu.predem.android.block.BlockPrinter.ACTION_ANR;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
@@ -75,7 +75,7 @@ public class TraceInfoCatcher extends Thread {
             @Override
             public void onReceive(Context context, Intent intent) {
                 //判断应用是否在前台
-                if (ToolUtil.isBackground(context)){
+                if (Functions.isBackground(context)){
                     stopTrace();
                     return ;
                 }
@@ -168,7 +168,7 @@ public class TraceInfoCatcher extends Thread {
                     HttpURLConnection urlConnection = null;
                     InputStream is = null;
                     try {
-                        String md5 = ToolUtil.getStringMd5(info.mLog);
+                        String md5 = Functions.getStringMd5(info.mLog);
                         urlConnection = new HttpURLConnectionBuilder(Configuration.getLagMonitorUpToken() + "?md5=" + md5)
                                 .setRequestMethod("GET")
                                 .build();

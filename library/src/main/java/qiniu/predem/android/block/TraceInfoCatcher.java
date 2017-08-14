@@ -19,22 +19,26 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.ToolUtil;
 
+import static qiniu.predem.android.block.BlockPrinter.ACTION_ANR;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
 
 /**
  * Created by fengcunhan on 16/1/19.
  */
 public class TraceInfoCatcher extends Thread {
-    private static final String TAG="StackInfoCatcher";
+    private static final String TAG="TraceInfoCatcher";
 
     ////////
     private volatile int _tick = 0;
@@ -83,14 +87,26 @@ public class TraceInfoCatcher extends Thread {
                     if (null != info) {
                         LogUtils.e(TAG, "------find block line");
                         //send reqeust
-                        sendRequest(info,startTime+"",endTime+"");
+                        sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
                     } else {
                         LogUtils.e(TAG, "------no block line find");
+                    }
+                }else if (intent.getAction().equals(ACTION_ANR)){
+                    long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
+                    long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
+                    TraceInfo info = getInfoByTime(endTime, startTime);
+                    if (null != info) {
+                        LogUtils.e(TAG, "------find anr line");
+                        //send reqeust
+                        sendRequest(info,Configuration.getCrashUrl(),startTime,endTime);
+                    } else {
+                        LogUtils.e(TAG, "------no anr line find");
                     }
                 }
             }
         };
         manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
+        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_ANR));
     }
 
     @Override
@@ -142,7 +158,7 @@ public class TraceInfoCatcher extends Thread {
         return result.toString();
     }
 
-    public void sendRequest(final TraceInfo info, final String startTime, final String endTime){
+    public void sendRequest(final TraceInfo info, final String reportUrl, final long startTime, final long endTime){
         if (!submitting) {
             submitting = true;
             new Thread() {
@@ -199,6 +215,9 @@ public class TraceInfoCatcher extends Thread {
                                             try {
                                                 JSONObject parameters = new JSONObject();
 
+                                                Date start = new Date(startTime);
+                                                Date end = new Date(endTime);
+                                                FileUtil.DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
                                                 parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
                                                 parameters.put("app_name",AppBean.APP_NAME);
                                                 parameters.put("app_version",AppBean.APP_VERSION);
@@ -212,10 +231,10 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("report_uuid", UUID.randomUUID().toString());
                                                 parameters.put("lag_log_key",key);
                                                 parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
-                                                parameters.put("start_time",startTime);
-                                                parameters.put("lag_time",endTime);
+                                                parameters.put("start_time",FileUtil.DATE_FORMAT.format(start));
+                                                parameters.put("lag_time",FileUtil.DATE_FORMAT.format(end));
 
-                                                url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
+                                                url = new HttpURLConnectionBuilder(reportUrl)
                                                         .setRequestMethod("POST")
                                                         .setHeader("Content-Type","application/json")
                                                         .setRequestBody(parameters.toString())

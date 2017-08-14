@@ -102,7 +102,7 @@ public class HttpURLConnProbe {
                             conn.setRequestProperty("Host", url.getHost());
                         }
                     } else {
-                        urlTraceRecord.setDnsTime(-1);
+                        urlTraceRecord.setDnsTime(0);
                         ipUrl = url.toString();
                         conn = (URLConnection) joinPoint.proceed();
                     }
@@ -158,7 +158,7 @@ public class HttpURLConnProbe {
                         LogBean urlTraceRecord = LogBean.obtain();
                         urlTraceRecord.setDomain(url.getHost());
                         urlTraceRecord.setPath(url.getPath());
-                        urlTraceRecord.setDnsTime(-1);
+                        urlTraceRecord.setDnsTime(0);
                         urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
                         urlTraceRecord.setHostIP("");
                         urlTraceRecord.setStatusCode(((HttpURLConnection) conn).getResponseCode());

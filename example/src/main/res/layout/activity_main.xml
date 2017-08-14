@@ -67,6 +67,13 @@
                 tools:ignore="HardcodedText" />
 
             <Button
+                android:id="@+id/lag_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="点击产生一个卡顿"
+                tools:ignore="HardcodedText" />
+
+            <Button
                 android:id="@+id/custom_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

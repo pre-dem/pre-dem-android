@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button webview_btn;
     private Button diagnosis_btn;
     private Button anr_btn;
+    private Button lag_btn;
     private Button custom_btn;
 
     //
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         webview_btn.setOnClickListener(this);
         crash_btn.setOnClickListener(this);
         anr_btn.setOnClickListener(this);
+        lag_btn.setOnClickListener(this);
         diagnosis_btn.setOnClickListener(this);
         custom_btn.setOnClickListener(this);
     }
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appKey = sh.getString(APP_KEY,null);
         if (appKey != null && !appKey.isEmpty()){
             //
-            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
         }else{
             showCustomizeDialog();
         }
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         webview_btn = (Button) findViewById(R.id.webview_btn);
         crash_btn = (Button) findViewById(R.id.crash_btn);
         anr_btn = (Button) findViewById(R.id.anr_btn);
+        lag_btn = (Button)findViewById(R.id.lag_btn);
         diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
         custom_btn = (Button)findViewById(R.id.custom_btn);
 
@@ -92,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.http_btn:
-                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
-                new HttpUrlConnectionThread("https://www.163.com",null).start();
-                new HttpUrlConnectionThread("http://www.qq.com",null).start();
-                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
+//                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
+//                new HttpUrlConnectionThread("https://www.163.com",null).start();
+//                new HttpUrlConnectionThread("http://www.qq.com",null).start();
+//                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
                 new HttpUrlConnectionThread("http://www.taobao.com",null).start();
-                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
+//                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
                 break;
             case R.id.okhttp2_btn:
                 try {
@@ -132,7 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 fakeCrashReport();
                 break;
             case R.id.anr_btn:
-                SleepAMinute();
+                SleepAMinute(25 * 1000);
+                break;
+            case R.id.lag_btn:
+                SleepAMinute(4 * 1000);
                 break;
             case R.id.diagnosis_btn:
                 diagnosis_btn.setEnabled(false);
@@ -175,16 +181,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 产生一个crash
      */
     private static void fakeCrashReport() {
-        RuntimeException exception = new RuntimeException("Just a test exception");
+        RuntimeException exception = new RuntimeException("Just a test exception " + System.currentTimeMillis());
         throw exception;
     }
 
     /**
      * 产生一个ANR
      */
-    private static void SleepAMinute() {
+    private static void SleepAMinute(long t) {
         try {
-            Thread.sleep(25 * 1000);
+            Thread.sleep(t);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -212,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             editor.putString(APP_KEY,appKey);
                             editor.apply();
                             //jkbkolos.bq.cloudappl.com
-                            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+                            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
                         }
                     }
                 });

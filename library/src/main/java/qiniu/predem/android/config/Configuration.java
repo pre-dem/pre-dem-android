@@ -13,7 +13,6 @@ public final class Configuration {
 
     public static final String HTTP_MONITOR_ENABLE = "http_monitor_enabled";
     public static final String CRASH_REPORT_ENABLE = "crash_report_enabled";
-    public static final String DEVICE_SYMBOLICATION_ENABLE = "on_device_symbolication_enabled";
     public static final String LAG_MONITOR_ENABLE = "lag_monitor_enabled";
     public static final String WEBVIEW_ENABLE = "webview_enable";
 
@@ -63,6 +62,10 @@ public final class Configuration {
 
     public static String getCrashUrl() {
         return baseUrl() + "/crashes/a";
+    }
+
+    public static String getLagMonitorUrl(){
+        return baseUrl()+"/lag-monitor/a";
     }
 
     public static String getDiagnosisUrl() {

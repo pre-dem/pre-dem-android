@@ -6,6 +6,8 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Printer;
 
+import qiniu.predem.android.util.LogUtils;
+
 /**
  * Created by Misty on 17/7/6.
  */
@@ -13,8 +15,8 @@ import android.util.Printer;
 public class BlockPrinter implements Printer {
     private final static String TAG = "BlockPrintter";
 
-    public static final String ACTION_BLOCK="com.weidian.blockcannary";
-    public static final String ACTION_ANR = "android.intent.action.ANR";
+    public static final String ACTION_BLOCK="qiniu.predem.android.block";
+    public static final String ACTION_ANR = "qiniu.predem.android.anr";
     public static final String EXTRA_START_TIME="block_start_time";
     public static final String EXTRA_FINISH_TIME="block_end_time";
 
@@ -74,7 +76,12 @@ public class BlockPrinter implements Printer {
 
     private void notifyBlockEvent(long endTime,long startTime){
         LocalBroadcastManager manager= LocalBroadcastManager.getInstance(mContext);
-        Intent intent=new Intent(ACTION_BLOCK);
+        Intent intent = new Intent();
+        if (isANR(endTime)){
+            intent.setAction(ACTION_ANR);
+        }else{
+            intent.setAction(ACTION_BLOCK);
+        }
         intent.putExtra(EXTRA_START_TIME,startTime);
         intent.putExtra(EXTRA_FINISH_TIME,endTime);
         manager.sendBroadcast(intent);

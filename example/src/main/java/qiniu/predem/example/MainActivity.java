@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appKey = sh.getString(APP_KEY,null);
         if (appKey != null && !appKey.isEmpty()){
             //
-            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
+            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
         }else{
             showCustomizeDialog();
         }
@@ -95,12 +95,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.http_btn:
-//                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
-//                new HttpUrlConnectionThread("https://www.163.com",null).start();
-//                new HttpUrlConnectionThread("http://www.qq.com",null).start();
-//                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
+                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
+                new HttpUrlConnectionThread("https://www.163.com",null).start();
+                new HttpUrlConnectionThread("http://www.qq.com",null).start();
+                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
                 new HttpUrlConnectionThread("http://www.taobao.com",null).start();
-//                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
+                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
                 break;
             case R.id.okhttp2_btn:
                 try {
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             editor.putString(APP_KEY,appKey);
                             editor.apply();
                             //jkbkolos.bq.cloudappl.com
-                            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
+                            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
                         }
                     }
                 });

@@ -47,7 +47,7 @@ deploy:
     secure: kHJFv3a/VbGqwJVqnmrhpSEcCDHtl+5Mf2NTHTwXTWBs8NRuEDFXFY0AedfZunfeMv02t1MVwVhAlw/fbQLweF8BF7oxno1wj+w/FHIESqVT8FIOMeRabvdw8Bkq6MHDpCSFVIz98Co0mSeNbbPd0Sn4W1gXEJJkjUN7rpNHXQMdLuxX8ag6vSQu87muA6dYSSgZW9hZi8TfPFqHMwllawFNGjlu+3FK7UmOdvc+okVESN1GoEFHO+Egptl2Bd1magq1c+dU1WWBqvdZk1v5ZqyfW6USn/Ouza1QJ06Jc7QHWZEdUJg21j6xcisVLnBznS2c2RMim4pqITOjF8mbHcKRhgL+BF1tfWU6rIslP0txwPeH8P8IC52qTGR43WnJGfb1IAoDS23vkCk3mVhuHERQebdmSb7vIYfrrjJu+Kxagn+nUOsio+7f2snZGHnE9KyojCTi4w1jZMbSyoLRgU7Ahi4ESa1Bbemn8dBeSfG57Anvw0780NqL/6d5/A+vNTQ37IWO9UEqJH/fwh23Zuzkc5WQG6HHLAqSP9Mlhgzow4zdxVTE5t8624hgcE/XVTF8FtC4+I3qstcsPIZvSkHClY3e1fvg/RHONhgTpCNfDhhG0Ac6q10KPQpnUw7TSCMKudMGbTl6LC5DNopEYumkFpqHOHsi4Vb92kgeK4s=
   skip_cleanup: true
   on:
-    repo: pre-dem/pre-dem-android
+    repo: MistyL/pre-dem-android
 before_install:
 - gem install fir-cli
 after_deploy:

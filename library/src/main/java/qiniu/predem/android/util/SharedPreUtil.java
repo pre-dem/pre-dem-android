@@ -138,6 +138,12 @@ public class SharedPreUtil {
         return sh.getLong(LAST_CONFIGURATION_TIME, -1);
     }
 
+    public static void removeCrashConfirmedFilenames(Context context){
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.remove(CRASH_CONFIRMED_FILENAMES);
+        editor.apply();
+    }
+
     public static void removeCrashRetryCount(Context context,String name){
         SharedPreferences.Editor editor = getEditor(context);
         editor.remove(name);

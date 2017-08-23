@@ -44,7 +44,7 @@ import static qiniu.predem.android.config.FileConfig.QOS_FILE_PREFIX;
 public class FileUtil {
     private static final String TAG = "FileUtil";
     //2017-08-05T02:15:50Z
-    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     private static final String FIELD_FORMAT = "Format";
     private static final String FIELD_FORMAT_VALUE = "Xamarin";
 

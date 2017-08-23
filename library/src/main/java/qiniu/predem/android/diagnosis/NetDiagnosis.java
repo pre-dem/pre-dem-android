@@ -2,8 +2,8 @@ package qiniu.predem.android.diagnosis;
 
 import android.content.Context;
 
-import com.qiniu.android.netdiag.DNS;
 import com.qiniu.android.netdiag.HttpPing;
+import com.qiniu.android.netdiag.NsLookup;
 import com.qiniu.android.netdiag.Ping;
 import com.qiniu.android.netdiag.TcpPing;
 import com.qiniu.android.netdiag.TraceRoute;
@@ -24,11 +24,6 @@ import qiniu.predem.android.util.LogUtils;
 public class NetDiagnosis {
     private static final String TAG = "MyNetDiagnosis";
 
-    private String domain;
-    private String url;
-    private DEMManager.NetDiagCallback complete;
-    private volatile boolean stopped;
-    private Context mContext;
     private int count;
     private NetDiagBean bean;
 
@@ -48,11 +43,6 @@ public class NetDiagnosis {
         if (domain == null || url == null || complete == null){
             return ;
         }
-        this.mContext = context;
-        this.domain = domain;
-        this.url = url;
-        this.complete = complete;
-        this.stopped = false;
         count = 0;
         bean = new NetDiagBean();
 
@@ -91,18 +81,23 @@ public class NetDiagnosis {
             }
         });
 
-        new Thread(new Runnable() {
+        NsLookup.start(domain, new DiagnosisLogger(), new NsLookup.Callback() {
             @Override
-            public void run() {
-                String s = DNS.check();
+            public void complete(NsLookup.Result r) {
                 count++;
-                bean.setDnsResult(s);
+                String dns = "";
+                int len = r.records.length;
+                for (int i = 0 ;i < len ; i++) {
+                    dns = dns.concat(r.records[i].value).concat("\t").concat(r.records[i].ttl + "\t").concat(r.records[i].type + "\n");
+                }
+                LogUtils.d(TAG,"------" + dns);
+                bean.setDnsResult(dns);
                 if (count == 5){
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
             }
-        }).start();
+        });
 
         HttpPing.start(url, new DiagnosisLogger(), new HttpPing.Callback() {
             @Override

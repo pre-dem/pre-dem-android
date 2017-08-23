@@ -18,6 +18,7 @@ import static qiniu.predem.android.config.FileConfig.FIELD_OS_PLATFORM;
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FIELD_SDK_ID;
 import static qiniu.predem.android.config.FileConfig.FIELD_SDK_VERSION;
+import static qiniu.predem.android.config.FileConfig.FIELD_TAG;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
 import static qiniu.predem.android.config.FileConfig.FILELD_MANUFACTURER;
@@ -39,6 +40,7 @@ public class CrashBean {
     private String SDKVersion;
     private String SDKId;
     private String DeviceId;
+    private String UserTag;
     private String ReportUUID;
     private String Manufacturer;
     private String StartTime;
@@ -58,6 +60,7 @@ public class CrashBean {
         this.AppVersion = AppBean.APP_VERSION;
         this.DeviceModel = AppBean.PHONE_MODEL;
         this.DeviceId = AppBean.PHONE_MANUFACTURER;
+        this.UserTag = AppBean.APP_TAG;
         this.OsPlatform = AppBean.ANDROID_PLATFORM;
         this.OsBuild = AppBean.ANDROID_BUILD;
         this.SDKVersion = AppBean.SDK_VERSION;
@@ -110,6 +113,10 @@ public class CrashBean {
         return DeviceId;
     }
 
+    public String getUserTag(){
+        return UserTag;
+    }
+
     public String getReportUUID() {
         return ReportUUID;
     }
@@ -146,6 +153,7 @@ public class CrashBean {
             jsonObject.put(FIELD_SDK_VERSION,getSDKVersion());
             jsonObject.put(FIELD_SDK_ID,getSDKId());
             jsonObject.put(FIELD_DEVICE_ID,getDeviceId());
+            jsonObject.put(FIELD_TAG, getUserTag());
             jsonObject.put(FIELD_REPORT_UUID,getReportUUID());
             jsonObject.put(FILELD_MANUFACTURER,getManufacturer());
             jsonObject.put(FILELD_START_TIME,getStartTime());

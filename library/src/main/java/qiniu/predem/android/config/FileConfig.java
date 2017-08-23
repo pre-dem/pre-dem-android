@@ -37,6 +37,7 @@ public class FileConfig {
     public static final String FIELD_SDK_VERSION = "sdk_version";
     public static final String FIELD_SDK_ID = "sdk_id";
     public static final String FIELD_DEVICE_ID = "device_id";
+    public static final String FIELD_TAG = "tag";
     public static final String FIELD_REPORT_UUID = "report_uuid";
     public static final String FILELD_CRASH_LOG_KEY = "crash_log_key";
     public static final String FILELD_MANUFACTURER = "manufacturer";

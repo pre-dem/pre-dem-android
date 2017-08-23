@@ -82,6 +82,10 @@ public final class DEMImpl {
         }
     }
 
+    public void setUserTag(String userid){
+        AppBean.setAppTag(userid);
+    }
+
     private static boolean askForConfiguration(Context context) {
         long lastTime = SharedPreUtil.getConfigurationLastTime(context);
         long now = System.currentTimeMillis();
@@ -142,7 +146,6 @@ public final class DEMImpl {
                         LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
                         CrashManager.register(cxt);
                     }
-                    LogUtils.d(TAG,"-----"+Configuration.lagMonitorEnable);
                     if (Configuration.lagMonitorEnable){
                         LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
                         TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(cxt);
@@ -174,7 +177,7 @@ public final class DEMImpl {
 
     public void trackEvent(String eventName, Map<String, Object> event) {
         JSONObject obj = new JSONObject(event);
-        trackEvent(eventName, event);
+        trackEvent(eventName, obj);
     }
 
     public void trackEvent(String eventName, JSONArray event) {

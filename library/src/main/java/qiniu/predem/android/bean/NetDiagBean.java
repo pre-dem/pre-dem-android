@@ -5,6 +5,8 @@ import com.qiniu.android.netdiag.Ping;
 import com.qiniu.android.netdiag.TcpPing;
 import com.qiniu.android.netdiag.TraceRoute;
 
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 
@@ -15,16 +17,6 @@ import qiniu.predem.android.util.Functions;
  */
 
 public class NetDiagBean {
-//    private String appBundleId;
-//    private String appName;
-//    private String appVersion;
-//    private String deviceModel;
-//    private String osPlatform;
-//    private String osVersion;
-//    private String sdkVersion;
-//    private String sdkId;
-//    private String deviceId;
-//    private String resultId;
     private int pingCode;
     private String pingIp;
     private int pingSize;
@@ -81,8 +73,7 @@ public class NetDiagBean {
     public void setTrResult(TraceRoute.Result result){
         this.trCode = 0;
         this.trIp = result.ip;
-        String str = result.content().replace("\t","");
-        this.trContent = str;//result.content();
+        this.trContent = result.content();
     }
 
     public void setDnsResult(String result){
@@ -113,46 +104,48 @@ public class NetDiagBean {
     }
 
     public String toJsonString(){
-        StringBuilder jsonStr = new StringBuilder();
-        jsonStr.append("{ ");
-        jsonStr.append("\"app_bundle_id\":\"").append(AppBean.APP_PACKAGE).append("\",");
-        jsonStr.append("\"app_name\":\"").append(AppBean.APP_NAME).append("\",");
-        jsonStr.append("\"app_version\":\"").append(AppBean.APP_VERSION).append("\",");
-        jsonStr.append("\"device_model\":\"").append(AppBean.PHONE_MODEL).append("\",");
-        jsonStr.append("\"os_platform\":\"").append(AppBean.ANDROID_PLATFORM).append("\",");
-        jsonStr.append("\"os_version\":\"").append(AppBean.ANDROID_VERSION).append("\",");
-        jsonStr.append("\"sdk_version\":\"").append(AppBean.SDK_VERSION).append("\",");
-        jsonStr.append("\"sdk_id\":\"").append("").append("\",");
-        jsonStr.append("\"device_id\":\"").append(AppBean.DEVICE_IDENTIFIER).append("\",");
-        jsonStr.append("\"result_id\": \"").append(getResultID()).append("\", ");
-        jsonStr.append("\"ping_code\": ").append(pingCode).append(", ");
-        jsonStr.append("\"ping_ip\": \"").append(pingIp).append("\", ");
-        jsonStr.append("\"ping_size\": ").append(pingSize).append(", ");
-        jsonStr.append("\"ping_max_rtt\": ").append(pingMaxRtt).append(", ");
-        jsonStr.append("\"ping_min_rtt\": ").append(pingMinRtt).append(", ");
-        jsonStr.append("\"ping_avg_rtt\": ").append(pingAvgRtt).append(", ");
-        jsonStr.append("\"ping_loss\": ").append(pingLoss).append(", ");
-        jsonStr.append("\"ping_count\": ").append(pingCount).append(", ");
-        jsonStr.append("\"ping_total_time\": ").append(pingTotalTime).append(", ");
-        jsonStr.append("\"ping_stddev\": ").append(pingStddev).append(", ");
-        jsonStr.append("\"tcp_code\": ").append(tcpCode).append(", ");
-        jsonStr.append("\"tcp_ip\": \"").append(tcpIp).append("\", ");
-        jsonStr.append("\"tcp_max_time\": ").append(tcpMaxTime).append(", ");
-        jsonStr.append("\"tcp_min_time\": ").append(tcpMinTime).append(", ");
-        jsonStr.append("\"tcp_avg_time\": ").append(tcpAvgTime).append(", ");
-        jsonStr.append("\"tcp_loss\": ").append(tcpLoss).append(", ");
-        jsonStr.append("\"tcp_count\": ").append(tcpCount).append(", ");
-        jsonStr.append("\"tcp_total_time\": ").append(tcpTotalTime).append(", ");
-        jsonStr.append("\"tcp_stddev\": ").append(tcpStddev).append(", ");
-        jsonStr.append("\"tr_code\": ").append(trCode).append(", ");
-        jsonStr.append("\"tr_ip\": \"").append(trIp).append("\", ");
-        jsonStr.append("\"tr_content\": \"").append(trContent).append("\", ");
-        jsonStr.append("\"dns_records\": \"").append(dnsRecords).append("\", ");
-        jsonStr.append("\"http_code\": ").append(httpCode).append(", ");
-        jsonStr.append("\"http_ip\": \"").append(httpIp).append("\", ");
-        jsonStr.append("\"http_duration\": ").append(httpDuration).append(", ");
-        jsonStr.append("\"http_body_size\": ").append(httpBodySize);
-        jsonStr.append(" }");
-        return jsonStr.toString();
+        try{
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("app_bundle_id",AppBean.APP_PACKAGE);
+            jsonObject.put("app_name",AppBean.APP_NAME);
+            jsonObject.put("app_version",AppBean.APP_VERSION);
+            jsonObject.put("device_model",AppBean.PHONE_MODEL);
+            jsonObject.put("os_platform",AppBean.ANDROID_VERSION);
+            jsonObject.put("sdk_version",AppBean.SDK_VERSION);
+            jsonObject.put("sdk_id","");
+            jsonObject.put("device_id",AppBean.DEVICE_IDENTIFIER);
+            jsonObject.put("tag",AppBean.APP_TAG);
+            jsonObject.put("result_id",getResultID());
+            jsonObject.put("ping_code",pingCode);
+            jsonObject.put("ping_ip",pingIp);
+            jsonObject.put("ping_size",pingSize);
+            jsonObject.put("ping_max_rtt",pingMaxRtt);
+            jsonObject.put("ping_min_rtt",pingMinRtt);
+            jsonObject.put("ping_avg_rtt",pingAvgRtt);
+            jsonObject.put("ping_loss",pingLoss);
+            jsonObject.put("ping_count",pingCount);
+            jsonObject.put("ping_total_time",pingTotalTime);
+            jsonObject.put("ping_stddev",pingStddev);
+            jsonObject.put("tcp_code",tcpCode);
+            jsonObject.put("tcp_ip",tcpIp);
+            jsonObject.put("tcp_max_time",tcpMaxTime);
+            jsonObject.put("tcp_min_time",tcpMinTime);
+            jsonObject.put("tcp_avg_time",tcpAvgTime);
+            jsonObject.put("tcp_loss",tcpLoss);
+            jsonObject.put("tcp_count",tcpCount);
+            jsonObject.put("tcp_total_time",tcpTotalTime);
+            jsonObject.put("tcp_stddev",tcpStddev);
+            jsonObject.put("tr_code",trCode);
+            jsonObject.put("tr_ip",trIp);
+            jsonObject.put("tr_content",trContent);
+            jsonObject.put("dns_records",dnsRecords);
+            jsonObject.put("http_code",httpCode);
+            jsonObject.put("http_ip",httpIp);
+            jsonObject.put("http_duration",httpDuration);
+            jsonObject.put("http_body_size",httpBodySize);
+            return jsonObject.toString();
+        }catch (Exception e){
+            return null;
+        }
     }
 }

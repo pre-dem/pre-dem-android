@@ -6,8 +6,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Printer;
 
-import qiniu.predem.android.util.LogUtils;
-
 /**
  * Created by Misty on 17/7/6.
  */

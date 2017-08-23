@@ -48,6 +48,10 @@ public class AppBean {
      */
     public static String APP_PACKAGE = "-";
     /**
+     * The user's id
+     */
+    public static String APP_TAG = "-";
+    /**
      * The device's OS version.
      */
     public static String ANDROID_VERSION = "-";
@@ -87,6 +91,10 @@ public class AppBean {
 
         loadPackageData(context);
         loadCrashIdentifier(context);
+    }
+
+    public static void setAppTag(String tag){
+        APP_TAG = tag;
     }
 
     @SuppressLint("HardwareIds")
@@ -151,7 +159,6 @@ public class AppBean {
                 PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
                 APP_PACKAGE = packageInfo.packageName;
                 APP_VERSION = packageInfo.versionName;
-//                APP_VERSION_NAME = packageInfo.versionName;
 
                 int buildNumber = loadBuildNumber(context, packageManager);
                 if ((buildNumber != 0) && (buildNumber > packageInfo.versionCode)) {

@@ -85,22 +85,16 @@ public class TraceInfoCatcher extends Thread {
                     long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info) {
-                        LogUtils.e(TAG, "------find block line");
                         //send reqeust
                         sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
-                    } else {
-                        LogUtils.e(TAG, "------no block line find");
                     }
                 }else if (intent.getAction().equals(ACTION_ANR)){
                     long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
                     long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info) {
-                        LogUtils.e(TAG, "------find anr line");
                         //send reqeust
                         sendRequest(info,Configuration.getCrashUrl(),startTime,endTime);
-                    } else {
-                        LogUtils.e(TAG, "------no anr line find");
                     }
                 }
             }
@@ -228,6 +222,7 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("sdk_version",AppBean.SDK_VERSION);
                                                 parameters.put("sdk_id","");
                                                 parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
+                                                parameters.put("tag",AppBean.APP_TAG);
                                                 parameters.put("report_uuid", UUID.randomUUID().toString());
                                                 parameters.put("lag_log_key",key);
                                                 parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);

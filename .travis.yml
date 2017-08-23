@@ -45,4 +45,4 @@ deploy:
   file: example/build/outputs/apk/example-release.apk
   skip_cleanup: true
   on:
-    repo: MistyL/pre-dem-android
+    repo: pre-dem/pre-dem-android

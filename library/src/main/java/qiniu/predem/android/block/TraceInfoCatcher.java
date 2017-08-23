@@ -94,7 +94,7 @@ public class TraceInfoCatcher extends Thread {
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info) {
                         //send reqeust
-                        sendRequest(info,Configuration.getCrashUrl(),startTime,endTime);
+                        sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
                     }
                 }
             }

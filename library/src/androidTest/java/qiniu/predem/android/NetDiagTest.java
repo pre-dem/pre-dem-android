@@ -11,6 +11,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.CountDownLatch;
 
+import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.util.LogUtils;
 
 /**
@@ -147,9 +148,8 @@ public class NetDiagTest {
         DEMManager.start("hriygkee.bq.cloudappl.com", "9a9c127726b746e5b5fa7fc816a17407", InstrumentationRegistry.getTargetContext());
         DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
             @Override
-            public void complete(boolean isSuccessful, Exception e) {
-                LogUtils.d(TAG, "-----" + isSuccessful);
-                System.out.println(isSuccessful);
+            public void complete(NetDiagBean bean) {
+                LogUtils.d(TAG, "-----" + bean.toString());
                 c.countDown();
             }
         });

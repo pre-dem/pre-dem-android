@@ -4,9 +4,16 @@
     android:layout_height="match_parent">
 
     <WebView
-        android:id="@+id/webview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/login_webview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <ProgressBar
+        android:id="@+id/login_webview_progress"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerInParent="true"
+        style="@android:style/Widget.ProgressBar"
         />
 
 </LinearLayout>

@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import qiniu.predem.android.config.Configuration;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/7/4.
@@ -65,7 +66,6 @@ public class WebViewProbe {
         try {
             if (joinPoint.getTarget() instanceof WebView) {
                 WebView web = (WebView) joinPoint.getTarget();
-
                 synchronized (webviews) {
                     for (int i = webviews.size() - 1; i >= 0; i--) {
                         WebView item = webviews.get(i).get();
@@ -78,7 +78,7 @@ public class WebViewProbe {
                     webviews.add(new WeakReference<>(web));
                 }
 
-//                web.setWebViewClient(ProbeWebClient.instance);
+                web.setWebViewClient(ProbeWebClient.instance);
             }
         } catch (Throwable e) {
             e.printStackTrace();

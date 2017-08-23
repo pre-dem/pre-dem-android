@@ -66,6 +66,20 @@
                 android:text="点击产生一个ANR"
                 tools:ignore="HardcodedText" />
 
+            <Button
+                android:id="@+id/lag_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="点击产生一个卡顿"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/custom_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="点击上报一条自定义数据"
+                tools:ignore="HardcodedText" />
+
         </LinearLayout>
 
         <WebView

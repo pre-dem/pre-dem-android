@@ -1,7 +1,6 @@
 package qiniu.predem.android.crash;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.TextUtils;
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
@@ -24,13 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import qiniu.predem.android.bean.AppBean;
-import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.SharedPreUtil;
+import qiniu.predem.android.util.Functions;
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
@@ -58,39 +57,33 @@ public class CrashManager {
      * @param context
      */
     public static void register(Context context) {
-        initialize(context, false);
+        initialize(context);
         execute(context);
     }
 
-    public static void initialize(Context context, boolean registerHandler) {
+    public static void initialize(Context context) {
         if (context != null) {
             if (CrashManager.initializeTimestamp == 0) {
                 CrashManager.initializeTimestamp = System.currentTimeMillis();
-            }
-
-            if (registerHandler) {
-                Boolean ignoreDefaultHandler = false;//(listener != null) && (listener.ignoreDefaultHandler());
-                WeakReference<Context> weakContext = new WeakReference<Context>(context);
-                registerHandler(weakContext, ignoreDefaultHandler);
             }
         }
     }
 
     @SuppressWarnings("deprecation")
     public static void execute(Context context) {
-        Boolean ignoreDefaultHandler = false;
         WeakReference<Context> weakContext = new WeakReference<Context>(context);
 
         int foundOrSend = hasStackTraces(weakContext);
         if (foundOrSend == STACK_TRACES_FOUND_NEW || foundOrSend == STACK_TRACES_FOUND_CONFIRMED) {
-            sendCrashes(weakContext, ignoreDefaultHandler);
+            sendCrashes(weakContext, false);
         } else {
-            registerHandler(weakContext, ignoreDefaultHandler);
+            registerHandler(weakContext, false);
         }
     }
 
     public static int hasStackTraces(WeakReference<Context> weakContext) {
         String[] filenames = searchForStackTraces();
+        LogUtils.d(TAG,"-----" + filenames.length);
         List<String> confirmedFilenames = null;
         int result = STACK_TRACES_FOUND_NONE;
         if ((filenames != null) && (filenames.length > 0)) {
@@ -122,8 +115,7 @@ public class CrashManager {
         if (weakContext != null) {
             Context context = weakContext.get();
             if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                String[] res = preferences.getString("ConfirmedFilenames", "").split("\\|");
+                String[] res = SharedPreUtil.getCrashConfirmedFilenames(context).split("\\|");
                 result = Arrays.asList(res);
             }
         }
@@ -174,7 +166,7 @@ public class CrashManager {
      * handler.
      */
     private static void sendCrashes(final WeakReference<Context> weakContext, final boolean ignoreDefaultHandler) {
-        saveConfirmedStackTraces(weakContext);
+//        saveConfirmedStackTraces(weakContext);
         registerHandler(weakContext, ignoreDefaultHandler);
 
         Context ctx = weakContext.get();
@@ -213,8 +205,8 @@ public class CrashManager {
                         JSONObject crashBean = new JSONObject(stacktrace);
                         //1、getuptoken
                         String crash = crashBean.optString(FILELD_CRASH_CONTENT);
-                        String md5 = ToolUtil.getStringMd5(crash);
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getUpToken() + "?md5="+md5)
+                        String md5 = Functions.getStringMd5(crash);
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUpToken() + "?md5="+md5)
                                 .setRequestMethod("GET")
                                 .build();
 
@@ -287,12 +279,13 @@ public class CrashManager {
             parameters.put("app_name",AppBean.APP_NAME);
             parameters.put("app_version",AppBean.APP_VERSION);
             parameters.put("device_model",AppBean.PHONE_MODEL);
-            parameters.put("os_platform","a");
+            parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
             parameters.put("os_version",AppBean.ANDROID_VERSION);
             parameters.put("os_build",AppBean.ANDROID_BUILD);
             parameters.put("sdk_version",AppBean.SDK_VERSION);
-            parameters.put("sdk_id",AppBean.SDK_NAME);
+            parameters.put("sdk_id","");
             parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
+            parameters.put("tag",AppBean.APP_TAG);
             parameters.put("report_uuid",bean.optString(FIELD_REPORT_UUID));
             parameters.put("crash_log_key",key);
             parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
@@ -324,50 +317,6 @@ public class CrashManager {
     }
 
     /**
-     * Update the retry attempts count for this crash stacktrace.
-     */
-    private static void updateRetryCounter(WeakReference<Context> weakContext, String filename, int maxRetryAttempts) {
-        if (maxRetryAttempts == -1) {
-            return;
-        }
-
-        Context context = null;
-        if (weakContext != null) {
-            context = weakContext.get();
-            if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-
-                int retryCounter = preferences.getInt("RETRY_COUNT: " + filename, 0);
-                if (retryCounter >= maxRetryAttempts) {
-                    deleteStackTrace(weakContext, filename);
-                    deleteRetryCounter(weakContext, filename, maxRetryAttempts);
-                } else {
-                    editor.putInt("RETRY_COUNT: " + filename, retryCounter + 1);
-                    editor.apply();
-                }
-            }
-        }
-    }
-
-    /**
-     * Delete the retry counter if stacktrace is uploaded or retry limit is
-     * reached.
-     */
-    private static void deleteRetryCounter(WeakReference<Context> weakContext, String filename, int maxRetryAttempts) {
-        Context context = null;
-        if (weakContext != null) {
-            context = weakContext.get();
-            if (context != null) {
-                SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.remove("RETRY_COUNT: " + filename);
-                editor.apply();
-            }
-        }
-    }
-
-    /**
      * Saves the list of the stack traces' file names in shared preferences.
      */
     private static void saveConfirmedStackTraces(WeakReference<Context> weakContext) {
@@ -377,10 +326,7 @@ public class CrashManager {
             if (context != null) {
                 try {
                     String[] filenames = searchForStackTraces();
-                    SharedPreferences preferences = context.getSharedPreferences("PreDemSDK", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("ConfirmedFilenames", joinArray(filenames, "|"));
-                    editor.apply();
+                    SharedPreUtil.setCrashConfirmedFilenames(context, joinArray(filenames,"|"));
                 } catch (Exception e) {
                     // Just in case, we catch all exceptions here
                 }
@@ -457,75 +403,13 @@ public class CrashManager {
 
                 String description = filename.replace(".stacktrace", ".description");
                 context.deleteFile(description);
-            }
-        }
-    }
 
-    /**
-     * Deletes all stack traces and meta files from files dir.
-     *
-     * @param weakContext The context to use. Usually your Activity object.
-     */
-    public static void deleteStackTraces(WeakReference<Context> weakContext) {
-        String[] list = searchForStackTraces();
-
-        if ((list != null) && (list.length > 0)) {
-            LogUtils.d("Found " + list.length + " stacktrace(s).");
-
-            for (int index = 0; index < list.length; index++) {
-                try {
-                    Context context = null;
-                    if (weakContext != null) {
-                        LogUtils.d("Delete stacktrace " + list[index] + ".");
-                        deleteStackTrace(weakContext, list[index]);
-
-                        context = weakContext.get();
-                        if (context != null) {
-                            context.deleteFile(list[index]);
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                SharedPreUtil.removeCrashConfirmedFilenames(context);
             }
         }
     }
 
     public static long getInitializeTimestamp() {
         return initializeTimestamp;
-    }
-
-    public static CrashBean getLastCrashDetails() {
-        if (FileConfig.FILES_PATH == null) {
-            return null;
-        }
-
-        File dir = new File(FileConfig.FILES_PATH + "/");
-        File[] files = dir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String filename) {
-                return filename.endsWith(".stacktrace");
-            }
-        });
-
-        long lastModification = 0;
-        File lastModifiedFile = null;
-        CrashBean result = null;
-        for (File file : files) {
-            if (file.lastModified() > lastModification) {
-                lastModification = file.lastModified();
-                lastModifiedFile = file;
-            }
-        }
-
-        if (lastModifiedFile != null && lastModifiedFile.exists()) {
-//            try {
-//                result = CrashBean.fromFile(lastModifiedFile);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-        }
-
-        return result;
     }
 }

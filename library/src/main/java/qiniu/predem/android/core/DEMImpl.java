@@ -1,6 +1,8 @@
 package qiniu.predem.android.core;
 
 import android.content.Context;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -24,7 +26,6 @@ import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
 
 import static qiniu.predem.android.config.Configuration.CRASH_REPORT_ENABLE;
-import static qiniu.predem.android.config.Configuration.DEVICE_SYMBOLICATION_ENABLE;
 import static qiniu.predem.android.config.Configuration.HTTP_MONITOR_ENABLE;
 import static qiniu.predem.android.config.Configuration.LAG_MONITOR_ENABLE;
 import static qiniu.predem.android.config.Configuration.WEBVIEW_ENABLE;
@@ -52,29 +53,37 @@ public final class DEMImpl {
     public void start(String domain, String appKey, Context context) {
         this.context = new WeakReference<>(context);
 
+        LogUtils.d(TAG,"DemManager start");
+
         //获取AppBean信息
         Configuration.init(context, appKey, domain);
         if (askForConfiguration(context)) {
             updateAppConfig(context);
-        }
+        }else {
+            //获取各项上报开关
+            Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
+            Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
+            Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
+            Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
 
-        //获取各项上报开关
-        Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
-        Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
-        Configuration.symbilicationEnable = SharedPreUtil.getDeviceSymbolicationEable(context);
-        Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
-        Configuration.networkDiagnosis = SharedPreUtil.getNetWorkDiagnosisEnable(context);
+            if (Configuration.httpMonitorEnable) {
+                LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
+                HttpMonitorManager.getInstance().register(context);
+            }
+            if (Configuration.crashReportEnable) {
+                LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
+                CrashManager.register(context);
+            }
+            if (Configuration.lagMonitorEnable) {
+                LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
+                TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
+                traceInfoCatcher.start();
+            }
+        }
+    }
 
-        if (Configuration.httpMonitorEnable) {
-            HttpMonitorManager.getInstance().register(context);
-        }
-        if (Configuration.crashReportEnable) {
-            CrashManager.register(context);
-        }
-        if (Configuration.crashReportEnable){
-            TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
-            traceInfoCatcher.start();
-        }
+    public void setUserTag(String userid){
+        AppBean.setAppTag(userid);
     }
 
     private static boolean askForConfiguration(Context context) {
@@ -99,11 +108,11 @@ public final class DEMImpl {
                     parameters.put("app_name", AppBean.APP_NAME);
                     parameters.put("app_version", AppBean.APP_VERSION);
                     parameters.put("device_model", AppBean.PHONE_MODEL);
-                    parameters.put("os_platform","a");
+                    parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
                     parameters.put("os_version",AppBean.ANDROID_VERSION);
                     parameters.put("sdk_version", AppBean.SDK_VERSION);
-                    parameters.put("sdk_id",AppBean.ANDROID_BUILD);
-                    parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
+                    parameters.put("sdk_id",AppBean.DEVICE_IDENTIFIER);
+                    parameters.put("device_id",AppBean.PHONE_MANUFACTURER);
 
                     HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())
                             .setRequestMethod("POST")
@@ -121,9 +130,28 @@ public final class DEMImpl {
                         SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
                         SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
                         SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
-                        SharedPreUtil.setDeviceSymbolicationEable(cxt,jsonObject.optBoolean(DEVICE_SYMBOLICATION_ENABLE));
-                        SharedPreUtil.setNetWorkDiagnosisEable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
+                        SharedPreUtil.setLagMonitorEnable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
                     }
+                    //获取各项上报开关
+                    Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(cxt);
+                    Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(cxt);
+                    Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(cxt);
+                    Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(cxt);
+
+                    if (Configuration.httpMonitorEnable) {
+                        LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
+                        HttpMonitorManager.getInstance().register(cxt);
+                    }
+                    if (Configuration.crashReportEnable) {
+                        LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
+                        CrashManager.register(cxt);
+                    }
+                    if (Configuration.lagMonitorEnable){
+                        LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
+                        TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(cxt);
+                        traceInfoCatcher.start();
+                    }
+
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -144,16 +172,20 @@ public final class DEMImpl {
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
-        NetDiagnosis.start(this.context.get(), domain, address, netDiagCallback);
+        NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {
         JSONObject obj = new JSONObject(event);
-        trackEvent(eventName, event);
+        trackEvent(eventName, obj);
+    }
+
+    public void trackEvent(String eventName, JSONArray event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
     }
 
     public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
     }
 
     private boolean sendRequest(String url, String content) {

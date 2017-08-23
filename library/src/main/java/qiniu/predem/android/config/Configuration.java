@@ -13,8 +13,7 @@ public final class Configuration {
 
     public static final String HTTP_MONITOR_ENABLE = "http_monitor_enabled";
     public static final String CRASH_REPORT_ENABLE = "crash_report_enabled";
-    public static final String DEVICE_SYMBOLICATION_ENABLE = "on_device_symbolication_enabled";
-    public static final String LAG_MONITOR_ENABLE = "lag_monitor_enable";
+    public static final String LAG_MONITOR_ENABLE = "lag_monitor_enabled";
     public static final String WEBVIEW_ENABLE = "webview_enable";
 
     public static final long DEFAULT_TIMEOUT = 5000;
@@ -25,8 +24,7 @@ public final class Configuration {
     public static boolean httpMonitorEnable = true;//http上报
     public static boolean webviewEnable = true;//webview上报
     public static boolean crashReportEnable = true;//crash上报
-    public static boolean symbilicationEnable = true;//自定义数据上报
-    public static boolean networkDiagnosis = true; //网络诊断上报
+    public static boolean lagMonitorEnable = true;//view卡顿上报
     public static boolean dnsEnable = true; //默认是否使用dns
 
     public static void init(Context context, String appKey, String domain) {
@@ -66,6 +64,10 @@ public final class Configuration {
         return baseUrl() + "/crashes/a";
     }
 
+    public static String getLagMonitorUrl(){
+        return baseUrl()+"/lag-monitor/a";
+    }
+
     public static String getDiagnosisUrl() {
         return baseUrl() + "/net-diags/a";
     }
@@ -74,7 +76,11 @@ public final class Configuration {
         return baseUrl() + "/events/" + name;
     }
 
-    public static String getUpToken(){
+    public static String getLagMonitorUpToken(){
         return baseUrl() +"/lag-report-token/a";
+    }
+
+    public static String getCrashUpToken(){
+        return baseUrl() + "/crash-report-token/a";
     }
 }

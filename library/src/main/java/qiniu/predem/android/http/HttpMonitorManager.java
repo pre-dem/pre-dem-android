@@ -7,18 +7,14 @@ import android.os.Message;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.ToolUtil;
-
-import static android.R.string.ok;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 17/6/15.
@@ -30,7 +26,7 @@ public class HttpMonitorManager {
     private static final int MSG_WHAT_REPORT = 1;
     private static final int MSG_WHAT_BYEBYE = 2;
     private static final int MSG_BYEBYTE_DELAY = 10; //ms
-    private static final int reportIntervalTime = 60 * 1000;
+    private static final int reportIntervalTime = 10 * 1000;
 
     private static boolean initialized = false;
 
@@ -44,25 +40,11 @@ public class HttpMonitorManager {
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (!ToolUtil.isBackground(mContext)){
-                LogUtils.d(TAG,"-----report message");
+            if (!Functions.isBackground(mContext)){
                 onReportMessage(true);
-            }else{
-                LogUtils.d(TAG,"-----on byebye message");
+            }else {
                 onByeByeMessage();
             }
-//            switch (msg.what) {
-//                case MSG_WHAT_REPORT:
-//                    //发送上报数据
-//                    onReportMessage(true);
-//                    break;
-//                case MSG_WHAT_BYEBYE:
-//                    //注销上报数据
-//                    onByeByeMessage();
-//                    break;
-//                default:
-//                    break;
-//            }
             return true;
         }
     };

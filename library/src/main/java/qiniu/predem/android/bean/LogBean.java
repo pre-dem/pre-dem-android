@@ -1,5 +1,7 @@
 package qiniu.predem.android.bean;
 
+import org.json.JSONObject;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,12 +12,13 @@ import java.util.List;
 public class LogBean {
     private static final String TAG = "LogBean";
     private static final List<LogBean> mPool = new LinkedList<>();
-    protected String platform;
+    protected int platform;
     protected String appName;
     protected String appBundleId;
     protected String osVersion;
     protected String deviceModel;
     protected String deviceUUID;
+    protected String userTag;
     protected String domain;
     protected String path;
     protected String method;
@@ -56,31 +59,32 @@ public class LogBean {
     }
 
     public void init() {
-        platform = "a";
+        platform = 2;
         appName = AppBean.APP_NAME;
         appBundleId = AppBean.APP_PACKAGE;
         osVersion = AppBean.ANDROID_VERSION;
         deviceModel = AppBean.PHONE_MODEL;
-        deviceUUID = AppBean.APP_PACKAGE;
+        deviceUUID = AppBean.DEVICE_IDENTIFIER;
+        userTag = AppBean.APP_TAG;
         domain = "-";
         path = "-";
         method = "GET";
         hostIP = "-";
-        statusCode = -1;
-        startTimestamp = -1;
-        responseTimestamp = -1;
-        endTimestamp = -1;
-        dnsTime = -1;
+        statusCode = 0;
+        startTimestamp = 0;
+        responseTimestamp = 0;
+        endTimestamp = 0;
+        dnsTime = 0;
         dataLength = 0;
-        networkErrorCode = -1;
+        networkErrorCode = 0;
         networkErrorMsg = "-";
     }
 
-    public String getPlatform() {
+    public int getPlatform() {
         return platform;
     }
 
-    public void setPlatform(String platform) {
+    public void setPlatform(int platform) {
         this.platform = platform;
     }
 
@@ -221,36 +225,48 @@ public class LogBean {
     }
 
     public String toJsonString() {
-        StringBuilder jsonStr = new StringBuilder();
-        jsonStr.append("{ ");
-        jsonStr.append("\"platform\": \"").append(platform).append("\", ");
-        jsonStr.append("\"appName\": \"").append(appName).append("\", ");
-        jsonStr.append("\"appBundleId\": \"").append(appBundleId).append("\", ");
-        jsonStr.append("\"osVersion\": \"").append(osVersion).append("\", ");
-        jsonStr.append("\"deviceModel\": \"").append(deviceModel).append("\", ");
-        jsonStr.append("\"deviceUUID\": \"").append(deviceUUID).append("\", ");
-        if (domain == null || domain.equals("")) {
-            jsonStr.append("\"domain\": \"").append("-").append("\", ");
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("platform",platform);
+            jsonObject.put("appName",appName);
+            jsonObject.put("appBundleId",appBundleId);
+            jsonObject.put("osVersion",osVersion);
+            jsonObject.put("deviceModel",deviceModel);
+            jsonObject.put("deviceUUID",deviceUUID);
+            jsonObject.put("tag",userTag);
+            if (domain == null || domain.equals("")) {
+                jsonObject.put("domain","-");
+            }else{
+                jsonObject.put("domain",domain);
+            }
+            if (path == null || path.equals("")) {
+                jsonObject.put("path","-");
+            }else{
+                jsonObject.put("path",path);
+            }
+            if (method == null || method.equals("")) {
+                jsonObject.put("method","-");
+            }else{
+                jsonObject.put("method",method);
+            }
+            if (hostIP == null || hostIP.equals("")) {
+                jsonObject.put("hostIpSet","-");
+            }else{
+                jsonObject.put("hostIpSet",hostIP);
+            }
+            jsonObject.put("startTimestamp",startTimestamp);
+            jsonObject.put("endTimestamp",endTimestamp);
+            jsonObject.put("responseTimestamp",responseTimestamp);
+            jsonObject.put("dnsTime",dnsTime);
+            jsonObject.put("dataLength",dataLength);
+            jsonObject.put("statusCode",statusCode);
+            jsonObject.put("networkErrorCode",networkErrorCode);
+            jsonObject.put("networkErrorMsg",networkErrorMsg);
+
+            return jsonObject.toString();
+        }catch (Exception e){
+            return null;
         }
-        if (path == null || path.equals("")) {
-            jsonStr.append("\"path\": \"").append("-").append("\", ");
-        }
-        if (method == null || method.equals("")) {
-            jsonStr.append("\"method\": \"").append("GET").append("\", ");
-        }
-        if (hostIP == null || hostIP.equals("")) {
-            jsonStr.append("\"hostIpSet\": \"").append("-").append("\", ");
-        }
-        jsonStr.append("\"startTimestamp\": ").append(startTimestamp).append(", ");
-        jsonStr.append("\"endTimestamp\": ").append(endTimestamp).append(", ");
-        jsonStr.append("\"responseTimestamp\": ").append(responseTimestamp).append(", ");
-        jsonStr.append("\"dnsTime\": ").append(dnsTime).append(", ");
-        jsonStr.append("\"dataLength\": ").append(dataLength).append(", ");
-        jsonStr.append("\"statusCode\": ").append(statusCode).append(", ");
-        jsonStr.append("\"networkErrorCode\": ").append(networkErrorCode).append(", ");
-        jsonStr.append("\"networkErrorMsg\": ").append(networkErrorMsg);
-        jsonStr.append(" }");
-        return jsonStr.toString();
     }
 
     public String toString() {
@@ -261,6 +277,7 @@ public class LogBean {
         str.append(osVersion).append("\t");
         str.append(deviceModel).append("\t");
         str.append(deviceUUID).append("\t");
+        str.append(userTag).append("\t");
         if (domain == null || domain.equals("")) {
             str.append("-").append("\t");
         }else{

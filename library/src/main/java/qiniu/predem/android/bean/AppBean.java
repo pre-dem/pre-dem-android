@@ -14,6 +14,7 @@ import java.security.MessageDigest;
 
 import qiniu.predem.android.BuildConfig;
 import qiniu.predem.android.util.LogUtils;
+import qiniu.predem.android.util.Functions;
 
 /**
  * Created by Misty on 17/6/15.
@@ -43,13 +44,13 @@ public class AppBean {
      */
     public static String APP_VERSION = "-";
     /**
-     * The app's version name.
-     */
-    public static String APP_VERSION_NAME = "-";
-    /**
      * The app's package name.
      */
     public static String APP_PACKAGE = "-";
+    /**
+     * The user's id
+     */
+    public static String APP_TAG = "-";
     /**
      * The device's OS version.
      */
@@ -58,6 +59,10 @@ public class AppBean {
      * The device's OS build.
      */
     public static String ANDROID_BUILD = "-";
+    /**
+     * The device's platform
+     */
+    public static String ANDROID_PLATFORM = "Android";
 
     /**
      * The device's model name.
@@ -82,10 +87,14 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = Build.FINGERPRINT;
+        DEVICE_IDENTIFIER = Functions.generateUUID(context);
 
         loadPackageData(context);
         loadCrashIdentifier(context);
+    }
+
+    public static void setAppTag(String tag){
+        APP_TAG = tag;
     }
 
     @SuppressLint("HardwareIds")
@@ -149,8 +158,7 @@ public class AppBean {
                 PackageManager packageManager = context.getPackageManager();
                 PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
                 APP_PACKAGE = packageInfo.packageName;
-                APP_VERSION = "" + packageInfo.versionCode;
-                APP_VERSION_NAME = packageInfo.versionName;
+                APP_VERSION = packageInfo.versionName;
 
                 int buildNumber = loadBuildNumber(context, packageManager);
                 if ((buildNumber != 0) && (buildNumber > packageInfo.versionCode)) {

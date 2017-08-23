@@ -2,17 +2,17 @@ package qiniu.predem.android.crash;
 
 import android.annotation.SuppressLint;
 
-import java.io.BufferedWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
-import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.util.FileUtil;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -41,6 +41,8 @@ public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
         String filename = UUID.randomUUID().toString();
 
         CrashBean crashBean = new CrashBean(filename, exception);
+        //设置时区
+        FileUtil.DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
         crashBean.setStartTime(FileUtil.DATE_FORMAT.format(startDate));
         crashBean.setCrashTime(FileUtil.DATE_FORMAT.format(now));
 

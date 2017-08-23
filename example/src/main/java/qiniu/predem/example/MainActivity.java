@@ -3,374 +3,227 @@ package qiniu.predem.example;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import qiniu.predem.android.DEMManager;
-import qiniu.predem.android.util.AsyncRun;
+import qiniu.predem.android.bean.NetDiagBean;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
 
-    private NetworkAsyncTask networkAsyncTask;
+    private final String Name = "ApmDemo";
+    private final String APP_KEY = "appkey";
 
     private Button http_btn;
-    private Button crash_btn;
     private Button okhttp3_btn;
     private Button okhttp2_btn;
+    private Button crash_btn;
     private Button webview_btn;
     private Button diagnosis_btn;
     private Button anr_btn;
+    private Button lag_btn;
+    private Button custom_btn;
 
-    private WebView webView;
+    //
+    private OkhttpTwoThread okhttpTwoThread;
+    private OkhttpThreeThread okhttpThreeThread;
 
+    //appkey
+    private String appKey;
     private Context mContext;
-
-    /**
-     * 产生一个ANR
-     */
-    private static void SleepAMinute() {
-        try {
-            Thread.sleep(20 * 1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 产生一个错误
-     */
-    private static void fakeCrashReport() {
-        RuntimeException exception = new RuntimeException("Just a test exception");
-        throw exception;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final OkhttpThreeThread okhttp3Client = new OkhttpThreeThread();
-        final OkhttpTwoThread okhttp2Client = new OkhttpTwoThread();
-
         mContext = this.getApplicationContext();
 
-        http_btn = (Button) findViewById(R.id.http_btn);
-        crash_btn = (Button) findViewById(R.id.crash_btn);
-        okhttp3_btn = (Button) findViewById(R.id.okhttp3_btn);
-        okhttp2_btn = (Button) findViewById(R.id.okhttp2_btn);
-        diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
-        anr_btn = (Button) findViewById(R.id.anr_btn);
-        webview_btn = (Button) findViewById(R.id.webview_btn);
-
-        webView = (WebView) findViewById(R.id.webview1);
-
-        crash_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fakeCrashReport();
-            }
-        });
-
-        http_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                http_btn.setEnabled(false);
-                networkAsyncTask = new NetworkAsyncTask();
-                networkAsyncTask.execute("NETWORK_GET");
-            }
-        });
-
-        okhttp3_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    okhttp3Client.run("http://www.baidu.com");
-                    okhttp3Client.run("https://www.163.com");
-                    okhttp3Client.run("http://www.qq.com");
-                    okhttp3Client.run("https://www.qiniu.com");
-                    okhttp3Client.run("http://www.taobao.com");
-                    okhttp3Client.run("http://www.alipay.com");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        okhttp2_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    okhttp2Client.run("http://www.baidu.com");
-                    okhttp2Client.run("https://www.163.com");
-                    okhttp2Client.run("http://www.qq.com");
-                    okhttp2Client.run("https://www.qiniu.com");
-                    okhttp2Client.run("http://www.taobao.com");
-                    okhttp2Client.run("http://www.alipay.com");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-//        final String url = "http://blog.csdn.net/shenyuanqing/article/details/49099019";
-        final String url = "http://www.taobao.com";
-        webview_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                webView.setVisibility(View.VISIBLE);
-                webView.loadUrl(url);
-                webView.setWebViewClient(new WebViewClient(){
-                    @Override
-                    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                        view.loadUrl(url);
-                        return true;
-                    }
-                });
-            }
-        });
-
-        diagnosis_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
-                    @Override
-                    public void complete(boolean isSuccessful, final Exception e) {
-                        Log.d(TAG,"-------net diagnosis : " + isSuccessful);
-                        if (isSuccessful) {
-                            AsyncRun.runInMain(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showDialog("Successful!");
-                                }
-                            });
-                        } else {
-                            AsyncRun.runInMain(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showDialog(e.toString());
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        });
-
-        anr_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: 17/6/16生成一个ANR
-                SleepAMinute();
-            }
-        });
+        initView();
+        http_btn.setOnClickListener(this);
+        okhttp2_btn.setOnClickListener(this);
+        okhttp3_btn.setOnClickListener(this);
+        webview_btn.setOnClickListener(this);
+        crash_btn.setOnClickListener(this);
+        anr_btn.setOnClickListener(this);
+        lag_btn.setOnClickListener(this);
+        diagnosis_btn.setOnClickListener(this);
+        custom_btn.setOnClickListener(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //000000020007gokq1tfju5if
-        //9a9c127726b746e5b5fa7fc816a17407
-        //000000010004qpc2443vpvai
-        DEMManager.start("hriygkee.bq.cloudappl.com", "000000010004qpc2443vpvai", this.getApplicationContext());
+        SharedPreferences sh = getSharedPreferences(Name,MODE_PRIVATE);
+        appKey = sh.getString(APP_KEY,null);
+        if (appKey != null && !appKey.isEmpty()){
+            //
+            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+        }else{
+            showCustomizeDialog();
+        }
+    }
+
+    private void initView(){
+        http_btn = (Button) findViewById(R.id.http_btn);
+        okhttp3_btn = (Button) findViewById(R.id.okhttp3_btn);
+        okhttp2_btn = (Button) findViewById(R.id.okhttp2_btn);
+        webview_btn = (Button) findViewById(R.id.webview_btn);
+        crash_btn = (Button) findViewById(R.id.crash_btn);
+        anr_btn = (Button) findViewById(R.id.anr_btn);
+        lag_btn = (Button)findViewById(R.id.lag_btn);
+        diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
+        custom_btn = (Button)findViewById(R.id.custom_btn);
+
+        okhttpTwoThread = new OkhttpTwoThread();
+        okhttpThreeThread = new OkhttpThreeThread();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-//        unregist();
-    }
-
-    private void showDialog(final String content) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("提示");
-        builder.setMessage(content);
-        builder.setIcon(R.mipmap.ic_launcher);
-        builder.setCancelable(false);
-
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-
-        builder.create();
-        builder.show();
-    }
-
-    //用于进行网络请求的AsyncTask
-    class NetworkAsyncTask extends AsyncTask<String, Integer, Map<String, Object>> {
-        //NETWORK_GET表示发送GET请求
-        public static final String NETWORK_GET = "NETWORK_GET";
-
-        @Override
-        protected Map<String, Object> doInBackground(String... params) {
-            Map<String, Object> result = new HashMap<>();
-            URL url = null;//请求的URL地址
-            HttpURLConnection conn = null;
-            String requestHeader = null;//请求头
-            byte[] requestBody = null;//请求体
-            String responseHeader = null;//响应头
-            byte[] responseBody = null;//响应体
-            String action = params[0];//http请求的操作类型
-
-            try {
-                if (NETWORK_GET.equals(action)) {
-                    //发送GET请求
-                    url = new URL("http://www.qq.com");
-                    conn = (HttpURLConnection) url.openConnection();
-                    //HttpURLConnection默认就是用GET发送请求，所以下面的setRequestMethod可以省略
-                    conn.setRequestMethod("GET");
-                    //HttpURLConnection默认也支持从服务端读取结果流，所以下面的setDoInput也可以省略
-                    conn.setDoInput(true);
-                    //用setRequestProperty方法设置一个自定义的请求头:action，由于后端判断
-                    conn.setRequestProperty("action", NETWORK_GET);
-                    //禁用网络缓存
-                    conn.setUseCaches(false);
-                    //获取请求头
-                    requestHeader = getReqeustHeader(conn);
-                    //在对各种参数配置完成后，通过调用connect方法建立TCP连接，但是并未真正获取数据
-                    //conn.connect()方法不必显式调用，当调用conn.getInputStream()方法时内部也会自动调用connect方法
-                    conn.connect();
-                    //调用getInputStream方法后，服务端才会收到请求，并阻塞式地接收服务端返回的数据
-                    InputStream is = conn.getInputStream();
-                    //将InputStream转换成byte数组,getBytesByInputStream会关闭输入流
-                    responseBody = getBytesByInputStream(is);
-                    //获取响应头
-                    responseHeader = getResponseHeader(conn);
-                }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                //最后将conn断开连接
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-
-            result.put("url", url.toString());
-            result.put("action", action);
-            result.put("requestHeader", requestHeader);
-            result.put("requestBody", requestBody);
-            result.put("responseHeader", responseHeader);
-            result.put("responseBody", responseBody);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Map<String, Object> result) {
-            super.onPostExecute(result);
-            http_btn.setEnabled(true);
-        }
-
-        //读取请求头
-        private String getReqeustHeader(HttpURLConnection conn) {
-            Map<String, List<String>> requestHeaderMap = conn.getRequestProperties();
-            Iterator<String> requestHeaderIterator = requestHeaderMap.keySet().iterator();
-            StringBuilder sbRequestHeader = new StringBuilder();
-            while (requestHeaderIterator.hasNext()) {
-                String requestHeaderKey = requestHeaderIterator.next();
-                String requestHeaderValue = conn.getRequestProperty(requestHeaderKey);
-                sbRequestHeader.append(requestHeaderKey);
-                sbRequestHeader.append(":");
-                sbRequestHeader.append(requestHeaderValue);
-                sbRequestHeader.append("\n");
-            }
-            return sbRequestHeader.toString();
-        }
-
-        //读取响应头
-        private String getResponseHeader(HttpURLConnection conn) {
-            Map<String, List<String>> responseHeaderMap = conn.getHeaderFields();
-            int size = responseHeaderMap.size();
-            StringBuilder sbResponseHeader = new StringBuilder();
-            for (int i = 0; i < size; i++) {
-                String responseHeaderKey = conn.getHeaderFieldKey(i);
-                String responseHeaderValue = conn.getHeaderField(i);
-                sbResponseHeader.append(responseHeaderKey);
-                sbResponseHeader.append(":");
-                sbResponseHeader.append(responseHeaderValue);
-                sbResponseHeader.append("\n");
-            }
-            return sbResponseHeader.toString();
-        }
-
-        //从InputStream中读取数据，转换成byte数组，最后关闭InputStream
-        private byte[] getBytesByInputStream(InputStream is) {
-            byte[] bytes = null;
-            BufferedInputStream bis = new BufferedInputStream(is);
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            BufferedOutputStream bos = new BufferedOutputStream(baos);
-            byte[] buffer = new byte[1024 * 8];
-            int length = 0;
-            try {
-                while ((length = bis.read(buffer)) > 0) {
-                    bos.write(buffer, 0, length);
-                }
-                bos.flush();
-                bytes = baos.toByteArray();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.http_btn:
+                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
+                new HttpUrlConnectionThread("https://www.163.com",null).start();
+                new HttpUrlConnectionThread("http://www.qq.com",null).start();
+                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
+                new HttpUrlConnectionThread("http://www.taobao.com",null).start();
+                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
+                break;
+            case R.id.okhttp2_btn:
                 try {
-                    bos.close();
-                } catch (IOException e) {
+                    okhttpTwoThread.run("http://www.baidu.com");
+                    okhttpTwoThread.run("https://www.163.com");
+                    okhttpTwoThread.run("http://www.qq.com");
+                    okhttpTwoThread.run("https://www.qiniu.com");
+                    okhttpTwoThread.run("http://www.taobao.com");
+                    okhttpTwoThread.run("http://www.alipay.com");
+                }catch (Exception e){
                     e.printStackTrace();
                 }
+                break;
+            case R.id.okhttp3_btn:
                 try {
-                    bis.close();
-                } catch (IOException e) {
+                    okhttpThreeThread.run("http://www.baidu.com");
+                    okhttpThreeThread.run("https://www.163.com");
+                    okhttpThreeThread.run("http://www.qq.com");
+                    okhttpThreeThread.run("https://www.qiniu.com");
+                    okhttpThreeThread.run("http://www.taobao.com");
+                    okhttpThreeThread.run("http://www.alipay.com");
+                }catch (Exception e){
                     e.printStackTrace();
                 }
-            }
+                break;
+            case R.id.webview_btn:
+                Intent intent = new Intent(this,WebViewActivity.class);
+                intent.putExtra("extr_url", "http://www.taobao.com");
+                startActivity(intent);
+                break;
+            case R.id.crash_btn:
+                fakeCrashReport();
+                break;
+            case R.id.anr_btn:
+                SleepAMinute(25 * 1000);
+                break;
+            case R.id.lag_btn:
+                SleepAMinute(4 * 1000);
+                break;
+            case R.id.diagnosis_btn:
+                diagnosis_btn.setEnabled(false);
+                DEMManager.netDiag("www.baidu.com", "http://www.baidu.com", new DEMManager.NetDiagCallback() {
+                    @Override
+                    public void complete(NetDiagBean bean) {
+                        AsyncRun.runInMain(new Runnable() {
+                            @Override
+                            public void run() {
+                                diagnosis_btn.setEnabled(true);
+                            }
+                        });
+                        Log.d(TAG,"-----diagnosis info : " + bean.toString());
+                    }
+                });
+                break;
+            case R.id.custom_btn:
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            //[{"hellonum":7,"helloKey":"worldValue"}]
+                            JSONArray json = new JSONArray();
+                            JSONObject jsonObject1 = new JSONObject();
+                            jsonObject1.put("hellonum",7);
+                            jsonObject1.put("helloKey","worldValue");
+                            json.put(jsonObject1);
 
-            return bytes;
+                            DEMManager.trackEvent("viewDidLoadEvent",json);
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+                break;
         }
     }
 
-//    //
-//    LocalBroadcastManager manager ;
-//    BroadcastReceiver mBroadcastReceiver;
-//    public void register(){
-//         mBroadcastReceiver= new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                //ANR
-//                if (intent.getAction().equals(ACTION_ANR)){
-//                    //TODO 处理ANR
-//                    LogUtils.d(TAG,"------this is anr operation");
-//                }
-//            }
-//        };
-//        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
-//    }
-//
-//    public void unregist(){
-//        if (manager != null){
-//            manager.unregisterReceiver(mBroadcastReceiver);
-//        }
-//    }
+    /**
+     * 产生一个crash
+     */
+    private static void fakeCrashReport() {
+        RuntimeException exception = new RuntimeException("Just a test exception " + System.currentTimeMillis());
+        throw exception;
+    }
+
+    /**
+     * 产生一个ANR
+     */
+    private static void SleepAMinute(long t) {
+        try {
+            Thread.sleep(t);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showCustomizeDialog() {
+        AlertDialog.Builder customizeDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        final View dialogView = LayoutInflater.from(MainActivity.this)
+                .inflate(R.layout.activity_dialog,null);
+        customizeDialog.setTitle("请输入AppKey");
+        customizeDialog.setView(dialogView);
+        customizeDialog.setPositiveButton("确定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 获取EditView中的输入内容
+                        EditText edit_text = (EditText) dialogView.findViewById(R.id.edit_text);
+                        appKey = edit_text.getText().toString().trim();
+//                        appKey = "000000020005dr1v4kim68c6";
+                        if (appKey == null || appKey.isEmpty()){
+                            Toast.makeText(MainActivity.this, "appKey为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
+                        }else{
+                            SharedPreferences sh = getSharedPreferences(Name,MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sh.edit();
+                            editor.putString(APP_KEY,appKey);
+                            editor.apply();
+                            //jkbkolos.bq.cloudappl.com
+                            //
+                            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+                        }
+                    }
+                });
+        customizeDialog.show();
+    }
 }

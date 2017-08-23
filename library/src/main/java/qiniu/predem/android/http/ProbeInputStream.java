@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import qiniu.predem.android.bean.LogBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
-import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -18,40 +19,20 @@ import qiniu.predem.android.util.LogUtils;
 public class ProbeInputStream extends InputStream {
     private static final String TAG = "ProbeInputStream";
 
-    private static final List<ProbeInputStream> mPool = new LinkedList<>();
+    protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
+
     protected long timeout;
+    protected boolean isFirstPacket;
     protected boolean replied;
     protected AtomicBoolean isFinish;
     protected Runnable runTimeOut;
+
     protected InputStream source;
     protected LogBean record;
 
-    protected ProbeInputStream(InputStream is, LogBean record) {
-        this(is, record, Configuration.DEFAULT_TIMEOUT);
-    }
+    protected boolean doReport = true;
 
-    protected ProbeInputStream(InputStream is, final LogBean record, long timeout) {
-        init(is, record, timeout);
-
-        runTimeOut = new Runnable() {
-            @Override
-            public void run() {
-                while (replied) {
-                    replied = false;
-                    try {
-                        Thread.sleep(ProbeInputStream.this.timeout);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (isFinish.compareAndSet(false, true)) {
-                    // 提交数据
-                    record.setEndTimestamp(System.currentTimeMillis());
-                    FileUtil.getInstance().addReportContent(record.toString());
-                }
-            }
-        };
-    }
+    private static final List<ProbeInputStream> mPool = new LinkedList<>();
 
     public static ProbeInputStream obtain(InputStream is, LogBean record) {
         if (mPool.size() > 0) {
@@ -74,8 +55,37 @@ public class ProbeInputStream extends InputStream {
         }
     }
 
+    protected ProbeInputStream(InputStream is, LogBean record) {
+        this(is, record, Configuration.DEFAULT_TIMEOUT);
+    }
+
+    protected ProbeInputStream(InputStream is, final LogBean record, long timeout) {
+        init(is, record, timeout);
+
+        runTimeOut = new Runnable() {
+            @Override
+            public void run() {
+                while (replied) {
+                    replied = false;
+                    try {
+                        Thread.sleep(ProbeInputStream.this.timeout);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (isFinish.compareAndSet(false, true)) {
+                    //写数据
+                    record.setEndTimestamp(System.currentTimeMillis());
+                    FileUtil.getInstance().addReportContent(record.toString());
+                }
+            }
+        };
+    }
+
     protected void init(InputStream is, LogBean record, long timeout) {
+        this.doReport = true;
         this.timeout = timeout;
+        isFirstPacket = true;
         replied = false;
         isFinish = new AtomicBoolean(false);
 
@@ -84,15 +94,24 @@ public class ProbeInputStream extends InputStream {
 
     }
 
+    protected void checkFirstPacket() {
+        if (isFirstPacket) {
+            isFirstPacket = false;
+            replied = true;
+            executor.execute(runTimeOut);
+        }
+    }
+
     protected synchronized void checkFinish(long result) {
         if (!isFinish.get()) {
             if (result >= 0) {
                 replied = true;
             } else {
                 if (isFinish.compareAndSet(false, true)) {
-                    // 提交数据
+                    //写数据
                     record.setEndTimestamp(System.currentTimeMillis());
                     FileUtil.getInstance().addReportContent(record.toString());
+
                 }
             }
         }
@@ -104,12 +123,11 @@ public class ProbeInputStream extends InputStream {
         try {
             result = source.read();
         } catch (IOException e) {
-            // 提交数据
-            LogUtils.d(TAG, "-------IOException addReportContent");
-            FileUtil.getInstance().addReportContent(record.toString());
+            record.setNetworkErrorMsg(e.toString());
             throw e;
         }
-        record.setDataLength(record.getDataLength() + result);
+        checkFirstPacket();
+        record.setDataLength(record.getDataLength() + 1);
         checkFinish(result);
         return result;
     }
@@ -120,11 +138,10 @@ public class ProbeInputStream extends InputStream {
         try {
             result = source.read(b);
         } catch (IOException e) {
-            // 提交数据
-            FileUtil.getInstance().addReportContent(record.toString());
+            record.setNetworkErrorMsg(e.toString());
             throw e;
         }
-        //获取content-length
+        checkFirstPacket();
         record.setDataLength(record.getDataLength() + result);
         checkFinish(result);
         return result;
@@ -133,7 +150,7 @@ public class ProbeInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
         int result = source.read(b, off, len);
-        //获取content-length
+        checkFirstPacket();
         record.setDataLength(record.getDataLength() + result);
         checkFinish(result);
         return result;

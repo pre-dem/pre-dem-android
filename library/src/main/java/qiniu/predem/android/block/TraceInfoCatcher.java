@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
@@ -20,27 +19,26 @@ import org.json.JSONObject;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.UUID;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.ToolUtil;
+import qiniu.predem.android.util.Functions;
 
-import static android.R.id.list;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_ANR;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
-import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
-import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
-import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
-import static qiniu.predem.android.config.FileConfig.FILELD_START_TIME;
 
 /**
  * Created by fengcunhan on 16/1/19.
  */
 public class TraceInfoCatcher extends Thread {
-    private static final String TAG="StackInfoCatcher";
+    private static final String TAG="TraceInfoCatcher";
 
     ////////
     private volatile int _tick = 0;
@@ -76,22 +74,33 @@ public class TraceInfoCatcher extends Thread {
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                //判断应用是否在前台
+                if (Functions.isBackground(context)){
+                    stopTrace();
+                    return ;
+                }
                 //block
                 if (intent.getAction().equals(ACTION_BLOCK)) {
                     long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
                     long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info) {
-                        LogUtils.e(TAG, "------find block line");
                         //send reqeust
-                        sendRequest(info);
-                    } else {
-                        LogUtils.e(TAG, "------no block line find");
+                        sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
+                    }
+                }else if (intent.getAction().equals(ACTION_ANR)){
+                    long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
+                    long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
+                    TraceInfo info = getInfoByTime(endTime, startTime);
+                    if (null != info) {
+                        //send reqeust
+                        sendRequest(info,Configuration.getCrashUrl(),startTime,endTime);
                     }
                 }
             }
         };
         manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
+        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_ANR));
     }
 
     @Override
@@ -143,7 +152,7 @@ public class TraceInfoCatcher extends Thread {
         return result.toString();
     }
 
-    public void sendRequest(final TraceInfo info){
+    public void sendRequest(final TraceInfo info, final String reportUrl, final long startTime, final long endTime){
         if (!submitting) {
             submitting = true;
             new Thread() {
@@ -153,15 +162,14 @@ public class TraceInfoCatcher extends Thread {
                     HttpURLConnection urlConnection = null;
                     InputStream is = null;
                     try {
-                        String md5 = ToolUtil.getStringMd5(info.mLog);
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getUpToken() + "?md5=" + md5)
+                        String md5 = Functions.getStringMd5(info.mLog);
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getLagMonitorUpToken() + "?md5=" + md5)
                                 .setRequestMethod("GET")
                                 .build();
 
                         int responseCode = urlConnection.getResponseCode();
                         String token = null;
                         String key = null;
-                        LogUtils.d(TAG,"-----block response code : " + responseCode);
                         if (responseCode == 200) {
                             try {
                                 is = urlConnection.getInputStream();
@@ -201,23 +209,27 @@ public class TraceInfoCatcher extends Thread {
                                             try {
                                                 JSONObject parameters = new JSONObject();
 
+                                                Date start = new Date(startTime);
+                                                Date end = new Date(endTime);
+                                                FileUtil.DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
                                                 parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
                                                 parameters.put("app_name",AppBean.APP_NAME);
                                                 parameters.put("app_version",AppBean.APP_VERSION);
                                                 parameters.put("device_model",AppBean.PHONE_MODEL);
-                                                parameters.put("os_platform","a");
+                                                parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
                                                 parameters.put("os_version",AppBean.ANDROID_VERSION);
                                                 parameters.put("os_build",AppBean.ANDROID_BUILD);
                                                 parameters.put("sdk_version",AppBean.SDK_VERSION);
-                                                parameters.put("sdk_id",AppBean.SDK_NAME);
+                                                parameters.put("sdk_id","");
                                                 parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
-                                                parameters.put("report_uuid","");
-                                                parameters.put("crash_log_key",key);
+                                                parameters.put("tag",AppBean.APP_TAG);
+                                                parameters.put("report_uuid", UUID.randomUUID().toString());
+                                                parameters.put("lag_log_key",key);
                                                 parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
-                                                parameters.put("start_time","");
-                                                parameters.put("crash_time","");
+                                                parameters.put("start_time",FileUtil.DATE_FORMAT.format(start));
+                                                parameters.put("lag_time",FileUtil.DATE_FORMAT.format(end));
 
-                                                url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
+                                                url = new HttpURLConnectionBuilder(reportUrl)
                                                         .setRequestMethod("POST")
                                                         .setHeader("Content-Type","application/json")
                                                         .setRequestBody(parameters.toString())

@@ -16,7 +16,14 @@ import com.qiniu.android.storage.UploadManager;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,13 +33,14 @@ import java.util.UUID;
 
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
+import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.Functions;
-
-import static qiniu.predem.android.block.BlockPrinter.ACTION_ANR;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
+import static qiniu.predem.android.block.BlockPrinter.EXTRA_FINISH_TIME;
+import static qiniu.predem.android.block.BlockPrinter.EXTRA_START_TIME;
 
 /**
  * Created by fengcunhan on 16/1/19.
@@ -43,7 +51,7 @@ public class TraceInfoCatcher extends Thread {
     ////////
     private volatile int _tick = 0;
     private final Handler _uiHandler = new Handler(Looper.getMainLooper());
-    private final int _timeoutInterval;
+    private int _timeoutInterval;
     private final Runnable _ticker = new Runnable() {
         @Override
         public void run() {
@@ -54,11 +62,14 @@ public class TraceInfoCatcher extends Thread {
 
     private static final int SIZE=1024;
     private boolean stop = false;
-    private long mLastTime = 0;
+//    private long mLastTime = 0;
     private List<TraceInfo> mList = new ArrayList<>(SIZE);
     private Context mContext;
     private BroadcastReceiver mBroadcastReceiver;
     private boolean submitting = false;
+    private WeakReference<Context> weakContext;
+    private String fileName ;
+    private int count;
 
 
     public TraceInfoCatcher(Context context){
@@ -67,8 +78,7 @@ public class TraceInfoCatcher extends Thread {
         //使用自定义printer
         context.getMainLooper().setMessageLogging(new BlockPrinter(context));
 
-        //卡顿时间差
-        _timeoutInterval= 2000;
+        _timeoutInterval = 2000;
 
         LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
         mBroadcastReceiver = new BroadcastReceiver() {
@@ -81,18 +91,10 @@ public class TraceInfoCatcher extends Thread {
                 }
                 //block
                 if (intent.getAction().equals(ACTION_BLOCK)) {
-                    long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
-                    long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
+                    long endTime = intent.getLongExtra(EXTRA_FINISH_TIME, 0);
+                    long startTime = intent.getLongExtra(EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
-                    if (null != info) {
-                        //send reqeust
-                        sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
-                    }
-                }else if (intent.getAction().equals(ACTION_ANR)){
-                    long endTime = intent.getLongExtra(BlockPrinter.EXTRA_FINISH_TIME, 0);
-                    long startTime = intent.getLongExtra(BlockPrinter.EXTRA_START_TIME, 0);
-                    TraceInfo info = getInfoByTime(endTime, startTime);
-                    if (null != info) {
+                    if (null != info.mLog && !info.mLog.equals("")) {
                         //send reqeust
                         sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
                     }
@@ -100,7 +102,12 @@ public class TraceInfoCatcher extends Thread {
             }
         };
         manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
-        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_ANR));
+
+        fileName = null;
+        count = 0;
+        //TODO 检查是否有 anr 文件需要上传
+        weakContext = new WeakReference<Context>(mContext);
+        hasStackTraces(weakContext);
     }
 
     @Override
@@ -108,6 +115,7 @@ public class TraceInfoCatcher extends Thread {
         int lastTick;
         while(!stop){
             lastTick = _tick;
+            long startTime = System.currentTimeMillis();
             _uiHandler.post(_ticker);
             try {
                 Thread.sleep(_timeoutInterval);
@@ -117,12 +125,29 @@ public class TraceInfoCatcher extends Thread {
             }
 
             if (_tick == lastTick){
-                //产生卡顿，获取stackInfo
-                mLastTime = System.currentTimeMillis();
+                //产生ANR，获取stackInfo
                 TraceInfo info = new TraceInfo();
-                info.mTime = mLastTime;
+                info.mStartTime = startTime;
+                info.mEndTime = System.currentTimeMillis();
                 info.mLog = stackTraceToString(Looper.getMainLooper().getThread().getStackTrace());
                 mList.add(info);
+                if (count > 3 && fileName == null){
+                    fileName = UUID.randomUUID().toString();
+                    //保存到文件
+                    FileUtil.getInstance().writeAnrReport(fileName,info);
+                }
+                count++;
+            }else if (_tick != lastTick && fileName != null){
+                //恢复 删除文件
+                deleteStackTrace(weakContext,fileName);
+                fileName = null;
+                count = 0;
+            }
+
+            //进入后台后停止进度
+            if (Functions.isBackground(mContext)){
+                stopTrace();
+                return;
             }
             if(mList.size()>SIZE){
                 mList.remove(0);
@@ -130,9 +155,110 @@ public class TraceInfoCatcher extends Thread {
         }
     }
 
+    public void hasStackTraces(WeakReference<Context> weakContext) {
+        String[] filenames = searchForStackTraces();
+        try {
+            if ((filenames != null) && (filenames.length > 0)) {
+                for (int i = 0 ; i < filenames.length; i++){
+                    String content = contentsOfFile(weakContext,filenames[i]);
+                    JSONObject jsonObject = new JSONObject(content);
+
+                    TraceInfo traceInfo = new TraceInfo();
+                    traceInfo.mStartTime = jsonObject.optLong("startTime");
+                    traceInfo.mEndTime = jsonObject.optLong("endTime");
+                    traceInfo.mLog = jsonObject.optString("info");
+                    //上报数据
+                    sendRequest(traceInfo, Configuration.getLagMonitorUrl(), traceInfo.mStartTime, traceInfo.mEndTime);
+                    deleteStackTrace(weakContext,filenames[i]);
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Returns the content of a file as a string.
+     */
+    private static String contentsOfFile(WeakReference<Context> weakContext, String filename) {
+        Context context = null;
+        if (weakContext != null) {
+            context = weakContext.get();
+            if (context != null) {
+                StringBuilder contents = new StringBuilder();
+                BufferedReader reader = null;
+                try {
+                    reader = new BufferedReader(new InputStreamReader(context.openFileInput(filename)));
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        contents.append(line);
+                        contents.append(System.getProperty("line.separator"));
+                    }
+                } catch (FileNotFoundException e) {
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
+                return contents.toString();
+            }
+        }
+        return null;
+    }
+
+    private String[] searchForStackTraces() {
+        if (FileConfig.FILES_PATH != null) {
+            LogUtils.d("Looking for exceptions in: " + FileConfig.FILES_PATH);
+
+            File dir = new File(FileConfig.FILES_PATH + "/");
+            boolean created = dir.mkdir();
+            if (!created && !dir.exists()) {
+                return new String[0];
+            }
+
+            FilenameFilter filter = new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".anr");
+                }
+            };
+            return dir.list(filter);
+        } else {
+            LogUtils.d("Can't search for anr as file path is null.");
+            return null;
+        }
+    }
+
+    /**
+     * Deletes the give filename and all corresponding files (same name,
+     * different extension).
+     */
+    private static void deleteStackTrace(WeakReference<Context> weakContext, String filename) {
+        Context context = null;
+        if (weakContext != null) {
+            context = weakContext.get();
+            if (context != null) {
+                context.deleteFile(filename);
+
+                String user = filename.replace(".anr", ".user");
+                context.deleteFile(user);
+
+                String contact = filename.replace(".anr", ".contact");
+                context.deleteFile(contact);
+
+                String description = filename.replace(".anr", ".description");
+                context.deleteFile(description);
+            }
+        }
+    }
+
     public TraceInfo getInfoByTime(long endTime,long startTime){
         for(TraceInfo info : mList){
-            if(info.mTime >= startTime && info.mTime<=endTime){
+            if(info.mStartTime >= startTime && info.mEndTime<=endTime){
                 return info;
             }
         }
@@ -267,7 +393,7 @@ public class TraceInfoCatcher extends Thread {
     }
 
     public void stopTrace(){
-        stop=true;
+        stop = true;
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
     }
 }

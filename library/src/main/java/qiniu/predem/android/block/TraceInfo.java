@@ -17,10 +17,25 @@
 
 package qiniu.predem.android.block;
 
+import org.json.JSONObject;
+
 /**
  * Created by fengcunhan on 16/1/19.
  */
 public class TraceInfo {
-    public long mTime;
+    public long mStartTime;
+    public long mEndTime;
     public String mLog;
+
+    public String toJsonString(){
+        try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("startTime",mStartTime);
+            jsonObject.put("endTime", mEndTime);
+            jsonObject.put("info", mLog);
+            return jsonObject.toString();
+        }catch (Exception e){
+            return null;
+        }
+    }
 }

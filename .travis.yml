@@ -37,7 +37,7 @@ after_deploy:
   tag $TRAVIS_TAG`"
 notifications:
   email:
-  - liangmengmeng@qiniu.com
+  - apm@qiniu.com
 deploy:
   provider: releases
   api_key:

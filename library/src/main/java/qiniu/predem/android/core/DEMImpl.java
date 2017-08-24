@@ -57,29 +57,29 @@ public final class DEMImpl {
 
         //获取AppBean信息
         Configuration.init(context, appKey, domain);
-        if (askForConfiguration(context)) {
+//        if (askForConfiguration(context)) {
             updateAppConfig(context);
-        }else {
-            //获取各项上报开关
-            Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
-            Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
-            Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
-            Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
-
-            if (Configuration.httpMonitorEnable) {
-                LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
-                HttpMonitorManager.getInstance().register(context);
-            }
-            if (Configuration.crashReportEnable) {
-                LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
-                CrashManager.register(context);
-            }
-            if (Configuration.lagMonitorEnable) {
-                LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
-                TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
-                traceInfoCatcher.start();
-            }
-        }
+//        }else {
+//            //获取各项上报开关
+//            Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
+//            Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
+//            Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
+//            Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
+//
+//            if (Configuration.httpMonitorEnable) {
+//                LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
+//                HttpMonitorManager.getInstance().register(context);
+//            }
+//            if (Configuration.crashReportEnable) {
+//                LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
+//                CrashManager.register(context);
+//            }
+//            if (Configuration.lagMonitorEnable) {
+//                LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
+//                TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
+//                traceInfoCatcher.start();
+//            }
+//        }
     }
 
     public void setUserTag(String userid){

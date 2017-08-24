@@ -23,10 +23,12 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import qiniu.predem.android.bean.CrashBean;
+import qiniu.predem.android.block.TraceInfo;
 import qiniu.predem.android.config.FileConfig;
 
 import static android.icu.lang.UCharacter.GraphemeClusterBreak.T;
 import static qiniu.predem.android.config.FileConfig.CACHE_FILE_NAME;
+import static qiniu.predem.android.config.FileConfig.FILES_PATH;
 import static qiniu.predem.android.config.FileConfig.INDEX_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_INDEX;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_POSITION;
@@ -250,21 +252,31 @@ public class FileUtil {
         if (TextUtils.isEmpty(FileConfig.FILES_PATH)) {
             return;
         }
-        String path = FileConfig.FILES_PATH + "/" + crashBean.getCrashIdentifier() + ".stacktrace";
-        writeCrashReport(path, crashBean);
-    }
-
-    public void writeCrashReport(final String path, CrashBean crashBean) {
-        LogUtils.d(TAG, "Writing unhandled exception to: " + path);
-
         if (crashBean.ToJsonString() == null){
             return;
         }
+        String path = FileConfig.FILES_PATH + "/" + crashBean.getCrashIdentifier() + ".stacktrace";
+        writeStringReport(path, crashBean.ToJsonString());
+    }
+
+    public void writeAnrReport(String fileName, TraceInfo info){
+        if (TextUtils.isEmpty(FILES_PATH)){
+            return;
+        }
+        if (info.toJsonString() == null){
+            return ;
+        }
+        String path = FileConfig.FILES_PATH + "/" + fileName + ".anr";
+        writeStringReport(path,info.toJsonString());
+    }
+
+    public void writeStringReport(final String path, String info) {
+        LogUtils.d(TAG, "Writing unhandled exception to: " + path);
 
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(new FileWriter(path));
-            writer.write(crashBean.ToJsonString());
+            writer.write(info);
             writer.flush();
         } catch (IOException e) {
             LogUtils.e(TAG, "Error saving crash report!" + e.toString());

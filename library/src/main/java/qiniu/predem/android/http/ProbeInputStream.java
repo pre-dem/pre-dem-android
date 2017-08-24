@@ -119,7 +119,7 @@ public class ProbeInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        int result = -1;
+        int result = 0;
         try {
             result = source.read();
         } catch (IOException e) {
@@ -134,7 +134,7 @@ public class ProbeInputStream extends InputStream {
 
     @Override
     public int read(byte[] b) throws IOException {
-        int result = -1;
+        int result = 0;
         try {
             result = source.read(b);
         } catch (IOException e) {

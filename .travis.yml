@@ -1,59 +1,48 @@
-# using docker container
 sudo: false
-
 language: android
-
 jdk:
-  - oraclejdk8
-
+- oraclejdk8
 android:
   components:
-    - tools
-    - platform-tools
-    - tools
-
-    - build-tools-26.0.0
-
-    - android-22
-    - android-25
-    - sys-img-armeabi-v7a-android-22
-
-    - extra-android-support
-    - extra-android-m2repository
-
+  - tools
+  - platform-tools
+  - tools
+  - build-tools-26.0.0
+  - android-22
+  - android-25
+  - sys-img-armeabi-v7a-android-22
+  - extra-android-support
+  - extra-android-m2repository
 before_script:
-   - android list targets
-   - echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
-   - emulator -avd test -no-audio -no-window &
-   - android-wait-for-emulator
-   - adb shell input keyevent 82 &
-
+- android list targets
+- echo no | android create avd --force -n test -t android-22 --abi armeabi-v7a
+- emulator -avd test -no-audio -no-window &
+- android-wait-for-emulator
+- adb shell input keyevent 82 &
 script:
-  - ./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace
-  - ./gradlew build
-
+- "./gradlew :library:createDebugAndroidTestCoverageReport --info --stacktrace"
+- "./gradlew build"
 dist:
-  - trusty
-
+- trusty
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
+- bash <(curl -s https://codecov.io/bash)
 after_failure:
-  - if [ -f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html; fi
-
+- if [ -f /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html
+  ]; then lynx -dump /home/travis/build/pre-dem/pre-dem-android/example/build/reports/lint-results.html;
+  fi
+before_install:
+- gem install fir-cli
+after_deploy:
+- fir p example/build/outputs/apk/example-release.apk -T $FIR_TOKEN -c "`git cat-file
+  tag $TRAVIS_TAG`"
+notifications:
+  email:
+  - apm@qiniu.com
 deploy:
   provider: releases
   api_key:
-    secure: QIfz4mrszRBV0OOMJ/8Bej8MoqRn/zUmu2MnwiCptEj79xYTNDzyZKKYGzdjuuI3/jE+VJiLidP674Z7rqOBQKx8LUXC7evWbxwcpF2sa/e45Bz61TnqrNjYxBp+u+K+dMG3izJUEtbe0l4vQp1DKPe0qhfAtSIOCEJXxLfz0ivY/N2B3JAKjexfRJ2r+9bkEqT7EtezAIn8TK24v38g7zMnJ4E9MTwhibaQ27XbI4At5HI8arH69PcHgwn9tV0mKEKZThjwjoXAIlP9vve0ENBOaq44kBIxYOz7XUs4TOkGeaxVJ3hkXxZGUT5Cg6LgcxEQ2FTf5THxblv5w+L9EbYskTZ0Cd5PkWlGVKT9BQj+fbummb0ICRZPgrNoRPo//443Uc54iYnjIHMlhIFvLALheXg5ZJedAikBVzzWdZ9mAx5JZubu1jPeX0luB0gle1NpH/Xdy5W/2NQkQtXuklwSIDusOo3m/8dVdGVU2Hcvcn9lFFZosTxgj6o9JZy6mdelOTO61hHU7Vz+W/ToydC27qRMj4mNmSVB+Rjcbnr+UAm8JIWObsvwWX9SWV3Pz5dutd2XHhvv56dYAin+SdXDMx0NOuVLf1X14YL6uz4iuQkJF28kIoD0giNElJBuYNRamMyqDldf283DhMdZfnP8yrd77Tc1aTlCWcHpIWY=
+    secure: lLM2m7789qsu78fqvgME6LqNEgKst8ypNK73mKmF769QWLvbJqPUe8fJG5Zsbgu+x/nwes/6S3cb9L/4iUy7/1oqht06KK0YD2Vv5/jSjlZcjNmQj/+dFPt/yzT6ILtL/tuFpcSIXJLHDfrnu7k4r3c4fEn94pLmD161PeXZNLwCliXUQLgENYWw6VxUD+2Bcg8KKOQxY0j4ob8fdp6tH2/FY4WaB4AtOt/B4SV9R6lxRm2KpoQGB3MXZO2rhx0Aib+4JB7o+cdqiDhd8B37QpPuuoNteMJdqtSmcF0gRSRdXXENivBs7L1ujB3d8bDy9jTjCr2FVRxU1TC263AwJ0G2eKS55WeiYqPtD21sVVwv9TNGnMMFwinm8Ub+sIyXVBEEI4LomXtzEsj7YYz3q+SaWr4uj0Oekt3xL3JhmPYqf77lFWXC44HZlz8k/G/B+Nqc6N5JreOOY/M3ojqvVNib4EQUIUW3Z1mG0QLQvk8gYgOrq94c0R3RCCbzPxwSvHf2Z0v4+PYAxS7f8fy0eTqnmmnWbN/RkHuM9FmUm4JA0iU8zgQ50cqzspPDMOm7ZJAlLR3smQjhiZIEZWe6G5WCfx3rqcAeqbO5peq4CqFPGuXknU/Khjg4Fck3hprFhKfZcmzzG+QB6+/3KQuSjELRfBKuPZOWd903gfejG3o=
   file: example/build/outputs/apk/example-release.apk
   skip_cleanup: true
   on:
     repo: pre-dem/pre-dem-android
-before_install:
-- gem install fir-cli
-after_deploy:
-- fir p example/build/outputs/apk/example-release.apk -T $FIR_TOKEN -c "`git cat-file tag $TRAVIS_TAG`"
-
-notifications:
-  email:
-  - liangmengmeng@qiniu.com

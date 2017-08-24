@@ -6,6 +6,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Printer;
 
+
 /**
  * Created by Misty on 17/7/6.
  */
@@ -15,6 +16,7 @@ public class BlockPrinter implements Printer {
 
     public static final String ACTION_BLOCK="qiniu.predem.android.block";
     public static final String ACTION_ANR = "qiniu.predem.android.anr";
+//    public static final String ACTION_ANR="android.intent.action.ANR";
     public static final String EXTRA_START_TIME="block_start_time";
     public static final String EXTRA_FINISH_TIME="block_end_time";
 
@@ -29,7 +31,6 @@ public class BlockPrinter implements Printer {
     private Context mContext;
     private long mStartTimeMillis;
     private long mBlockThresholdMillis = 1000;
-    private long mANRThresholdMillis = 5000;
 
     public BlockPrinter(Context context) {
         this.mContext=context;
@@ -68,20 +69,13 @@ public class BlockPrinter implements Printer {
         return (endTime - mStartTimeMillis) > mBlockThresholdMillis;// && (endTime - mStartTimeMillis) < mANRThresholdMillis;
     }
 
-    private boolean isANR(long endTime){
-        return (endTime - mStartTimeMillis) > mANRThresholdMillis;
-    }
-
     private void notifyBlockEvent(long endTime,long startTime){
         LocalBroadcastManager manager= LocalBroadcastManager.getInstance(mContext);
         Intent intent = new Intent();
-        if (isANR(endTime)){
-            intent.setAction(ACTION_ANR);
-        }else{
-            intent.setAction(ACTION_BLOCK);
-        }
+        intent.setAction(ACTION_BLOCK);
         intent.putExtra(EXTRA_START_TIME,startTime);
         intent.putExtra(EXTRA_FINISH_TIME,endTime);
         manager.sendBroadcast(intent);
     }
 }
+

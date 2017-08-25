@@ -64,3 +64,5 @@ task makeJar(type:org.gradle.api.tasks.bundling.Jar) {
 }
 
 makeJar.dependsOn(clearJar, build)
+
+apply from: '../mvn_push.gradle'

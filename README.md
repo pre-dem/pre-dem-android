@@ -37,7 +37,7 @@
 	```
 	dependencies {
     	...
-    	compile files('libs/AndroidAPMSDK.jar')
+    	compile 'com.qiniu:pre-dem-android-sdk:1.0.0'
     	...
    }
 ```

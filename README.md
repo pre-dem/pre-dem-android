@@ -1,97 +1,79 @@
-[![Build Status](https://travis-ci.org/pre-dem/pre-dem-android.svg?branch=master)](https://travis-ci.org/pre-dem/pre-dem-android)
-[![codecov](https://codecov.io/gh/pre-dem/pre-dem-android/branch/master/graph/badge.svg)](https://codecov.io/gh/pre-dem/pre-dem-android)
+# 七牛APM部署文档
+## 简介
+### Android SDK Theory
+七牛APM SDK 通过虚拟机技术在应用打包编译过程中对应用采样点（Http 标准协议和 Https 标准协议）进行嵌码操作，该操作会在协议库方法前后部署 SDK 探针，该过程不会影响用户代码逻辑；
+每当 App 启动时，七牛 Agent 开始工作，应用有网络请求时，通过之前部署的 SDK 探针以一定的采集频率来采集数据，并对采集的数据进行汇总后，上传到服务器（已报表的形式展现）
+应用退出到后台或用户关闭App时，七牛Agent 停止工作，以便减少不必要的流量和CPU消耗
+### Android SDK 增量
+- 应用 App 嵌码后体积增量为 4K 左右
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+## 使用 Gradle 构建
+### 工程相关依赖构建
+ ` 需要确保已安装 Gradle 构建环境和 AS开发环境 `
 
-- [Demo User Guide](#demo-user-guide)
-  - [http 性能统计](#http-%E6%80%A7%E8%83%BD%E7%BB%9F%E8%AE%A1)
-    - [功能](#%E5%8A%9F%E8%83%BD)
-    - [实现原理](#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86)
-    - [使用方法](#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95)
-    - [注意事项](#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9)
-  - [crash 日志收集上报](#crash-%E6%97%A5%E5%BF%97%E6%94%B6%E9%9B%86%E4%B8%8A%E6%8A%A5)
-    - [功能](#%E5%8A%9F%E8%83%BD-1)
-    - [实现原理](#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86-1)
-    - [使用方法](#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-1)
-    - [注意事项](#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9-1)
-  - [网络诊断](#%E7%BD%91%E7%BB%9C%E8%AF%8A%E6%96%AD)
-    - [功能](#%E5%8A%9F%E8%83%BD-2)
-    - [实现原理](#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86-2)
-    - [使用方法](#%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-2)
-  - [自定义事件](#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BA%8B%E4%BB%B6)
+ - 下载七牛APM SDK，并导入项目中
+ - 打开项目根目录下的build.gradle (Project) 文件
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+ - 在buildscript模块加入代码
 
-# Demo User Guide
+ 	```
+ 	dependencies {
+        ...
+        classpath 'com.hujiang.aspectjx:gradle-android-plugin-aspectjx:1.0.10'
+        classpath 'org.aspectj:aspectjtools:1.8.9'
+        ...
+    }
+ 	```
 
-## http 性能统计
+ - 打开项目工程主模块下的build.gradle (Module) 文件
 
-### 功能
+ - 在文件中引入 aspectj 插件
 
-该模块主要用于测量宿主 app 所产生的 http 请求相关的性能参数，然后将相关参数上报到服务端用于后续分析与展示
+	```
+	apply plugin: 'android-aspectjx'
+	```
+- 在dependencies模块添加 SDK 依赖
 
-### 实现原理
+	```
+	dependencies {
+    	...
+    	compile files('libs/AndroidAPMSDK.jar')
+    	...
+   }
+```
 
-http 性能参数测量主要是在编译宿主 app 代码时，把SDK代码融合进来，生成完整功能的Java字节码来实现的，当宿主 app 调用系统 API 进行网络请求发送时，SDK 会进行拦截，替代宿主 app 发送请求，测量相关性能参数并将结果返回给宿主 app，然后将相关数据存储在本地文件系统当中，每隔一分钟发送一次数据，将所有新数据一次性发送。SDK可以测试收集HttpURLConnection\Okhttp2.0+\Okhttp3.0+的数据
 
+￼￼￼
 
-### 使用方法
+### 配置应用权限
+构建完成后，请在待检测的 App 工程的 AndroidMainfest.xml 文件中增加以下的权限:
 
-点击 Demo 界面中的 `点我发送HttpURLConnection\Okhttp2.0+\Okhttp3.0+网络请求` 按钮，此时 Demo 会触发一系列网络请求，SDK 会记录相关性能参数随后会将其发送，此时可以使用 Charles 等代理抓包软件抓取相应数据包以验证相关行为是否正常。
+```
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+```
+### 插入初始化探针代码
+在 “MainActivity” 中的 onResume() 方法（如未找到该方法请新增）中初始化 Android APM SDK
 
-- 发送的网络请求列表
+```
+DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
+```
 
-| URLs |
-| ------------- |
-| http://www.baidu.com |
-| http://www.qq.com |
-| https://www.163.com |
-| https://www.qiniu.com |
-| http://www.taobao.com |
-| http://www.alipay.com |
+### 使用 Gradle 命令打包编译
+`gradle clean build`
 
-- [点我查看请求细节](https://github.com/pre-dem/pre-dem-android/doc/HTTPMonitor.md)
+### 配置混淆
+发布前请在 proguard 混淆配置文件中增加以下内容，以免 SDK 不可用
+若需要保留行号信息，请在 proguard.cfg 中添加以下内容
 
-### 注意事项
+### 嵌码完整性校验
+- 数据收集服务器校验
+- 嵌码完成后可通过 “LogCat” 查看 SDK 日志输出结果，用以进行数据收集服务器校验，TAG 为 DEMManager， 标准日志输出结果如下所示
 
-- Okhttp请求https都需要设置相应证书, 除了通过CA认证的https请求
-
-## crash 日志收集上报
-
-### 功能
-
-该模块主要用于监控宿主 app 的 crash 情况，将 crash 报告上传到服务器以便进一步分析和展示
-
-### 实现原理
-
-crash 日志收集上报模块主要通过截获宿主 app crash 时的信号，记录当前 crash 相关信息并记录到本地文件系统，当宿主 app 下次启动时会检查本地 crash 日志并上传到服务器
-
-### 使用方法
-
-点击 Demo 界面中的 `点我触发一次 crash` 按钮，此时 demo 会发生闪退，SDK 会在此时将 crash 相关信息记录，再次启动 demo 此时 sdk 会将上次 crash 的日志上传服务器，此时可以通过 Charles 等代理抓包软件抓取相应数据包以验证相关行为是否正常
-
-- [点我查看请求细节](https://github.com/pre-dem/pre-dem-android/doc/CrashServiceAPI.md)
-
-### 注意事项
-
-- 暂无
-
-## 网络诊断
-
-### 功能
-
-该模块主要用于宿主 app 发生网络问题时由用户主动触发，sdk 会收集当前的详细网络诊断信息并上报服务器以便进行进一步分析和展示。
-
-### 实现原理
-
-网络诊断模块主要通过触发 `Ping`, `TcpPing`, `TraceRoute`, `Http` 四种诊断工具发送数据包并收集相关信息进行网络诊断，然后将相应诊断结果上传服务器。
-
-### 使用方法
-
-点击 Demo 界面中的 `点我诊断一下网络` 按钮触发一次网络诊断，Demo 会在所有诊断完成（需要十余秒到一分钟）之后将诊断结果整理上传，此时可以通过 Charles 等抓包软件抓取相应数据包以验证相关行为是否正常
-
-- [点我查看请求细节](https://github.com/pre-dem/pre-dem-android/doc/NetDiagnoseAPI.md)
-
-## 自定义事件
+```
+08-28 09:40:26.370 6726-6726/qiniu.predem.example D/DEMManager: DemManager start
+08-28 09:40:26.674 6726-7109/qiniu.predem.example D/DEMManager: ---Http monitor true
+08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ---Crash report true
+08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ----Lag monitor true
+```

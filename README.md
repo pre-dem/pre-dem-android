@@ -13,7 +13,7 @@
 
  - 打开项目根目录下的build.gradle (Project) 文件
 
-![image](https://github.com/MistyL/pre-dem-android/doc/pic/project_gradle.png)
+![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/project_gradle.png)
 
  - 在buildscript模块加入代码
 
@@ -28,7 +28,7 @@
 
  - 打开项目工程主模块下的build.gradle (Module) 文件
 
-![image](https://github.com/MistyL/pre-dem-android/doc/pic/module_gradle.png)
+![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/module_gradle.png)
 
  - 在文件中引入 aspectj 插件
 
@@ -56,7 +56,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     ```
 
-    ![image](https://github.com/MistyL/pre-dem-android/doc/pic/permission.png)
+    ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/permission.png)
 
 ### 插入初始化探针代码
 在 “MainActivity” 中的 onResume() 方法（如未找到该方法请新增）中初始化 Android APM SDK
@@ -65,7 +65,7 @@
     DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
     ```
 
-    ![image](https://github.com/MistyL/pre-dem-android/doc/pic/start.png)
+    ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/start.png)
 
 
 ### 使用 Gradle 命令打包编译

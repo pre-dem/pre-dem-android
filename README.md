@@ -26,7 +26,7 @@
 
  ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/project_gradle.png)
 
- - 打开项目工程主模块下的build.gradle (Module) 文件
+ - 打开项目工程主模块下的build.gradle ( app ) 文件
 
  - 在文件中引入 aspectj 插件
 
@@ -66,7 +66,7 @@
     DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
     ```
 
-    ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/start.png)
+ ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/start.png)
 
 ### 使用 Gradle 命令打包编译
     `gradle clean build`

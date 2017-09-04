@@ -13,8 +13,6 @@
 
  - 打开项目根目录下的build.gradle (Project) 文件
 
-![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/project_gradle.png)
-
  - 在buildscript模块加入代码
 
  	```
@@ -26,16 +24,17 @@
     }
  	```
 
- - 打开项目工程主模块下的build.gradle (Module) 文件
+ ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/project_gradle.png)
 
-![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/module_gradle.png)
+ - 打开项目工程主模块下的build.gradle (Module) 文件
 
  - 在文件中引入 aspectj 插件
 
 	```
 	apply plugin: 'android-aspectjx'
 	```
-- 在dependencies模块添加 SDK 依赖
+
+ - 在dependencies模块添加 SDK 依赖
 
 	```
 	dependencies {
@@ -44,6 +43,8 @@
     	...
    }
     ```
+
+ ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/module_gradle.png)
 
 ### 配置应用权限
 构建完成后，请在待检测的 App 工程的 AndroidMainfest.xml 文件中增加以下的权限:
@@ -56,7 +57,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     ```
 
-    ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/permission.png)
+ ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/permission.png)
 
 ### 插入初始化探针代码
 在 “MainActivity” 中的 onResume() 方法（如未找到该方法请新增）中初始化 Android APM SDK
@@ -66,7 +67,6 @@
     ```
 
     ![image](https://github.com/MistyL/pre-dem-android/blob/master/doc/pic/start.png)
-
 
 ### 使用 Gradle 命令打包编译
     `gradle clean build`

@@ -5,14 +5,15 @@
 每当 App 启动时，七牛 Agent 开始工作，应用有网络请求时，通过之前部署的 SDK 探针以一定的采集频率来采集数据，并对采集的数据进行汇总后，上传到服务器（已报表的形式展现）
 应用退出到后台或用户关闭App时，七牛Agent 停止工作，以便减少不必要的流量和CPU消耗
 ### Android SDK 增量
-- 应用 App 嵌码后体积增量为 4K 左右
+- 应用 App 嵌码后体积增量为 117K 左右
 
 ## 使用 Gradle 构建
 ### 工程相关依赖构建
  ` 需要确保已安装 Gradle 构建环境和 AS开发环境 `
 
- - 下载七牛APM SDK，并导入项目中
  - 打开项目根目录下的build.gradle (Project) 文件
+
+![image](https://github.com/MistyL/pre-dem-android/doc/pic/project_gradle.png)
 
  - 在buildscript模块加入代码
 
@@ -27,6 +28,8 @@
 
  - 打开项目工程主模块下的build.gradle (Module) 文件
 
+![image](https://github.com/MistyL/pre-dem-android/doc/pic/module_gradle.png)
+
  - 在文件中引入 aspectj 插件
 
 	```
@@ -40,28 +43,33 @@
     	compile 'com.qiniu:pre-dem-android-sdk:1.0.0'
     	...
    }
-```
-
-
-￼￼￼
+    ```
 
 ### 配置应用权限
 构建完成后，请在待检测的 App 工程的 AndroidMainfest.xml 文件中增加以下的权限:
 
-```
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-```
+    ```
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    ```
+
+    ![image](https://github.com/MistyL/pre-dem-android/doc/pic/permission.png)
+
 ### 插入初始化探针代码
 在 “MainActivity” 中的 onResume() 方法（如未找到该方法请新增）中初始化 Android APM SDK
 
-```
-DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
-```
+    ```
+    DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
+    ```
+
+    ![image](https://github.com/MistyL/pre-dem-android/doc/pic/start.png)
+
 
 ### 使用 Gradle 命令打包编译
-`gradle clean build`
+    `gradle clean build`
 
 ### 配置混淆
 发布前请在 proguard 混淆配置文件中增加以下内容，以免 SDK 不可用
@@ -71,9 +79,9 @@ DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
 - 数据收集服务器校验
 - 嵌码完成后可通过 “LogCat” 查看 SDK 日志输出结果，用以进行数据收集服务器校验，TAG 为 DEMManager， 标准日志输出结果如下所示
 
-```
-08-28 09:40:26.370 6726-6726/qiniu.predem.example D/DEMManager: DemManager start
-08-28 09:40:26.674 6726-7109/qiniu.predem.example D/DEMManager: ---Http monitor true
-08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ---Crash report true
-08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ----Lag monitor true
-```
+    ```
+    08-28 09:40:26.370 6726-6726/qiniu.predem.example D/DEMManager: DemManager start
+    08-28 09:40:26.674 6726-7109/qiniu.predem.example D/DEMManager: ---Http monitor true
+    08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ---Crash report true
+    08-28 09:40:26.682 6726-7109/qiniu.predem.example D/DEMManager: ----Lag monitor true
+    ```

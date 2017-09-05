@@ -18,7 +18,7 @@ public final class DEMManager {
         DEMImpl.instance().start(domain, appKey, context.getApplicationContext());
     }
 
-    public static void setUserTag(String userid){
+    public static void setUserTag(String userid) {
         DEMImpl.instance().setUserTag(userid);
     }
 

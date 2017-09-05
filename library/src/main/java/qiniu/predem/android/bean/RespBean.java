@@ -5,7 +5,7 @@ package qiniu.predem.android.bean;
  */
 
 public class RespBean {
-    private String url ;
+    private String url;
     private long startTimestamp;
 
     public String getUrl() {

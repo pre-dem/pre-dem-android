@@ -34,7 +34,7 @@ public class GlobalConfig {
     }
 
     protected static boolean match(String pattern, String domain) {
-        if (pattern == null){
+        if (pattern == null) {
             return false;
         }
         int index = 0;

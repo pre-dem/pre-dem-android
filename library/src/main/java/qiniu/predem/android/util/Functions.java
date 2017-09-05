@@ -29,7 +29,7 @@ public class Functions {
         return getString(m);
     }
 
-    private static String getString(byte[] bytes){
+    private static String getString(byte[] bytes) {
         String result = "";
         for (byte b : bytes) {
             String temp = Integer.toHexString(b & 0xff);
@@ -41,37 +41,37 @@ public class Functions {
         return result;
     }
 
-    public static String generateUUID(Context context){
-        String s = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-        if(s == null){
+    public static String generateUUID(Context context) {
+        String s = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+        if (s == null) {
             s = "";
         }
         String s1 = android.provider.Settings.Secure.getString(context.getContentResolver(), "android_id");
-        if(s1 == null){
+        if (s1 == null) {
             s1 = "";
         }
         String s2;
         String s3;
         WifiInfo wifiinfo;
         String s4;
-        if(android.os.Build.VERSION.SDK_INT >= 9) {
+        if (android.os.Build.VERSION.SDK_INT >= 9) {
             s2 = Build.SERIAL;
-            if(s2 == null)
+            if (s2 == null)
                 s2 = "";
         } else {
             s2 = getDeviceSerial();
         }
         s3 = "";
-        wifiinfo = ((WifiManager)context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
-        if(wifiinfo != null) {
+        wifiinfo = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
+        if (wifiinfo != null) {
             s3 = wifiinfo.getMacAddress();
-            if(s3 == null){
+            if (s3 == null) {
                 s3 = "";
             }
         }
         try {
             s4 = getMD5String((new StringBuilder()).append(s).append(s1).append(s2).append(s3).toString());
-        } catch(NoSuchAlgorithmException nosuchalgorithmexception) {
+        } catch (NoSuchAlgorithmException nosuchalgorithmexception) {
             nosuchalgorithmexception.printStackTrace();
             return null;
         }
@@ -82,7 +82,7 @@ public class Functions {
         byte abyte0[] = MessageDigest.getInstance("SHA-1").digest(s.getBytes());
         Formatter formatter = new Formatter();
         int i = abyte0.length;
-        for(int j = 0; j < i; j++) {
+        for (int j = 0; j < i; j++) {
             byte byte0 = abyte0[j];
             Object aobj[] = new Object[1];
             aobj[0] = Byte.valueOf(byte0);
@@ -91,29 +91,28 @@ public class Functions {
         return formatter.toString();
     }
 
-    private static String getDeviceSerial()
-    {
+    private static String getDeviceSerial() {
         String s;
         try {
-            Method method = Class.forName("android.os.Build").getDeclaredMethod("getString", new Class[] {
+            Method method = Class.forName("android.os.Build").getDeclaredMethod("getString", new Class[]{
                     Class.forName("java.lang.String")
             });
-            if(!method.isAccessible()){
+            if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
-            s = (String)method.invoke(new Build(), new Object[] {
+            s = (String) method.invoke(new Build(), new Object[]{
                     "ro.serialno"
             });
-        } catch(ClassNotFoundException classnotfoundexception) {
+        } catch (ClassNotFoundException classnotfoundexception) {
             classnotfoundexception.printStackTrace();
             return "";
-        } catch(NoSuchMethodException nosuchmethodexception) {
+        } catch (NoSuchMethodException nosuchmethodexception) {
             nosuchmethodexception.printStackTrace();
             return "";
-        } catch(InvocationTargetException invocationtargetexception) {
+        } catch (InvocationTargetException invocationtargetexception) {
             invocationtargetexception.printStackTrace();
             return "";
-        } catch(IllegalAccessException illegalaccessexception) {
+        } catch (IllegalAccessException illegalaccessexception) {
             illegalaccessexception.printStackTrace();
             return "";
         }
@@ -121,19 +120,19 @@ public class Functions {
     }
 
     public static boolean isBackground(Context context) {
-        if (context == null){
+        if (context == null) {
             return false;
         }
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
-        if (appProcesses == null || appProcesses.size() == 0){
+        if (appProcesses == null || appProcesses.size() == 0) {
             return false;
         }
         for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
             if (appProcess.processName.equals(context.getPackageName())) {
                 if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
                     return true;
-                }else{
+                } else {
                     return false;
                 }
             }

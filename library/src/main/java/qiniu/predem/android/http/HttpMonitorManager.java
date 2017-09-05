@@ -13,8 +13,8 @@ import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
-import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.Functions;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -40,9 +40,9 @@ public class HttpMonitorManager {
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (!Functions.isBackground(mContext)){
+            if (!Functions.isBackground(mContext)) {
                 onReportMessage(true);
-            }else {
+            } else {
                 onByeByeMessage();
             }
             return true;
@@ -137,15 +137,15 @@ public class HttpMonitorManager {
 
             int responseCode = httpConn.getResponseCode();
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-            if (!successful){
+            if (!successful) {
                 return false;
             }
             return true;
         } catch (IOException e) {
-            LogUtils.e(TAG, "----"+e.toString());
+            LogUtils.e(TAG, "----" + e.toString());
             return false;
         } catch (Exception e) {
-            LogUtils.e(TAG, "----"+e.toString());
+            LogUtils.e(TAG, "----" + e.toString());
             return false;
         }
     }

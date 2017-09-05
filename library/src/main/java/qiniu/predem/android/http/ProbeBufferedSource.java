@@ -24,23 +24,25 @@ import qiniu.predem.android.util.FileUtil;
  */
 
 public class ProbeBufferedSource implements BufferedSource {
-    private final static String TAG = "ProbeBufferedSource";
-
     protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
-
+    private final static String TAG = "ProbeBufferedSource";
+    private static final List<ProbeBufferedSource> mPool = new LinkedList<>();
     protected boolean cancelSubmit = false;
-
     protected long timeout;
     protected boolean isFirstPacket;
     protected boolean replied;
     protected AtomicBoolean isFinish;
     protected Runnable runTimeOut;
-
     protected BufferedSource source;
-
     protected LogBean record;
 
-    private static final List<ProbeBufferedSource> mPool = new LinkedList<>();
+    protected ProbeBufferedSource(BufferedSource bufferedSource, LogBean record) {
+        this(bufferedSource, record, Configuration.DEFAULT_TIMEOUT);
+    }
+
+    protected ProbeBufferedSource(BufferedSource bufferedSource, LogBean record, long timeout) {
+        init(bufferedSource, record, timeout);
+    }
 
     public static ProbeBufferedSource obtain(BufferedSource source, LogBean record) {
         if (mPool.size() > 0) {
@@ -61,14 +63,6 @@ public class ProbeBufferedSource implements BufferedSource {
             this.source = null;
             if (mPool.size() < 256) mPool.add(this);
         }
-    }
-
-    protected ProbeBufferedSource(BufferedSource bufferedSource, LogBean record) {
-        this(bufferedSource, record, Configuration.DEFAULT_TIMEOUT);
-    }
-
-    protected ProbeBufferedSource(BufferedSource bufferedSource, LogBean record, long timeout) {
-        init(bufferedSource, record, timeout);
     }
 
     protected void init(BufferedSource bufferedSource, final LogBean record, long timeout) {
@@ -120,7 +114,7 @@ public class ProbeBufferedSource implements BufferedSource {
     }
 
     protected void onExceptionSubmit(Exception e) {
-        if (cancelSubmit){
+        if (cancelSubmit) {
             return;
         }
         FileUtil.getInstance().addReportContent(record.toString());
@@ -593,7 +587,7 @@ public class ProbeBufferedSource implements BufferedSource {
 
     @Override
     public long indexOf(byte b, long fromIndex, long toIndex) throws IOException {
-        return source.indexOf(b,fromIndex,toIndex);
+        return source.indexOf(b, fromIndex, toIndex);
     }
 
     @Override

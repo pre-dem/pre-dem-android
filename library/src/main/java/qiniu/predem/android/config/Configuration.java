@@ -9,23 +9,20 @@ import qiniu.predem.android.bean.AppBean;
  */
 
 public final class Configuration {
-    private static final String TAG = "Configuration";
-
     public static final String HTTP_MONITOR_ENABLE = "http_monitor_enabled";
     public static final String CRASH_REPORT_ENABLE = "crash_report_enabled";
     public static final String LAG_MONITOR_ENABLE = "lag_monitor_enabled";
     public static final String WEBVIEW_ENABLE = "webview_enable";
-
     public static final long DEFAULT_TIMEOUT = 5000;
+    private static final String TAG = "Configuration";
     public static String appKey = null;
     public static String domain = null;
-    private static String scheme = "http://";
-
     public static boolean httpMonitorEnable = true;//http上报
     public static boolean webviewEnable = true;//webview上报
     public static boolean crashReportEnable = true;//crash上报
     public static boolean lagMonitorEnable = true;//view卡顿上报
     public static boolean dnsEnable = true; //默认是否使用dns
+    private static String scheme = "http://";
 
     public static void init(Context context, String appKey, String domain) {
         if (context == null) {
@@ -64,8 +61,8 @@ public final class Configuration {
         return baseUrl() + "/crashes/a";
     }
 
-    public static String getLagMonitorUrl(){
-        return baseUrl()+"/lag-monitor/a";
+    public static String getLagMonitorUrl() {
+        return baseUrl() + "/lag-monitor/a";
     }
 
     public static String getDiagnosisUrl() {
@@ -76,11 +73,11 @@ public final class Configuration {
         return baseUrl() + "/events/" + name;
     }
 
-    public static String getLagMonitorUpToken(){
-        return baseUrl() +"/lag-report-token/a";
+    public static String getLagMonitorUpToken() {
+        return baseUrl() + "/lag-report-token/a";
     }
 
-    public static String getCrashUpToken(){
+    public static String getCrashUpToken() {
         return baseUrl() + "/crash-report-token/a";
     }
 }

@@ -28,13 +28,11 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 @Aspect
 public class OkHttp3Probe {
-    private static final String TAG = "OkHttp3Probe";
-
     protected static final HashMap<ResponseBody, Response> RespBodyToRespMap = new HashMap<>();
     protected static final HashMap<String, Long> dnsTimeMap = new HashMap<>();
     protected static final HashMap<String, String> DomainToIpMap = new HashMap<>();
-
     protected static final List<RespBean> startTimeStamp = new ArrayList<>();
+    private static final String TAG = "OkHttp3Probe";
 
     @Around("call(* okhttp3.Dns+.lookup(..))")
     public Object onOkHttp3DnsLookup(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -42,13 +40,13 @@ public class OkHttp3Probe {
             return joinPoint.proceed();
         }
         try {
-            if (joinPoint.getArgs().length != 1){
+            if (joinPoint.getArgs().length != 1) {
                 return joinPoint.proceed();
             }
             String hostName = (String) joinPoint.getArgs()[0];
 
             // exclude url
-            if (GlobalConfig.isExcludeHost(hostName)){
+            if (GlobalConfig.isExcludeHost(hostName)) {
                 return joinPoint.proceed();
             }
 
@@ -57,40 +55,40 @@ public class OkHttp3Probe {
             try {
                 result = joinPoint.proceed();
             } catch (UnknownHostException e) {
-                LogUtils.e(TAG,"----networkError " + e.toString());
+                LogUtils.e(TAG, "----networkError " + e.toString());
 //                throw e;
                 return joinPoint.proceed();
             }
             long dnsTime = System.currentTimeMillis() - stime;
             synchronized (dnsTimeMap) {
-                if (!dnsTimeMap.containsKey(hostName)){
+                if (!dnsTimeMap.containsKey(hostName)) {
                     dnsTimeMap.put(hostName, dnsTime);
                 }
             }
-            if (result instanceof List && ((List)result).get(0) instanceof InetAddress) {
+            if (result instanceof List && ((List) result).get(0) instanceof InetAddress) {
                 DomainToIpMap.put(((List<InetAddress>) result).get(0).getHostName(),
                         ((List<InetAddress>) result).get(0).getHostAddress());
             }
             return result;
         } catch (Throwable e) {
-            LogUtils.e(TAG,"-----networkError " + e.toString());
+            LogUtils.e(TAG, "-----networkError " + e.toString());
             return joinPoint.proceed();
         }
     }
 
     @Around("call(* java.net.InetSocketAddress+.createUnresolved(..))")
     public Object onSocketAddressResolve(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!Configuration.httpMonitorEnable || !Configuration.dnsEnable){
+        if (!Configuration.httpMonitorEnable || !Configuration.dnsEnable) {
             return joinPoint.proceed();
         }
         try {
-            if (joinPoint.getArgs().length != 2){
+            if (joinPoint.getArgs().length != 2) {
                 return joinPoint.proceed();
             }
             String domain = (String) joinPoint.getArgs()[0];
 
             // exclude url
-            if (GlobalConfig.isExcludeHost(domain)){
+            if (GlobalConfig.isExcludeHost(domain)) {
                 return joinPoint.proceed();
             }
 
@@ -102,14 +100,14 @@ public class OkHttp3Probe {
                 long stime = System.currentTimeMillis();
                 Object result = joinPoint.proceed();
                 synchronized (dnsTimeMap) {
-                    if (!dnsTimeMap.containsKey(domain)){
+                    if (!dnsTimeMap.containsKey(domain)) {
                         dnsTimeMap.put(domain, System.currentTimeMillis() - stime);
                     }
                 }
                 return result;
             }
         } catch (Throwable e) {
-            LogUtils.e(TAG,"-----networkError " + e.toString());
+            LogUtils.e(TAG, "-----networkError " + e.toString());
             return joinPoint.proceed();
         }
     }
@@ -124,7 +122,7 @@ public class OkHttp3Probe {
 
         //url
         URL url = request.url().url();
-        if (GlobalConfig.isExcludeHost(url.getHost())){
+        if (GlobalConfig.isExcludeHost(url.getHost())) {
             return joinPoint.proceed();
         }
         RespBean bean = new RespBean();
@@ -161,20 +159,20 @@ public class OkHttp3Probe {
                 String hostName = url.getHost();
 
                 // exclude host
-                if (GlobalConfig.isExcludeHost(hostName)){
+                if (GlobalConfig.isExcludeHost(hostName)) {
                     return result;
                 }
 
                 Response resp = RespBodyToRespMap.get(respBody);
                 RespBodyToRespMap.remove(respBody);
 
-                String location =  resp.header("Location");
-                if (location != null){
-                    for (int i = 0 ;i < startTimeStamp.size(); i++){
+                String location = resp.header("Location");
+                if (location != null) {
+                    for (int i = 0; i < startTimeStamp.size(); i++) {
                         RespBean bean = startTimeStamp.get(i);
-                        if (bean.getUrl().equals(url.toString())){
+                        if (bean.getUrl().equals(url.toString())) {
                             bean.setUrl(location);
-                            startTimeStamp.set(i,bean);
+                            startTimeStamp.set(i, bean);
                             break;
                         }
                     }
@@ -188,15 +186,15 @@ public class OkHttp3Probe {
                         urlTraceRecord.setMethod(resp.request().method());
                         urlTraceRecord.setStatusCode(resp.code());
                         urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
-                        for (int i = 0 ;i < startTimeStamp.size(); i++){
+                        for (int i = 0; i < startTimeStamp.size(); i++) {
                             RespBean bean = startTimeStamp.get(i);
-                            if (bean.getUrl().equals(url.toString())){
+                            if (bean.getUrl().equals(url.toString())) {
                                 urlTraceRecord.setStartTimestamp(bean.getStartTimestamp());
                                 break;
                             }
                         }
                         if (dnsTimeMap.containsKey(hostName)) {
-                            if (DomainToIpMap.containsKey(hostName)){
+                            if (DomainToIpMap.containsKey(hostName)) {
                                 urlTraceRecord.setHostIP(DomainToIpMap.get(hostName));
                             }
                             urlTraceRecord.setDnsTime(dnsTimeMap.get(hostName));

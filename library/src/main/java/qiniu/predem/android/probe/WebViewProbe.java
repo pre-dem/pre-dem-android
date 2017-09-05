@@ -14,20 +14,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/7/4.
  */
 @Aspect
 public class WebViewProbe {
-    private static final String TAG = "WebViewProbe";
     protected static final WebViewProbe instance = new WebViewProbe();
     protected final static List<WeakReference<WebView>> webviews = new LinkedList<>();
+    private static final String TAG = "WebViewProbe";
+
+    public static WebViewProbe aspectOf() {
+        return instance;
+    }
 
     @Around("call(* android.webkit.WebView+.setWebViewClient(..))")
     public Object onWebViewSetClient(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable){
+        if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable) {
             return joinPoint.proceed();
         }
         try {
@@ -60,7 +63,7 @@ public class WebViewProbe {
 
     @Before("call(* android.webkit.WebView+.loadUrl(..))")
     public void onWebViewLoadUrl(JoinPoint joinPoint) {
-        if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable){
+        if (!Configuration.httpMonitorEnable || !Configuration.webviewEnable) {
             return;
         }
         try {
@@ -83,9 +86,5 @@ public class WebViewProbe {
         } catch (Throwable e) {
             e.printStackTrace();
         }
-    }
-
-    public static WebViewProbe aspectOf() {
-        return instance;
     }
 }

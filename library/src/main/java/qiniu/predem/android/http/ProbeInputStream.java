@@ -17,43 +17,17 @@ import qiniu.predem.android.util.FileUtil;
  */
 
 public class ProbeInputStream extends InputStream {
-    private static final String TAG = "ProbeInputStream";
-
     protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
-
+    private static final String TAG = "ProbeInputStream";
+    private static final List<ProbeInputStream> mPool = new LinkedList<>();
     protected long timeout;
     protected boolean isFirstPacket;
     protected boolean replied;
     protected AtomicBoolean isFinish;
     protected Runnable runTimeOut;
-
     protected InputStream source;
     protected LogBean record;
-
     protected boolean doReport = true;
-
-    private static final List<ProbeInputStream> mPool = new LinkedList<>();
-
-    public static ProbeInputStream obtain(InputStream is, LogBean record) {
-        if (mPool.size() > 0) {
-            synchronized (mPool) {
-                if (mPool.size() > 0) {
-                    ProbeInputStream obj = mPool.get(0);
-                    mPool.remove(0);
-                    obj.init(is, record, Configuration.DEFAULT_TIMEOUT);
-                    return obj;
-                }
-            }
-        }
-        return new ProbeInputStream(is, record, Configuration.DEFAULT_TIMEOUT);
-    }
-
-    public void release() {
-        synchronized (mPool) {
-            this.source = null;
-            if (mPool.size() < 256) mPool.add(this);
-        }
-    }
 
     protected ProbeInputStream(InputStream is, LogBean record) {
         this(is, record, Configuration.DEFAULT_TIMEOUT);
@@ -80,6 +54,27 @@ public class ProbeInputStream extends InputStream {
                 }
             }
         };
+    }
+
+    public static ProbeInputStream obtain(InputStream is, LogBean record) {
+        if (mPool.size() > 0) {
+            synchronized (mPool) {
+                if (mPool.size() > 0) {
+                    ProbeInputStream obj = mPool.get(0);
+                    mPool.remove(0);
+                    obj.init(is, record, Configuration.DEFAULT_TIMEOUT);
+                    return obj;
+                }
+            }
+        }
+        return new ProbeInputStream(is, record, Configuration.DEFAULT_TIMEOUT);
+    }
+
+    public void release() {
+        synchronized (mPool) {
+            this.source = null;
+            if (mPool.size() < 256) mPool.add(this);
+        }
     }
 
     protected void init(InputStream is, LogBean record, long timeout) {

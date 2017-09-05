@@ -227,44 +227,44 @@ public class LogBean {
     public String toJsonString() {
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("platform",platform);
-            jsonObject.put("appName",appName);
-            jsonObject.put("appBundleId",appBundleId);
-            jsonObject.put("osVersion",osVersion);
-            jsonObject.put("deviceModel",deviceModel);
-            jsonObject.put("deviceUUID",deviceUUID);
-            jsonObject.put("tag",userTag);
+            jsonObject.put("platform", platform);
+            jsonObject.put("appName", appName);
+            jsonObject.put("appBundleId", appBundleId);
+            jsonObject.put("osVersion", osVersion);
+            jsonObject.put("deviceModel", deviceModel);
+            jsonObject.put("deviceUUID", deviceUUID);
+            jsonObject.put("tag", userTag);
             if (domain == null || domain.equals("")) {
-                jsonObject.put("domain","-");
-            }else{
-                jsonObject.put("domain",domain);
+                jsonObject.put("domain", "-");
+            } else {
+                jsonObject.put("domain", domain);
             }
             if (path == null || path.equals("")) {
-                jsonObject.put("path","-");
-            }else{
-                jsonObject.put("path",path);
+                jsonObject.put("path", "-");
+            } else {
+                jsonObject.put("path", path);
             }
             if (method == null || method.equals("")) {
-                jsonObject.put("method","-");
-            }else{
-                jsonObject.put("method",method);
+                jsonObject.put("method", "-");
+            } else {
+                jsonObject.put("method", method);
             }
             if (hostIP == null || hostIP.equals("")) {
-                jsonObject.put("hostIpSet","-");
-            }else{
-                jsonObject.put("hostIpSet",hostIP);
+                jsonObject.put("hostIpSet", "-");
+            } else {
+                jsonObject.put("hostIpSet", hostIP);
             }
-            jsonObject.put("startTimestamp",startTimestamp);
-            jsonObject.put("endTimestamp",endTimestamp);
-            jsonObject.put("responseTimestamp",responseTimestamp);
-            jsonObject.put("dnsTime",dnsTime);
-            jsonObject.put("dataLength",dataLength);
-            jsonObject.put("statusCode",statusCode);
-            jsonObject.put("networkErrorCode",networkErrorCode);
-            jsonObject.put("networkErrorMsg",networkErrorMsg);
+            jsonObject.put("startTimestamp", startTimestamp);
+            jsonObject.put("endTimestamp", endTimestamp);
+            jsonObject.put("responseTimestamp", responseTimestamp);
+            jsonObject.put("dnsTime", dnsTime);
+            jsonObject.put("dataLength", dataLength);
+            jsonObject.put("statusCode", statusCode);
+            jsonObject.put("networkErrorCode", networkErrorCode);
+            jsonObject.put("networkErrorMsg", networkErrorMsg);
 
             return jsonObject.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }
@@ -280,18 +280,18 @@ public class LogBean {
         str.append(userTag).append("\t");
         if (domain == null || domain.equals("")) {
             str.append("-").append("\t");
-        }else{
+        } else {
             str.append(domain).append("\t");
         }
         if (path == null || path.equals("")) {
             str.append("-").append("\t");
-        }else{
+        } else {
             str.append(path).append("\t");
         }
         str.append(method).append("\t");
         if (hostIP == null || hostIP.equals("")) {
             str.append("-").append("\t");
-        }else{
+        } else {
             str.append(hostIP).append("\t");
         }
         str.append(statusCode).append("\t");

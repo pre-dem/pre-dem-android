@@ -36,8 +36,9 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.http.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
-import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.Functions;
+import qiniu.predem.android.util.LogUtils;
+
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_FINISH_TIME;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_START_TIME;
@@ -46,12 +47,11 @@ import static qiniu.predem.android.block.BlockPrinter.EXTRA_START_TIME;
  * Created by fengcunhan on 16/1/19.
  */
 public class TraceInfoCatcher extends Thread {
-    private static final String TAG="TraceInfoCatcher";
-
+    private static final String TAG = "TraceInfoCatcher";
+    private static final int SIZE = 1024;
+    private final Handler _uiHandler = new Handler(Looper.getMainLooper());
     ////////
     private volatile int _tick = 0;
-    private final Handler _uiHandler = new Handler(Looper.getMainLooper());
-    private int _timeoutInterval;
     private final Runnable _ticker = new Runnable() {
         @Override
         public void run() {
@@ -59,21 +59,20 @@ public class TraceInfoCatcher extends Thread {
         }
     };
     ///////
-
-    private static final int SIZE=1024;
+    private int _timeoutInterval;
     private boolean stop = false;
-//    private long mLastTime = 0;
+    //    private long mLastTime = 0;
     private List<TraceInfo> mList = new ArrayList<>(SIZE);
     private Context mContext;
     private BroadcastReceiver mBroadcastReceiver;
     private boolean submitting = false;
     private WeakReference<Context> weakContext;
-    private String fileName ;
+    private String fileName;
     private int count;
 
 
-    public TraceInfoCatcher(Context context){
-        this.mContext=context;
+    public TraceInfoCatcher(Context context) {
+        this.mContext = context;
 
         //使用自定义printer
         context.getMainLooper().setMessageLogging(new BlockPrinter(context));
@@ -85,9 +84,9 @@ public class TraceInfoCatcher extends Thread {
             @Override
             public void onReceive(Context context, Intent intent) {
                 //判断应用是否在前台
-                if (Functions.isBackground(context)){
+                if (Functions.isBackground(context)) {
                     stopTrace();
-                    return ;
+                    return;
                 }
                 //block
                 if (intent.getAction().equals(ACTION_BLOCK)) {
@@ -96,7 +95,7 @@ public class TraceInfoCatcher extends Thread {
                     TraceInfo info = getInfoByTime(endTime, startTime);
                     if (null != info.mLog && !info.mLog.equals("")) {
                         //send reqeust
-                        sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
+                        sendRequest(info, Configuration.getLagMonitorUrl(), startTime, endTime);
                     }
                 }
             }
@@ -108,73 +107,6 @@ public class TraceInfoCatcher extends Thread {
         //TODO 检查是否有 anr 文件需要上传
         weakContext = new WeakReference<Context>(mContext);
         hasStackTraces(weakContext);
-    }
-
-    @Override
-    public void run() {
-        int lastTick;
-        while(!stop){
-            lastTick = _tick;
-            long startTime = System.currentTimeMillis();
-            _uiHandler.post(_ticker);
-            try {
-                Thread.sleep(_timeoutInterval);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
-
-            if (_tick == lastTick){
-                //产生ANR，获取stackInfo
-                TraceInfo info = new TraceInfo();
-                info.mStartTime = startTime;
-                info.mEndTime = System.currentTimeMillis();
-                info.mLog = stackTraceToString(Looper.getMainLooper().getThread().getStackTrace());
-                mList.add(info);
-                if (count > 3 && fileName == null){
-                    fileName = UUID.randomUUID().toString();
-                    //保存到文件
-                    FileUtil.getInstance().writeAnrReport(fileName,info);
-                }
-                count++;
-            }else if (_tick != lastTick && fileName != null){
-                //恢复 删除文件
-                deleteStackTrace(weakContext,fileName);
-                fileName = null;
-                count = 0;
-            }
-
-            //进入后台后停止进度
-            if (Functions.isBackground(mContext)){
-                stopTrace();
-                return;
-            }
-            if(mList.size()>SIZE){
-                mList.remove(0);
-            }
-        }
-    }
-
-    public void hasStackTraces(WeakReference<Context> weakContext) {
-        String[] filenames = searchForStackTraces();
-        try {
-            if ((filenames != null) && (filenames.length > 0)) {
-                for (int i = 0 ; i < filenames.length; i++){
-                    String content = contentsOfFile(weakContext,filenames[i]);
-                    JSONObject jsonObject = new JSONObject(content);
-
-                    TraceInfo traceInfo = new TraceInfo();
-                    traceInfo.mStartTime = jsonObject.optLong("startTime");
-                    traceInfo.mEndTime = jsonObject.optLong("endTime");
-                    traceInfo.mLog = jsonObject.optString("info");
-                    //上报数据
-                    sendRequest(traceInfo, Configuration.getLagMonitorUrl(), traceInfo.mStartTime, traceInfo.mEndTime);
-                    deleteStackTrace(weakContext,filenames[i]);
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -211,28 +143,6 @@ public class TraceInfoCatcher extends Thread {
         return null;
     }
 
-    private String[] searchForStackTraces() {
-        if (FileConfig.FILES_PATH != null) {
-            LogUtils.d("Looking for exceptions in: " + FileConfig.FILES_PATH);
-
-            File dir = new File(FileConfig.FILES_PATH + "/");
-            boolean created = dir.mkdir();
-            if (!created && !dir.exists()) {
-                return new String[0];
-            }
-
-            FilenameFilter filter = new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".anr");
-                }
-            };
-            return dir.list(filter);
-        } else {
-            LogUtils.d("Can't search for anr as file path is null.");
-            return null;
-        }
-    }
-
     /**
      * Deletes the give filename and all corresponding files (same name,
      * different extension).
@@ -256,19 +166,108 @@ public class TraceInfoCatcher extends Thread {
         }
     }
 
-    public TraceInfo getInfoByTime(long endTime,long startTime){
-        for(TraceInfo info : mList){
-            if(info.mStartTime >= startTime && info.mEndTime<=endTime){
+    @Override
+    public void run() {
+        int lastTick;
+        while (!stop) {
+            lastTick = _tick;
+            long startTime = System.currentTimeMillis();
+            _uiHandler.post(_ticker);
+            try {
+                Thread.sleep(_timeoutInterval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            if (_tick == lastTick) {
+                //产生ANR，获取stackInfo
+                TraceInfo info = new TraceInfo();
+                info.mStartTime = startTime;
+                info.mEndTime = System.currentTimeMillis();
+                info.mLog = stackTraceToString(Looper.getMainLooper().getThread().getStackTrace());
+                mList.add(info);
+                if (count > 3 && fileName == null) {
+                    fileName = UUID.randomUUID().toString();
+                    //保存到文件
+                    FileUtil.getInstance().writeAnrReport(fileName, info);
+                }
+                count++;
+            } else if (_tick != lastTick && fileName != null) {
+                //恢复 删除文件
+                deleteStackTrace(weakContext, fileName);
+                fileName = null;
+                count = 0;
+            }
+
+            //进入后台后停止进度
+            if (Functions.isBackground(mContext)) {
+                stopTrace();
+                return;
+            }
+            if (mList.size() > SIZE) {
+                mList.remove(0);
+            }
+        }
+    }
+
+    public void hasStackTraces(WeakReference<Context> weakContext) {
+        String[] filenames = searchForStackTraces();
+        try {
+            if ((filenames != null) && (filenames.length > 0)) {
+                for (int i = 0; i < filenames.length; i++) {
+                    String content = contentsOfFile(weakContext, filenames[i]);
+                    JSONObject jsonObject = new JSONObject(content);
+
+                    TraceInfo traceInfo = new TraceInfo();
+                    traceInfo.mStartTime = jsonObject.optLong("startTime");
+                    traceInfo.mEndTime = jsonObject.optLong("endTime");
+                    traceInfo.mLog = jsonObject.optString("info");
+                    //上报数据
+                    sendRequest(traceInfo, Configuration.getLagMonitorUrl(), traceInfo.mStartTime, traceInfo.mEndTime);
+                    deleteStackTrace(weakContext, filenames[i]);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String[] searchForStackTraces() {
+        if (FileConfig.FILES_PATH != null) {
+            LogUtils.d("Looking for exceptions in: " + FileConfig.FILES_PATH);
+
+            File dir = new File(FileConfig.FILES_PATH + "/");
+            boolean created = dir.mkdir();
+            if (!created && !dir.exists()) {
+                return new String[0];
+            }
+
+            FilenameFilter filter = new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.endsWith(".anr");
+                }
+            };
+            return dir.list(filter);
+        } else {
+            LogUtils.d("Can't search for anr as file path is null.");
+            return null;
+        }
+    }
+
+    public TraceInfo getInfoByTime(long endTime, long startTime) {
+        for (TraceInfo info : mList) {
+            if (info.mStartTime >= startTime && info.mEndTime <= endTime) {
                 return info;
             }
         }
         return null;
     }
 
-    public String stackTraceToString(StackTraceElement[] elements){
+    public String stackTraceToString(StackTraceElement[] elements) {
         StringBuilder result = new StringBuilder();
-        if(null!=elements && elements.length>0){
-            for (int i = 0; i < elements.length ; i++) {
+        if (null != elements && elements.length > 0) {
+            for (int i = 0; i < elements.length; i++) {
                 result.append("\tat ");
                 result.append(elements[i].toString());
                 result.append("\n");
@@ -278,7 +277,7 @@ public class TraceInfoCatcher extends Thread {
         return result.toString();
     }
 
-    public void sendRequest(final TraceInfo info, final String reportUrl, final long startTime, final long endTime){
+    public void sendRequest(final TraceInfo info, final String reportUrl, final long startTime, final long endTime) {
         if (!submitting) {
             submitting = true;
             new Thread() {
@@ -324,9 +323,9 @@ public class TraceInfoCatcher extends Thread {
                         uploadManager.put(info.mLog.getBytes(), key, token, new UpCompletionHandler() {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {
-                                LogUtils.d(TAG,"-----block upload response : " + info.statusCode + ";" + info.error);
+                                LogUtils.d(TAG, "-----block upload response : " + info.statusCode + ";" + info.error);
                                 if (info.isOK()) {
-                                    new Thread(){
+                                    new Thread() {
                                         @Override
                                         public void run() {
                                             //上报数据
@@ -339,32 +338,32 @@ public class TraceInfoCatcher extends Thread {
                                                 Date end = new Date(endTime);
                                                 FileUtil.DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
                                                 parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
-                                                parameters.put("app_name",AppBean.APP_NAME);
-                                                parameters.put("app_version",AppBean.APP_VERSION);
-                                                parameters.put("device_model",AppBean.PHONE_MODEL);
-                                                parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
-                                                parameters.put("os_version",AppBean.ANDROID_VERSION);
-                                                parameters.put("os_build",AppBean.ANDROID_BUILD);
-                                                parameters.put("sdk_version",AppBean.SDK_VERSION);
-                                                parameters.put("sdk_id","");
-                                                parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
-                                                parameters.put("tag",AppBean.APP_TAG);
+                                                parameters.put("app_name", AppBean.APP_NAME);
+                                                parameters.put("app_version", AppBean.APP_VERSION);
+                                                parameters.put("device_model", AppBean.PHONE_MODEL);
+                                                parameters.put("os_platform", AppBean.ANDROID_PLATFORM);
+                                                parameters.put("os_version", AppBean.ANDROID_VERSION);
+                                                parameters.put("os_build", AppBean.ANDROID_BUILD);
+                                                parameters.put("sdk_version", AppBean.SDK_VERSION);
+                                                parameters.put("sdk_id", "");
+                                                parameters.put("device_id", AppBean.DEVICE_IDENTIFIER);
+                                                parameters.put("tag", AppBean.APP_TAG);
                                                 parameters.put("report_uuid", UUID.randomUUID().toString());
-                                                parameters.put("lag_log_key",key);
-                                                parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
-                                                parameters.put("start_time",FileUtil.DATE_FORMAT.format(start));
-                                                parameters.put("lag_time",FileUtil.DATE_FORMAT.format(end));
+                                                parameters.put("lag_log_key", key);
+                                                parameters.put("manufacturer", AppBean.PHONE_MANUFACTURER);
+                                                parameters.put("start_time", FileUtil.DATE_FORMAT.format(start));
+                                                parameters.put("lag_time", FileUtil.DATE_FORMAT.format(end));
 
                                                 url = new HttpURLConnectionBuilder(reportUrl)
                                                         .setRequestMethod("POST")
-                                                        .setHeader("Content-Type","application/json")
+                                                        .setHeader("Content-Type", "application/json")
                                                         .setRequestBody(parameters.toString())
                                                         .build();
 
                                                 int responseCode = url.getResponseCode();
-                                                LogUtils.d(TAG,"-------view report code : " + responseCode);
-                                            }catch (Exception e){
-                                                LogUtils.e(TAG,"----"+e.toString());
+                                                LogUtils.d(TAG, "-------view report code : " + responseCode);
+                                            } catch (Exception e) {
+                                                LogUtils.e(TAG, "----" + e.toString());
                                                 e.printStackTrace();
                                             } finally {
                                                 if (url != null) {
@@ -373,7 +372,7 @@ public class TraceInfoCatcher extends Thread {
                                             }
                                         }
                                     }.start();
-                                }else{
+                                } else {
                                     return;
                                 }
                             }
@@ -388,11 +387,11 @@ public class TraceInfoCatcher extends Thread {
                         }
                     }
                 }
-                }.start();
-            }
+            }.start();
+        }
     }
 
-    public void stopTrace(){
+    public void stopTrace() {
         stop = true;
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
     }

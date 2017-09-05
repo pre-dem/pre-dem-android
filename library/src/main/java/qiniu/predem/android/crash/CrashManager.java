@@ -83,7 +83,6 @@ public class CrashManager {
 
     public static int hasStackTraces(WeakReference<Context> weakContext) {
         String[] filenames = searchForStackTraces();
-        LogUtils.d(TAG,"-----" + filenames.length);
         List<String> confirmedFilenames = null;
         int result = STACK_TRACES_FOUND_NONE;
         if ((filenames != null) && (filenames.length > 0)) {

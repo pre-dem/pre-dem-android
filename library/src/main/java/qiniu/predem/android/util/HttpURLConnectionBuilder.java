@@ -121,7 +121,7 @@ public class HttpURLConnectionBuilder {
             }
         }
 
-        connection.setRequestProperty("Authorization",authorization(mUrlString, appKey));
+        connection.setRequestProperty("Authorization",authorize(mUrlString, appKey));
         for (String name : mHeaders.keySet()) {
             connection.setRequestProperty(name, mHeaders.get(name));
         }
@@ -146,7 +146,7 @@ public class HttpURLConnectionBuilder {
         return connection;
     }
 
-    private String authorization(String key ,String data){
+    private String authorize(String key ,String data){
             try {
                 Mac mac = Mac.getInstance("HmacSHA1");
                 SecretKeySpec secret = new SecretKeySpec(key.substring(0, 8).getBytes("UTF-8"), mac.getAlgorithm());

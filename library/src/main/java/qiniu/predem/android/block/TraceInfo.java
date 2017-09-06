@@ -27,14 +27,14 @@ public class TraceInfo {
     public long mEndTime;
     public String mLog;
 
-    public String toJsonString(){
+    public String toJsonString() {
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("startTime",mStartTime);
+            jsonObject.put("startTime", mStartTime);
             jsonObject.put("endTime", mEndTime);
             jsonObject.put("info", mLog);
             return jsonObject.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

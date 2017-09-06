@@ -69,11 +69,11 @@ public class CrashBean {
         this.Manufacturer = AppBean.PHONE_MANUFACTURER;
     }
 
-    public String getThrowableStackTrace(){
+    public String getThrowableStackTrace() {
         return throwableStackTrace;
     }
 
-    public String getCrashIdentifier(){
+    public String getCrashIdentifier() {
         return this.ReportUUID;
     }
 
@@ -113,7 +113,7 @@ public class CrashBean {
         return DeviceId;
     }
 
-    public String getUserTag(){
+    public String getUserTag() {
         return UserTag;
     }
 
@@ -141,27 +141,27 @@ public class CrashBean {
         CrashTime = crashTime;
     }
 
-    public String ToJsonString(){
+    public String ToJsonString() {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put(FIELD_APP_BUNDLE_ID, getAppBundleId());
-            jsonObject.put(FIELD_APP_VERSION,getAppVersion());
+            jsonObject.put(FIELD_APP_VERSION, getAppVersion());
             jsonObject.put(FIELD_APP_NAME, getAppName());
-            jsonObject.put(FIELD_DEVICE_MODEL,getDeviceModel());
-            jsonObject.put(FIELD_OS_PLATFORM,getOsPlatform());
-            jsonObject.put(FIELD_OS_BUILD,getOsBuild());
-            jsonObject.put(FIELD_SDK_VERSION,getSDKVersion());
-            jsonObject.put(FIELD_SDK_ID,getSDKId());
-            jsonObject.put(FIELD_DEVICE_ID,getDeviceId());
+            jsonObject.put(FIELD_DEVICE_MODEL, getDeviceModel());
+            jsonObject.put(FIELD_OS_PLATFORM, getOsPlatform());
+            jsonObject.put(FIELD_OS_BUILD, getOsBuild());
+            jsonObject.put(FIELD_SDK_VERSION, getSDKVersion());
+            jsonObject.put(FIELD_SDK_ID, getSDKId());
+            jsonObject.put(FIELD_DEVICE_ID, getDeviceId());
             jsonObject.put(FIELD_TAG, getUserTag());
-            jsonObject.put(FIELD_REPORT_UUID,getReportUUID());
-            jsonObject.put(FILELD_MANUFACTURER,getManufacturer());
-            jsonObject.put(FILELD_START_TIME,getStartTime());
-            jsonObject.put(FILELD_CRASH_TIME,getCrashTime());
-            jsonObject.put(FILELD_CRASH_CONTENT,getThrowableStackTrace());
+            jsonObject.put(FIELD_REPORT_UUID, getReportUUID());
+            jsonObject.put(FILELD_MANUFACTURER, getManufacturer());
+            jsonObject.put(FILELD_START_TIME, getStartTime());
+            jsonObject.put(FILELD_CRASH_TIME, getCrashTime());
+            jsonObject.put(FILELD_CRASH_CONTENT, getThrowableStackTrace());
             return jsonObject.toString();
-        }catch (Exception e){
-            LogUtils.e(TAG,e.toString());
+        } catch (Exception e) {
+            LogUtils.e(TAG, e.toString());
             e.printStackTrace();
         }
         return null;

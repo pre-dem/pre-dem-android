@@ -9,9 +9,10 @@ import java.net.HttpURLConnection;
 
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
+import qiniu.predem.android.util.Functions;
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
-import qiniu.predem.android.util.Functions;
+
 
 /**
  * Created by Misty on 17/6/15.
@@ -37,9 +38,9 @@ public class HttpMonitorManager {
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (!Functions.isBackground(mContext)){
+            if (!Functions.isBackground(mContext)) {
                 onReportMessage(true);
-            }else {
+            } else {
                 onByeByeMessage();
             }
             return true;

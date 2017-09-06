@@ -25,10 +25,12 @@ import java.util.List;
 
 public class ProbeWebClientAgent extends ProbeWebClient {
     private static final String TAG = "ProbeWebClientAgent";
-
+    private static final List<ProbeWebClientAgent> mPool = new LinkedList<>();
     protected WebViewClient source;
 
-    private static final List<ProbeWebClientAgent> mPool = new LinkedList<>();
+    protected ProbeWebClientAgent(WebViewClient source) {
+        init(source);
+    }
 
     public static ProbeWebClientAgent obtain(WebViewClient source) {
         if (mPool.size() > 0) {
@@ -55,10 +57,6 @@ public class ProbeWebClientAgent extends ProbeWebClient {
     protected void finalize() throws Throwable {
         super.finalize();
         this.release();
-    }
-
-    protected ProbeWebClientAgent(WebViewClient source) {
-        init(source);
     }
 
     protected void init(WebViewClient source) {

@@ -12,7 +12,6 @@ import java.util.UUID;
 import qiniu.predem.android.bean.CrashBean;
 import qiniu.predem.android.config.FileConfig;
 import qiniu.predem.android.util.FileUtil;
-import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.

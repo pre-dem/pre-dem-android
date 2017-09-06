@@ -27,9 +27,8 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 @Aspect
 public class HttpURLConnProbe {
-    private static final String TAG = "HttpURLConnProbe";
-
     protected static final HashMap<Object, LogBean> reportMap = new HashMap<>();
+    private static final String TAG = "HttpURLConnProbe";
 
     @Around("call(* java.net.URL+.openConnection(..))")
     public Object onHttpURLOpenConnect(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -53,7 +52,7 @@ public class HttpURLConnProbe {
 
             LogBean bean = LogBean.obtain();
             bean.setStartTimestamp(System.currentTimeMillis());
-            conn = (HttpURLConnection)joinPoint.proceed();
+            conn = (HttpURLConnection) joinPoint.proceed();
             // 判断host是否是IP
             Matcher matcher = MatcherUtil.IP_Pattern.matcher(url.getHost());
             if (matcher.find()) {
@@ -66,7 +65,7 @@ public class HttpURLConnProbe {
                 if (Configuration.dnsEnable) {
                     long stime = System.currentTimeMillis();
                     try {
-                         bean.setHostIP(InetAddress.getByName(url.getHost()).getHostAddress());
+                        bean.setHostIP(InetAddress.getByName(url.getHost()).getHostAddress());
                     } catch (UnknownHostException e) {
                         throw e;
                     }
@@ -84,12 +83,12 @@ public class HttpURLConnProbe {
                     return joinPoint.proceed();
                 }
                 synchronized (reportMap) {
-                    reportMap.put(conn.hashCode(),bean);
+                    reportMap.put(conn.hashCode(), bean);
                 }
             }
             return conn;
         } catch (Exception e) {
-            LogUtils.e(TAG, "-----"+e.toString());
+            LogUtils.e(TAG, "-----" + e.toString());
             return joinPoint.proceed();
         }
     }
@@ -130,7 +129,7 @@ public class HttpURLConnProbe {
                         LogBean urlTraceRecord = LogBean.obtain();
                         urlTraceRecord.setDomain(url.getHost());
                         urlTraceRecord.setPath(url.getPath());
-                        urlTraceRecord.setMethod(((HttpURLConnection)conn).getRequestMethod());
+                        urlTraceRecord.setMethod(((HttpURLConnection) conn).getRequestMethod());
                         urlTraceRecord.setDnsTime(0);
                         urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
                         urlTraceRecord.setHostIP("-");

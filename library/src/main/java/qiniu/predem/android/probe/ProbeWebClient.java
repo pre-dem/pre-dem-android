@@ -21,7 +21,6 @@ import qiniu.predem.android.bean.LogBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.http.MySSLSocketFactory;
 import qiniu.predem.android.http.ProbeInputStream;
-import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.MatcherUtil;
 
 /**
@@ -29,16 +28,16 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 
 public class ProbeWebClient extends WebViewClient {
+    public static final ProbeWebClient instance = new ProbeWebClient();
     protected static final Set<String> excludeIPs = new HashSet<>();
     private static final String TAG = "ProbeWebClient";
+
+    protected ProbeWebClient() {
+    }
 
     public static boolean isExcludeIPs(String ip) {
         return excludeIPs.contains(ip);
     }
-
-    public static final ProbeWebClient instance = new ProbeWebClient();
-
-    protected ProbeWebClient() {}
 
     @SuppressLint("NewApi")
     @Override
@@ -126,7 +125,7 @@ public class ProbeWebClient extends WebViewClient {
             }
 
             InputStream ins = conn.getInputStream();
-            if (ins instanceof ProbeInputStream){
+            if (ins instanceof ProbeInputStream) {
                 ins = ((ProbeInputStream) ins).getSource();
             }
 
@@ -141,7 +140,7 @@ public class ProbeWebClient extends WebViewClient {
 
             WebResourceResponse wrr = new WebResourceResponse(contentType, conn.getContentEncoding(),
                     ProbeInputStream.obtain(ins, record));
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N){
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 wrr.setStatusCodeAndReasonPhrase(conn.getResponseCode(), conn.getResponseMessage());
             }
             record.setEndTimestamp(System.currentTimeMillis());

@@ -5,6 +5,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
@@ -45,14 +46,14 @@ public final class DEMImpl {
     public void start(String domain, String appKey, Context context) {
         this.context = new WeakReference<>(context);
 
-        LogUtils.d(TAG,"DemManager start");
+        LogUtils.d(TAG, "DemManager start");
 
         //获取 App 信息
         Configuration.init(context, appKey, domain);
         updateAppConfig(context);
     }
 
-    public void setUserTag(String userid){
+    public void setUserTag(String userid) {
         AppBean.setAppTag(userid);
     }
 
@@ -66,18 +67,18 @@ public final class DEMImpl {
     }
 
     public void trackEvent(String eventName, JSONArray event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
+        sendRequest(Configuration.getEventUrl(eventName), event.toString());
     }
 
     public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
+        sendRequest(Configuration.getEventUrl(eventName), event.toString());
     }
 
     /**
      * 更新 配置文件
      * @param cxt
      */
-    private void updateAppConfig(final Context cxt) {
+    public void updateAppConfig(final Context cxt) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -88,11 +89,11 @@ public final class DEMImpl {
                     parameters.put("app_name", AppBean.APP_NAME);
                     parameters.put("app_version", AppBean.APP_VERSION);
                     parameters.put("device_model", AppBean.PHONE_MODEL);
-                    parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
-                    parameters.put("os_version",AppBean.ANDROID_VERSION);
+                    parameters.put("os_platform", AppBean.ANDROID_PLATFORM);
+                    parameters.put("os_version", AppBean.ANDROID_VERSION);
                     parameters.put("sdk_version", AppBean.SDK_VERSION);
-                    parameters.put("sdk_id",AppBean.DEVICE_IDENTIFIER);
-                    parameters.put("device_id",AppBean.PHONE_MANUFACTURER);
+                    parameters.put("sdk_id", AppBean.DEVICE_IDENTIFIER);
+                    parameters.put("device_id", AppBean.PHONE_MANUFACTURER);
 
                     HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())
                             .setRequestMethod("POST")
@@ -102,15 +103,15 @@ public final class DEMImpl {
 
                     int responseCode = httpConn.getResponseCode();
                     boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-                    if (successful){
-                        byte[] data = new byte[4*1024];
+                    if (successful) {
+                        byte[] data = new byte[4 * 1024];
                         in = httpConn.getInputStream();
                         in.read(data);
                         JSONObject jsonObject = new JSONObject(new String(data));
                         SharedPreUtil.setHttpMonitorEnable(cxt, jsonObject.optBoolean(HTTP_MONITOR_ENABLE));
                         SharedPreUtil.setCrashReportEable(cxt, jsonObject.optBoolean(CRASH_REPORT_ENABLE));
-                        SharedPreUtil.setWebviewEnable(cxt,jsonObject.optBoolean(WEBVIEW_ENABLE));
-                        SharedPreUtil.setLagMonitorEnable(cxt,jsonObject.optBoolean(LAG_MONITOR_ENABLE));
+                        SharedPreUtil.setWebviewEnable(cxt, jsonObject.optBoolean(WEBVIEW_ENABLE));
+                        SharedPreUtil.setLagMonitorEnable(cxt, jsonObject.optBoolean(LAG_MONITOR_ENABLE));
                     }
                     //获取各项上报开关
                     Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(cxt);
@@ -126,7 +127,7 @@ public final class DEMImpl {
                         LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
                         CrashManager.register(cxt);
                     }
-                    if (Configuration.lagMonitorEnable){
+                    if (Configuration.lagMonitorEnable) {
                         LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
                         TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(cxt);
                         traceInfoCatcher.start();
@@ -138,7 +139,7 @@ public final class DEMImpl {
                     e.printStackTrace();
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }finally {
+                } finally {
                     try {
                         if (in != null) {
                             in.close();
@@ -151,12 +152,6 @@ public final class DEMImpl {
         }).start();
     }
 
-    /**
-     * 自定义数据 上报
-     * @param url
-     * @param content
-     * @return
-     */
     private boolean sendRequest(String url, String content) {
         LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
 

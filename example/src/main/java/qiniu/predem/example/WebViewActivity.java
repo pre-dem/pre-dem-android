@@ -6,12 +6,10 @@ import android.graphics.Bitmap;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
-import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,6 +26,31 @@ public class WebViewActivity extends Activity {
     private Intent mIntent;
     private String mUrl;
     private ProgressBar mProgress;
+    private WebViewClient webViewClient = new WebViewClient() {
+        /** 重写点击动作,用webview载入 */
+        @Override
+        public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
+            mProgress.setVisibility(View.VISIBLE);
+            mWebView.loadUrl(url);
+            return true;
+        }
+
+        @Override
+        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+            Log.d(TAG, "onReceivedSslError");
+            handler.proceed(); // 接受所有网站的证书
+        }
+
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+//            checkurl(url);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +62,12 @@ public class WebViewActivity extends Activity {
 
         setContentView(R.layout.activity_webview);
 
-        mWebView = (WebView)findViewById(R.id.login_webview);
+        mWebView = (WebView) findViewById(R.id.login_webview);
 
         mIntent = getIntent();
         mUrl = mIntent.getStringExtra("extr_url");
 
-        mProgress = (ProgressBar)findViewById(R.id.login_webview_progress);
+        mProgress = (ProgressBar) findViewById(R.id.login_webview_progress);
 
         init();
     }
@@ -64,32 +87,6 @@ public class WebViewActivity extends Activity {
 
         mWebView.loadUrl(mUrl);
     }
-
-    private WebViewClient webViewClient = new WebViewClient() {
-        /** 重写点击动作,用webview载入 */
-        @Override
-        public boolean shouldOverrideUrlLoading(final WebView view, final String url) {
-            mProgress.setVisibility(View.VISIBLE);
-            mWebView.loadUrl(url);
-            return true;
-        }
-
-        @Override
-        public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
-            Log.d(TAG, "onReceivedSslError");
-            handler.proceed(); // 接受所有网站的证书
-        }
-
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            super.onPageStarted(view,url,favicon);
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-//            checkurl(url);
-        }
-    };
 
 //    private WebChromeClient chromeClient = new WebChromeClient(){
 //        @Override

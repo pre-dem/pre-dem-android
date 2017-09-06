@@ -2,6 +2,7 @@ package qiniu.predem.android.crash;
 
 import android.content.Context;
 import android.text.TextUtils;
+
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
 import com.qiniu.android.http.ResponseInfo;
@@ -25,11 +26,12 @@ import java.util.List;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
+import qiniu.predem.android.util.Functions;
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
 import qiniu.predem.android.util.SharedPreUtil;
-import qiniu.predem.android.util.Functions;
+
 import static qiniu.predem.android.config.FileConfig.FIELD_REPORT_UUID;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_CONTENT;
 import static qiniu.predem.android.config.FileConfig.FILELD_CRASH_TIME;
@@ -89,7 +91,7 @@ public class CrashManager {
             try {
                 confirmedFilenames = getConfirmedFilenames(weakContext);
             } catch (Exception e) {
-                LogUtils.e(TAG,e.toString());
+                LogUtils.e(TAG, e.toString());
                 e.printStackTrace();
             }
 
@@ -205,14 +207,14 @@ public class CrashManager {
                         //1、getuptoken
                         String crash = crashBean.optString(FILELD_CRASH_CONTENT);
                         String md5 = Functions.getStringMd5(crash);
-                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUpToken() + "?md5="+md5)
+                        urlConnection = new HttpURLConnectionBuilder(Configuration.getCrashUpToken() + "?md5=" + md5)
                                 .setRequestMethod("GET")
                                 .build();
 
                         int responseCode = urlConnection.getResponseCode();
                         String token = null;
                         String key = null;
-                        if (responseCode == 200){
+                        if (responseCode == 200) {
                             try {
                                 is = urlConnection.getInputStream();
                                 byte[] data = new byte[8 * 1024];
@@ -221,15 +223,15 @@ public class CrashManager {
                                 JSONObject jsonObject = new JSONObject(content);
                                 token = jsonObject.optString("token");
                                 key = jsonObject.optString("key");
-                            }catch (Exception e){
+                            } catch (Exception e) {
                                 LogUtils.e(TAG, "------" + e.toString());
-                            }finally {
-                                if (is != null){
+                            } finally {
+                                if (is != null) {
                                     is.close();
                                 }
                             }
                         }
-                        if (token == null){
+                        if (token == null) {
                             return;
                         }
 
@@ -243,20 +245,20 @@ public class CrashManager {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {
                                 if (info.isOK()) {
-                                    new Thread(){
+                                    new Thread() {
                                         @Override
                                         public void run() {
-                                            sendRequest(weakContext,key,bean,ls);
+                                            sendRequest(weakContext, key, bean, ls);
                                         }
                                     }.start();
-                                }else{
+                                } else {
                                     return;
                                 }
                             }
                         }, null);
                     }
                 } catch (Exception e) {
-                    LogUtils.e(TAG,"-----"+e.toString());
+                    LogUtils.e(TAG, "-----" + e.toString());
                     e.printStackTrace();
                 } finally {
                     if (urlConnection != null) {
@@ -267,48 +269,48 @@ public class CrashManager {
         }
     }
 
-    private static void sendRequest(WeakReference<Context> weakContext, String key, JSONObject bean, String list){
+    private static void sendRequest(WeakReference<Context> weakContext, String key, JSONObject bean, String list) {
         //3、上报服务器
         HttpURLConnection url = null;
         boolean successful = false;
         try {
             JSONObject parameters = new JSONObject();
 
-            parameters.put("app_bundle_id",AppBean.APP_PACKAGE);
-            parameters.put("app_name",AppBean.APP_NAME);
-            parameters.put("app_version",AppBean.APP_VERSION);
-            parameters.put("device_model",AppBean.PHONE_MODEL);
-            parameters.put("os_platform",AppBean.ANDROID_PLATFORM);
-            parameters.put("os_version",AppBean.ANDROID_VERSION);
-            parameters.put("os_build",AppBean.ANDROID_BUILD);
-            parameters.put("sdk_version",AppBean.SDK_VERSION);
-            parameters.put("sdk_id","");
-            parameters.put("device_id",AppBean.DEVICE_IDENTIFIER);
-            parameters.put("tag",AppBean.APP_TAG);
-            parameters.put("report_uuid",bean.optString(FIELD_REPORT_UUID));
-            parameters.put("crash_log_key",key);
-            parameters.put("manufacturer",AppBean.PHONE_MANUFACTURER);
-            parameters.put("start_time",bean.optString(FILELD_START_TIME));
-            parameters.put("crash_time",bean.optString(FILELD_CRASH_TIME));
+            parameters.put("app_bundle_id", AppBean.APP_PACKAGE);
+            parameters.put("app_name", AppBean.APP_NAME);
+            parameters.put("app_version", AppBean.APP_VERSION);
+            parameters.put("device_model", AppBean.PHONE_MODEL);
+            parameters.put("os_platform", AppBean.ANDROID_PLATFORM);
+            parameters.put("os_version", AppBean.ANDROID_VERSION);
+            parameters.put("os_build", AppBean.ANDROID_BUILD);
+            parameters.put("sdk_version", AppBean.SDK_VERSION);
+            parameters.put("sdk_id", "");
+            parameters.put("device_id", AppBean.DEVICE_IDENTIFIER);
+            parameters.put("tag", AppBean.APP_TAG);
+            parameters.put("report_uuid", bean.optString(FIELD_REPORT_UUID));
+            parameters.put("crash_log_key", key);
+            parameters.put("manufacturer", AppBean.PHONE_MANUFACTURER);
+            parameters.put("start_time", bean.optString(FILELD_START_TIME));
+            parameters.put("crash_time", bean.optString(FILELD_CRASH_TIME));
 
             url = new HttpURLConnectionBuilder(Configuration.getCrashUrl())
                     .setRequestMethod("POST")
-                    .setHeader("Content-Type","application/json")
+                    .setHeader("Content-Type", "application/json")
                     .setRequestBody(parameters.toString())
                     .build();
 
             int responseCode = url.getResponseCode();
 
             successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-        }catch (Exception e){
-            LogUtils.e(TAG,"----"+e.toString());
+        } catch (Exception e) {
+            LogUtils.e(TAG, "----" + e.toString());
             e.printStackTrace();
         } finally {
             if (url != null) {
                 url.disconnect();
             }
             if (successful) {
-                deleteStackTrace(weakContext,list);
+                deleteStackTrace(weakContext, list);
             } else {
                 LogUtils.d("-----Transmission failed, will retry on next register() call");
             }
@@ -325,7 +327,7 @@ public class CrashManager {
             if (context != null) {
                 try {
                     String[] filenames = searchForStackTraces();
-                    SharedPreUtil.setCrashConfirmedFilenames(context, joinArray(filenames,"|"));
+                    SharedPreUtil.setCrashConfirmedFilenames(context, joinArray(filenames, "|"));
                 } catch (Exception e) {
                     // Just in case, we catch all exceptions here
                 }

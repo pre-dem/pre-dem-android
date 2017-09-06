@@ -29,17 +29,15 @@ import qiniu.predem.android.util.MatcherUtil;
  */
 @Aspect
 public class OkHttp2Probe {
-    private static final String TAG = "OkHttp2Probe";
-
     protected static final HashMap<ResponseBody, Response> RespBodyToRespMap = new HashMap<>();
     protected static final HashMap<String, Long> dnsTimeMap = new HashMap<>();
     protected static final HashMap<String, String> DomainToIpMap = new HashMap<>();
-
     protected static final List<RespBean> startTimeStamp = new ArrayList<>();
+    private static final String TAG = "OkHttp2Probe";
 
     @Around("call(* com.squareup.okhttp.Dns+.lookup(..))")
     public Object onOkHttpDnsLookup(ProceedingJoinPoint joinPoint) throws Throwable {
-        if (!Configuration.httpMonitorEnable || !Configuration.dnsEnable){
+        if (!Configuration.httpMonitorEnable || !Configuration.dnsEnable) {
             return joinPoint.proceed();
         }
         try {
@@ -58,22 +56,22 @@ public class OkHttp2Probe {
             try {
                 result = joinPoint.proceed();
             } catch (UnknownHostException e) {
-                LogUtils.e(TAG,"-----networkError " + e.toString());
+                LogUtils.e(TAG, "-----networkError " + e.toString());
                 return joinPoint.proceed();
             }
             long dnsTime = System.currentTimeMillis() - stime;
             synchronized (dnsTimeMap) {
-                if (!dnsTimeMap.containsKey(hostName)){
+                if (!dnsTimeMap.containsKey(hostName)) {
                     dnsTimeMap.put(hostName, dnsTime);
                 }
             }
-            if (result instanceof List && ((List)result).get(0) instanceof InetAddress) {
+            if (result instanceof List && ((List) result).get(0) instanceof InetAddress) {
                 DomainToIpMap.put(((List<InetAddress>) result).get(0).getHostName(),
                         ((List<InetAddress>) result).get(0).getHostAddress());
             }
             return result;
         } catch (Throwable e) {
-            LogUtils.e(TAG,"-----networkError " + e.toString());
+            LogUtils.e(TAG, "-----networkError " + e.toString());
             return joinPoint.proceed();
         }
     }
@@ -90,7 +88,7 @@ public class OkHttp2Probe {
             String domain = (String) joinPoint.getArgs()[0];
 
             // exclude url
-            if (GlobalConfig.isExcludeHost(domain)){
+            if (GlobalConfig.isExcludeHost(domain)) {
                 return joinPoint.proceed();
             }
 
@@ -107,7 +105,7 @@ public class OkHttp2Probe {
                 return result;
             }
         } catch (Throwable e) {
-            LogUtils.e(TAG,"-----networkError " + e.toString());
+            LogUtils.e(TAG, "-----networkError " + e.toString());
             return joinPoint.proceed();
         }
     }
@@ -135,7 +133,7 @@ public class OkHttp2Probe {
 
         //url
         URL url = request.url();
-        if (GlobalConfig.isExcludeHost(url.getHost())){
+        if (GlobalConfig.isExcludeHost(url.getHost())) {
             return joinPoint.proceed();
         }
         RespBean bean = new RespBean();
@@ -160,24 +158,24 @@ public class OkHttp2Probe {
                 URL url = RespBodyToRespMap.get(respBody).request().url();
                 String hostName = url.getHost();
 
-                LogUtils.d(TAG,"-----okhttp url " + url.toString());
+                LogUtils.d(TAG, "-----okhttp url " + url.toString());
 
                 // exclude host
-                if (GlobalConfig.isExcludeHost(hostName)){
+                if (GlobalConfig.isExcludeHost(hostName)) {
                     return result;
                 }
 
                 Response resp = RespBodyToRespMap.get(respBody);
                 RespBodyToRespMap.remove(respBody);
 
-                String location =  resp.header("Location");
-                LogUtils.d(TAG,"-----location " + location);
-                if (location != null){
-                    for (int i = 0 ;i < startTimeStamp.size(); i++){
+                String location = resp.header("Location");
+                LogUtils.d(TAG, "-----location " + location);
+                if (location != null) {
+                    for (int i = 0; i < startTimeStamp.size(); i++) {
                         RespBean bean = startTimeStamp.get(i);
-                        if (bean.getUrl().equals(url.toString())){
+                        if (bean.getUrl().equals(url.toString())) {
                             bean.setUrl(location);
-                            startTimeStamp.set(i,bean);
+                            startTimeStamp.set(i, bean);
                             break;
                         }
                     }
@@ -191,9 +189,9 @@ public class OkHttp2Probe {
                         urlTraceRecord.setMethod(resp.request().method());
                         urlTraceRecord.setStatusCode(resp.code());
                         urlTraceRecord.setResponseTimestamp(System.currentTimeMillis());
-                        for (int i = 0 ;i < startTimeStamp.size(); i++){
+                        for (int i = 0; i < startTimeStamp.size(); i++) {
                             RespBean bean = startTimeStamp.get(i);
-                            if (bean.getUrl().equals(url.toString())){
+                            if (bean.getUrl().equals(url.toString())) {
                                 urlTraceRecord.setStartTimestamp(bean.getStartTimestamp());
 //                                        startTimeStamp.remove(i);
                                 break;

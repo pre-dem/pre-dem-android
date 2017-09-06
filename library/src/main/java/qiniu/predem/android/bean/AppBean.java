@@ -13,8 +13,8 @@ import android.text.TextUtils;
 import java.security.MessageDigest;
 
 import qiniu.predem.android.BuildConfig;
-import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.Functions;
+import qiniu.predem.android.util.LogUtils;
 
 /**
  * Created by Misty on 17/6/15.
@@ -35,6 +35,7 @@ public class AppBean {
     public static final String SDK_USER_AGENT = "PreDemSDK/Android " + BuildConfig.VERSION_NAME;
     private static final String TAG = "AppBean";
     private static final String BUNDLE_BUILD_NUMBER = "buildNumber";
+    private static final String DefaultTag = "unknown_user";
     /**
      * The app's name.
      */
@@ -93,8 +94,8 @@ public class AppBean {
         loadCrashIdentifier(context);
     }
 
-    public static void setAppTag(String tag){
-        APP_TAG = tag;
+    public static void setAppTag(String tag) {
+        APP_TAG = tag == null ? DefaultTag : tag;
     }
 
     @SuppressLint("HardwareIds")

@@ -17,7 +17,7 @@ public class FunctionsTest {
     private static final String TAG = "ToolUtilTest";
 
     @Test
-    public void testGetUUID(){
+    public void testGetUUID() {
         Context appContext = InstrumentationRegistry.getTargetContext();
         String uuid = Functions.generateUUID(appContext);
         System.out.println("-----uuid : " + uuid);

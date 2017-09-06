@@ -44,6 +44,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String appKey;
     private Context mContext;
 
+    /**
+     * 产生一个crash
+     */
+    private static void fakeCrashReport() {
+        RuntimeException exception = new RuntimeException("Just a test exception " + System.currentTimeMillis());
+        throw exception;
+    }
+
+    /**
+     * 产生一个ANR
+     */
+    private static void SleepAMinute(long t) {
+        try {
+            Thread.sleep(t);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,26 +85,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences sh = getSharedPreferences(Name,MODE_PRIVATE);
-        appKey = sh.getString(APP_KEY,null);
-        if (appKey != null && !appKey.isEmpty()){
+        SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
+        appKey = sh.getString(APP_KEY, null);
+        if (appKey != null && !appKey.isEmpty()) {
             //
-            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
-        }else{
+            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
+        } else {
             showCustomizeDialog();
         }
     }
 
-    private void initView(){
+    private void initView() {
         http_btn = (Button) findViewById(R.id.http_btn);
         okhttp3_btn = (Button) findViewById(R.id.okhttp3_btn);
         okhttp2_btn = (Button) findViewById(R.id.okhttp2_btn);
         webview_btn = (Button) findViewById(R.id.webview_btn);
         crash_btn = (Button) findViewById(R.id.crash_btn);
         anr_btn = (Button) findViewById(R.id.anr_btn);
-        lag_btn = (Button)findViewById(R.id.lag_btn);
+        lag_btn = (Button) findViewById(R.id.lag_btn);
         diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
-        custom_btn = (Button)findViewById(R.id.custom_btn);
+        custom_btn = (Button) findViewById(R.id.custom_btn);
 
         okhttpTwoThread = new OkhttpTwoThread();
         okhttpThreeThread = new OkhttpThreeThread();
@@ -93,14 +112,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.http_btn:
-                new HttpUrlConnectionThread("http://www.baidu.com","GET").start();
-                new HttpUrlConnectionThread("https://www.163.com",null).start();
-                new HttpUrlConnectionThread("http://www.qq.com",null).start();
-                new HttpUrlConnectionThread("https://www.qiniu.com",null).start();
-                new HttpUrlConnectionThread("http://www.taobao.com",null).start();
-                new HttpUrlConnectionThread("http://www.alipay.com",null).start();
+                new HttpUrlConnectionThread("http://www.baidu.com", "GET").start();
+                new HttpUrlConnectionThread("https://www.163.com", null).start();
+                new HttpUrlConnectionThread("http://www.qq.com", null).start();
+                new HttpUrlConnectionThread("https://www.qiniu.com", null).start();
+                new HttpUrlConnectionThread("http://www.taobao.com", null).start();
+                new HttpUrlConnectionThread("http://www.alipay.com", null).start();
                 break;
             case R.id.okhttp2_btn:
                 try {
@@ -110,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     okhttpTwoThread.run("https://www.qiniu.com");
                     okhttpTwoThread.run("http://www.taobao.com");
                     okhttpTwoThread.run("http://www.alipay.com");
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
@@ -122,12 +141,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     okhttpThreeThread.run("https://www.qiniu.com");
                     okhttpThreeThread.run("http://www.taobao.com");
                     okhttpThreeThread.run("http://www.alipay.com");
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case R.id.webview_btn:
-                Intent intent = new Intent(this,WebViewActivity.class);
+                Intent intent = new Intent(this, WebViewActivity.class);
                 intent.putExtra("extr_url", "http://www.taobao.com");
                 startActivity(intent);
                 break;
@@ -151,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 diagnosis_btn.setEnabled(true);
                             }
                         });
-                        Log.d(TAG,"-----diagnosis info : " + bean.toString());
+                        Log.d(TAG, "-----diagnosis info : " + bean.toString());
                     }
                 });
                 break;
@@ -163,12 +182,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             //[{"hellonum":7,"helloKey":"worldValue"}]
                             JSONArray json = new JSONArray();
                             JSONObject jsonObject1 = new JSONObject();
-                            jsonObject1.put("hellonum",7);
-                            jsonObject1.put("helloKey","worldValue");
+                            jsonObject1.put("hellonum", 7);
+                            jsonObject1.put("helloKey", "worldValue");
                             json.put(jsonObject1);
 
-                            DEMManager.trackEvent("viewDidLoadEvent",json);
-                        }catch (Exception e){
+                            DEMManager.trackEvent("viewDidLoadEvent", json);
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -177,30 +196,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    /**
-     * 产生一个crash
-     */
-    private static void fakeCrashReport() {
-        RuntimeException exception = new RuntimeException("Just a test exception " + System.currentTimeMillis());
-        throw exception;
-    }
-
-    /**
-     * 产生一个ANR
-     */
-    private static void SleepAMinute(long t) {
-        try {
-            Thread.sleep(t);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void showCustomizeDialog() {
         AlertDialog.Builder customizeDialog =
                 new AlertDialog.Builder(MainActivity.this);
         final View dialogView = LayoutInflater.from(MainActivity.this)
-                .inflate(R.layout.activity_dialog,null);
+                .inflate(R.layout.activity_dialog, null);
         customizeDialog.setTitle("请输入AppKey");
         customizeDialog.setView(dialogView);
         customizeDialog.setPositiveButton("确定",
@@ -210,17 +210,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // 获取EditView中的输入内容
                         EditText edit_text = (EditText) dialogView.findViewById(R.id.edit_text);
                         appKey = edit_text.getText().toString().trim();
-//                        appKey = "000000020005dr1v4kim68c6";
-                        if (appKey == null || appKey.isEmpty()){
+                        appKey = "000000020005dr1v4kim68c6";
+                        if (appKey == null || appKey.isEmpty()) {
                             Toast.makeText(MainActivity.this, "appKey为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
-                        }else{
-                            SharedPreferences sh = getSharedPreferences(Name,MODE_PRIVATE);
+                        } else {
+                            SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
                             SharedPreferences.Editor editor = sh.edit();
-                            editor.putString(APP_KEY,appKey);
+                            editor.putString(APP_KEY, appKey);
                             editor.apply();
                             //jkbkolos.bq.cloudappl.com
                             //
-                            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+                            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
                         }
                     }
                 });

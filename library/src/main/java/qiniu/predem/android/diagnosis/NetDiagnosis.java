@@ -31,17 +31,13 @@ public class NetDiagnosis {
 
     }
 
-    public static NetDiagnosis getInstance(){
+    public static NetDiagnosis getInstance() {
         return MyNetDiagnosisHolder.instance;
     }
 
-    private static class MyNetDiagnosisHolder {
-        public final static NetDiagnosis instance = new NetDiagnosis();
-    }
-
     public void start(Context context, String domain, String url, final DEMManager.NetDiagCallback complete) {
-        if (domain == null || url == null || complete == null){
-            return ;
+        if (domain == null || url == null || complete == null) {
+            return;
         }
         count = 0;
         bean = new NetDiagBean();
@@ -51,7 +47,7 @@ public class NetDiagnosis {
             public void complete(Ping.Result r) {
                 count++;
                 bean.setPingResult(r);
-                if (count == 5){
+                if (count == 5) {
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
@@ -62,7 +58,7 @@ public class NetDiagnosis {
             public void complete(TcpPing.Result r) {
                 count++;
                 bean.setTcpResult(r);
-                if (count == 5){
+                if (count == 5) {
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
@@ -74,7 +70,7 @@ public class NetDiagnosis {
             public void complete(TraceRoute.Result r) {
                 count++;
                 bean.setTrResult(r);
-                if (count == 5){
+                if (count == 5) {
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
@@ -87,12 +83,12 @@ public class NetDiagnosis {
                 count++;
                 String dns = "";
                 int len = r.records.length;
-                for (int i = 0 ;i < len ; i++) {
+                for (int i = 0; i < len; i++) {
                     dns = dns.concat(r.records[i].value).concat("\t").concat(r.records[i].ttl + "\t").concat(r.records[i].type + "\n");
                 }
-                LogUtils.d(TAG,"------" + dns);
+                LogUtils.d(TAG, "------" + dns);
                 bean.setDnsResult(dns);
-                if (count == 5){
+                if (count == 5) {
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
@@ -104,7 +100,7 @@ public class NetDiagnosis {
             public void complete(HttpPing.Result result) {
                 count++;
                 bean.setHttpResult(result);
-                if (count == 5){
+                if (count == 5) {
                     complete.complete(bean);
                     sendRequest(bean.toJsonString());
                 }
@@ -119,17 +115,21 @@ public class NetDiagnosis {
         try {
             httpConn = new HttpURLConnectionBuilder(Configuration.getDiagnosisUrl())
                     .setRequestMethod("POST")
-                    .setHeader("Content-Type","application/json")
+                    .setHeader("Content-Type", "application/json")
                     .setRequestBody(content)
                     .build();
 
             int responseCode = httpConn.getResponseCode();
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-            LogUtils.d(TAG,"-----diagnosis report result " + successful);
+            LogUtils.d(TAG, "-----diagnosis report result " + successful);
         } catch (IOException e) {
             LogUtils.e(TAG, e.toString());
         } catch (Exception e) {
             LogUtils.e(TAG, e.toString());
         }
+    }
+
+    private static class MyNetDiagnosisHolder {
+        public final static NetDiagnosis instance = new NetDiagnosis();
     }
 }

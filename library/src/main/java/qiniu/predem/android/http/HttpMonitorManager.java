@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.Functions;
+
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 

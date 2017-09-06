@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // 获取EditView中的输入内容
                         EditText edit_text = (EditText) dialogView.findViewById(R.id.edit_text);
                         appKey = edit_text.getText().toString().trim();
-                        appKey = "000000020005dr1v4kim68c6";
+//                        appKey = "000000020005dr1v4kim68c6";
                         if (appKey == null || appKey.isEmpty()) {
                             Toast.makeText(MainActivity.this, "appKey为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
                         } else {

@@ -10,8 +10,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
 import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
@@ -21,7 +19,7 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
-import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
 
@@ -44,60 +42,42 @@ public final class DEMImpl {
         return _instance;
     }
 
-    public static String getApp() {
-        return "app_key:" + Configuration.appKey
-                + ",http_monitor_enabled:" + Configuration.httpMonitorEnable
-                + ",crash_report_enable:" + Configuration.crashReportEnable;
-    }
-
     public void start(String domain, String appKey, Context context) {
         this.context = new WeakReference<>(context);
 
         LogUtils.d(TAG,"DemManager start");
 
-        //获取AppBean信息
+        //获取 App 信息
         Configuration.init(context, appKey, domain);
-//        if (askForConfiguration(context)) {
-            updateAppConfig(context);
-//        }else {
-//            //获取各项上报开关
-//            Configuration.httpMonitorEnable = SharedPreUtil.getHttpMonitorEnable(context);
-//            Configuration.crashReportEnable = SharedPreUtil.getCrashReportEnable(context);
-//            Configuration.webviewEnable = SharedPreUtil.getWebviewEnable(context);
-//            Configuration.lagMonitorEnable = SharedPreUtil.getLagMonitorEnable(context);
-//
-//            if (Configuration.httpMonitorEnable) {
-//                LogUtils.d(TAG, "---Http monitor " + Configuration.httpMonitorEnable);
-//                HttpMonitorManager.getInstance().register(context);
-//            }
-//            if (Configuration.crashReportEnable) {
-//                LogUtils.d(TAG, "---Crash report " + Configuration.crashReportEnable);
-//                CrashManager.register(context);
-//            }
-//            if (Configuration.lagMonitorEnable) {
-//                LogUtils.d(TAG, "----Lag monitor " + Configuration.lagMonitorEnable);
-//                TraceInfoCatcher traceInfoCatcher = new TraceInfoCatcher(context);
-//                traceInfoCatcher.start();
-//            }
-//        }
+        updateAppConfig(context);
     }
 
     public void setUserTag(String userid){
         AppBean.setAppTag(userid);
     }
 
-    private static boolean askForConfiguration(Context context) {
-        long lastTime = SharedPreUtil.getConfigurationLastTime(context);
-        long now = System.currentTimeMillis();
-        //超过一天更新config
-        if (lastTime == -1 || (now - lastTime) > 86400000) {
-            SharedPreUtil.setLastTime(context);
-            return true;
-        }
-        return false;
+    public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
+        NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
     }
 
-    public  void updateAppConfig(final Context cxt) {
+    public void trackEvent(String eventName, Map<String, Object> event) {
+        JSONObject obj = new JSONObject(event);
+        trackEvent(eventName, obj);
+    }
+
+    public void trackEvent(String eventName, JSONArray event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
+    }
+
+    public void trackEvent(String eventName, JSONObject event) {
+        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
+    }
+
+    /**
+     * 更新 配置文件
+     * @param cxt
+     */
+    private void updateAppConfig(final Context cxt) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -171,97 +151,28 @@ public final class DEMImpl {
         }).start();
     }
 
-    public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
-        NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
-    }
-
-    public void trackEvent(String eventName, Map<String, Object> event) {
-        JSONObject obj = new JSONObject(event);
-        trackEvent(eventName, obj);
-    }
-
-    public void trackEvent(String eventName, JSONArray event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
-    }
-
-    public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString().replaceAll("\\\\", ""));
-    }
-
+    /**
+     * 自定义数据 上报
+     * @param url
+     * @param content
+     * @return
+     */
     private boolean sendRequest(String url, String content) {
         LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
 
-        HttpURLConnection httpConn;
         try {
-            httpConn = (HttpURLConnection) new URL(url).openConnection();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        }
-        httpConn.setConnectTimeout(3000);
-        httpConn.setReadTimeout(10000);
-        try {
-            httpConn.setRequestMethod("POST");
-        } catch (ProtocolException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        }
-        httpConn.setRequestProperty("Content-Type", "application/json");
-        httpConn.setRequestProperty("Accept-Encoding", "identity");
+            HttpURLConnection httpConn = new HttpURLConnectionBuilder(url)
+                    .setRequestMethod("POST")
+                    .setHeader("Content-Type", "application/json")
+                    .setRequestBody(content)
+                    .build();
 
-        try {
-            httpConn.getOutputStream().write(content.getBytes());
-            httpConn.getOutputStream().flush();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, e.toString());
+            int responseCode = httpConn.getResponseCode();
+            boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
+            return successful;
+        }catch (Exception e){
+            e.printStackTrace();
             return false;
         }
-        int responseCode = 0;
-        try {
-            responseCode = httpConn.getResponseCode();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        }
-        if (responseCode != 201 && responseCode != 200) {
-            return false;
-        }
-        int length = httpConn.getContentLength();
-        if (length == 0) {
-            return false;
-        } else if (length < 0) {
-            length = 16 * 1024;
-        }
-        InputStream is;
-        try {
-            is = httpConn.getInputStream();
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        }
-        byte[] data = new byte[length];
-        int read = 0;
-        try {
-            read = is.read(data);
-        } catch (IOException e) {
-            LogUtils.e(TAG, e.toString());
-            return false;
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                LogUtils.e(TAG, e.toString());
-            }
-        }
-        return read > 0;
     }
 }

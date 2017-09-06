@@ -25,7 +25,7 @@ import java.util.List;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
-import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.NetworkUtil;
 import qiniu.predem.android.util.SharedPreUtil;

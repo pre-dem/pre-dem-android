@@ -14,7 +14,7 @@ import java.net.HttpURLConnection;
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.config.Configuration;
-import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 
 /**

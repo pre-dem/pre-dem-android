@@ -34,7 +34,7 @@ import java.util.UUID;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
-import qiniu.predem.android.http.HttpURLConnectionBuilder;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.Functions;
@@ -94,7 +94,7 @@ public class TraceInfoCatcher extends Thread {
                     long endTime = intent.getLongExtra(EXTRA_FINISH_TIME, 0);
                     long startTime = intent.getLongExtra(EXTRA_START_TIME, 0);
                     TraceInfo info = getInfoByTime(endTime, startTime);
-                    if (null != info.mLog && !info.mLog.equals("")) {
+                    if (info != null && null != info.mLog && !info.mLog.equals("")) {
                         //send reqeust
                         sendRequest(info,Configuration.getLagMonitorUrl(),startTime,endTime);
                     }

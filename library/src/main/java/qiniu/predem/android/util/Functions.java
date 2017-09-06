@@ -1,10 +1,12 @@
 package qiniu.predem.android.util;
 
+import android.Manifest;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import java.io.UnsupportedEncodingException;
@@ -42,40 +44,46 @@ public class Functions {
     }
 
     public static String generateUUID(Context context){
-        String s = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-        if(s == null){
-            s = "";
-        }
-        String s1 = android.provider.Settings.Secure.getString(context.getContentResolver(), "android_id");
-        if(s1 == null){
-            s1 = "";
-        }
-        String s2;
-        String s3;
-        WifiInfo wifiinfo;
-        String s4;
-        if(android.os.Build.VERSION.SDK_INT >= 9) {
-            s2 = Build.SERIAL;
-            if(s2 == null)
-                s2 = "";
-        } else {
-            s2 = getDeviceSerial();
-        }
-        s3 = "";
-        wifiinfo = ((WifiManager)context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
-        if(wifiinfo != null) {
-            s3 = wifiinfo.getMacAddress();
-            if(s3 == null){
-                s3 = "";
+        int permissionCheck = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.READ_PHONE_STATE);
+        if (permissionCheck > 0){
+            String s = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+            if(s == null){
+                s = "";
             }
+            String s1 = android.provider.Settings.Secure.getString(context.getContentResolver(), "android_id");
+            if(s1 == null){
+                s1 = "";
+            }
+            String s2;
+            String s3;
+            WifiInfo wifiinfo;
+            String s4;
+            if(android.os.Build.VERSION.SDK_INT >= 9) {
+                s2 = Build.SERIAL;
+                if(s2 == null)
+                    s2 = "";
+            } else {
+                s2 = getDeviceSerial();
+            }
+            s3 = "";
+            wifiinfo = ((WifiManager)context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
+            if(wifiinfo != null) {
+                s3 = wifiinfo.getMacAddress();
+                if(s3 == null){
+                    s3 = "";
+                }
+            }
+            try {
+                s4 = getMD5String((new StringBuilder()).append(s).append(s1).append(s2).append(s3).toString());
+            } catch(NoSuchAlgorithmException nosuchalgorithmexception) {
+                nosuchalgorithmexception.printStackTrace();
+                return null;
+            }
+            return s4;
+        }else{
+            return "";
         }
-        try {
-            s4 = getMD5String((new StringBuilder()).append(s).append(s1).append(s2).append(s3).toString());
-        } catch(NoSuchAlgorithmException nosuchalgorithmexception) {
-            nosuchalgorithmexception.printStackTrace();
-            return null;
-        }
-        return s4;
     }
 
     private static String getMD5String(String s) throws NoSuchAlgorithmException {

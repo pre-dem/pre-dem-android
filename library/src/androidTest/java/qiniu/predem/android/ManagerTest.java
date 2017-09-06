@@ -17,8 +17,8 @@ public class ManagerTest {
     @Test
     public void testInit() {
         // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        DEMManager.start("", "", appContext);
+//        Context appContext = InstrumentationRegistry.getTargetContext();
+//        DEMManager.start("", "", appContext);
 
 
 //        try {

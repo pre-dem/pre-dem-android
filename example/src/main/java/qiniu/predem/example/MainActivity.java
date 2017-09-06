@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         appKey = sh.getString(APP_KEY, null);
         if (appKey != null && !appKey.isEmpty()) {
             //
-            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
         } else {
             showCustomizeDialog();
         }
@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             editor.apply();
                             //jkbkolos.bq.cloudappl.com
                             //
-                            DEMManager.start("jkbkolos.bq.cloudappl.com", appKey, mContext);
+                            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
                         }
                     }
                 });

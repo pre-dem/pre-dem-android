@@ -5,16 +5,15 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.zip.GZIPOutputStream;
 
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.Functions;
+
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
+
 
 /**
  * Created by Misty on 17/6/15.
@@ -113,39 +112,21 @@ public class HttpMonitorManager {
 
     private boolean sendRequest(String url, String content) {
         LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
-        HttpURLConnection httpConn;
+
         try {
-            httpConn = (HttpURLConnection) new URL(url).openConnection();
-            httpConn.setConnectTimeout(3000);
-            httpConn.setReadTimeout(10000);
-            httpConn.setRequestMethod("POST");
-
-            httpConn.setRequestProperty("Content-Type", "application/x-gzip");
-            httpConn.setRequestProperty("Content-Encoding", "gzip");
-
-            byte[] bytes = content.getBytes("utf-8");
-            if (bytes == null) {
-                return false;
-            }
-
-            ByteArrayOutputStream compressed = new ByteArrayOutputStream();
-            GZIPOutputStream gzip = new GZIPOutputStream(compressed);
-            gzip.write(bytes);
-            gzip.close();
-            httpConn.getOutputStream().write(compressed.toByteArray());
-            httpConn.getOutputStream().flush();
+            HttpURLConnection httpConn = new HttpURLConnectionBuilder(url)
+                    .setRequestMethod("POST")
+                    .setHeader("Content-Type", "application/x-gzip")
+                    .setHeader("Content-Encoding", "gzip")
+                    .setRequestBody(content)
+                    .setGzip(true)
+                    .build();
 
             int responseCode = httpConn.getResponseCode();
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
-            if (!successful) {
-                return false;
-            }
-            return true;
-        } catch (IOException e) {
-            LogUtils.e(TAG, "----" + e.toString());
-            return false;
-        } catch (Exception e) {
-            LogUtils.e(TAG, "----" + e.toString());
+            return successful;
+        }catch (Exception e){
+            e.printStackTrace();
             return false;
         }
     }

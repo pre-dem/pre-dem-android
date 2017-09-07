@@ -1,10 +1,13 @@
-package qiniu.predem.android.http;
+package qiniu.predem.android.util;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.TextUtils;
 
+import com.qiniu.android.utils.UrlSafeBase64;
+
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -12,12 +15,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import qiniu.predem.android.bean.AppBean;
+import static qiniu.predem.android.config.Configuration.appKey;
 
 /**
  * Created by Misty on 17/6/15.
@@ -33,6 +43,7 @@ public class HttpURLConnectionBuilder {
     private String mRequestMethod;
     private String mRequestBody;
     private int mTimeout = DEFAULT_TIMEOUT;
+    private boolean isGzip = false;
 
     public HttpURLConnectionBuilder(String urlString) {
         mUrlString = urlString;
@@ -53,6 +64,11 @@ public class HttpURLConnectionBuilder {
 
     public HttpURLConnectionBuilder setRequestMethod(String requestMethod) {
         mRequestMethod = requestMethod;
+        return this;
+    }
+
+    public HttpURLConnectionBuilder setGzip(boolean gzip){
+        isGzip = gzip;
         return this;
     }
 
@@ -105,18 +121,46 @@ public class HttpURLConnectionBuilder {
             }
         }
 
+        connection.setRequestProperty("Authorization",authorize(mUrlString, appKey));
         for (String name : mHeaders.keySet()) {
             connection.setRequestProperty(name, mHeaders.get(name));
         }
 
         if (!TextUtils.isEmpty(mRequestBody)) {
-            OutputStream outputStream = connection.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, DEFAULT_CHARSET));
-            writer.write(mRequestBody);
-            writer.flush();
-            writer.close();
+            if (isGzip){
+                ByteArrayOutputStream compressed = new ByteArrayOutputStream();
+                GZIPOutputStream gzip = new GZIPOutputStream(compressed);
+                gzip.write(mRequestBody.getBytes("utf-8"));
+                gzip.close();
+                connection.getOutputStream().write(compressed.toByteArray());
+                connection.getOutputStream().flush();
+            }else{
+                OutputStream outputStream = connection.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, DEFAULT_CHARSET));
+                writer.write(mRequestBody);
+                writer.flush();
+                writer.close();
+            }
         }
 
         return connection;
+    }
+
+    private String authorize(String key ,String data){
+            try {
+                Mac mac = Mac.getInstance("HmacSHA1");
+                SecretKeySpec secret = new SecretKeySpec(key.substring(0, 8).getBytes("UTF-8"), mac.getAlgorithm());
+                mac.init(secret);
+                mac.update(data.getBytes("utf-8"));
+                String digest = UrlSafeBase64.encodeToString(mac.doFinal());
+                return "DEMv1 " + digest;
+            } catch (NoSuchAlgorithmException e) {
+                LogUtils.e(TAG,"Hash algorithm SHA-1 is not supported " + e);
+            } catch (UnsupportedEncodingException e) {
+                LogUtils.e(TAG,"Encoding UTF-8 is not supported " +  e);
+            } catch (InvalidKeyException e) {
+                LogUtils.e(TAG,"Invalid key" + e);
+            }
+            return "";
     }
 }

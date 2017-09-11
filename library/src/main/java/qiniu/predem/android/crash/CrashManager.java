@@ -41,7 +41,7 @@ import static qiniu.predem.android.config.FileConfig.FILELD_START_TIME;
  * Created by Misty on 17/6/15.
  */
 
-public class CrashManager {
+public final class CrashManager {
     private static final String TAG = "CrashManager";
     private static final int STACK_TRACES_FOUND_NONE = 0;
     private static final int STACK_TRACES_FOUND_NEW = 1;

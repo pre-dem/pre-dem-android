@@ -2,9 +2,9 @@ package qiniu.predem.android.util;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.SystemClock;
 import android.text.TextUtils;
-
-import com.qiniu.android.utils.UrlSafeBase64;
+import android.util.Base64;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -27,13 +27,14 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import qiniu.predem.android.bean.AppBean;
+
 import static qiniu.predem.android.config.Configuration.appKey;
 
 /**
  * Created by Misty on 17/6/15.
  */
 
-public class HttpURLConnectionBuilder {
+public final class HttpURLConnectionBuilder {
     public static final String DEFAULT_CHARSET = "UTF-8";
     public static final long FORM_FIELD_LIMIT = 4 * 1024 * 1024;
     private static final String TAG = "HttpURLConnectionBuilder";
@@ -62,12 +63,30 @@ public class HttpURLConnectionBuilder {
         return TextUtils.join("&", protoList);
     }
 
+    private static String authorize(String key, String data) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA1");
+            SecretKeySpec secret = new SecretKeySpec(key.substring(8, key.length()).getBytes("UTF-8"), mac.getAlgorithm());
+            mac.init(secret);
+            mac.update(data.getBytes("UTF-8"));
+            String digest = Base64.encodeToString(mac.doFinal(), Base64.NO_WRAP);
+            return "DEMv1 " + digest;
+        } catch (NoSuchAlgorithmException e) {
+            LogUtils.e(TAG, "Hash algorithm SHA-1 is not supported " + e);
+        } catch (UnsupportedEncodingException e) {
+            LogUtils.e(TAG, "Encoding UTF-8 is not supported " + e);
+        } catch (InvalidKeyException e) {
+            LogUtils.e(TAG, "Invalid key" + e);
+        }
+        return "";
+    }
+
     public HttpURLConnectionBuilder setRequestMethod(String requestMethod) {
         mRequestMethod = requestMethod;
         return this;
     }
 
-    public HttpURLConnectionBuilder setGzip(boolean gzip){
+    public HttpURLConnectionBuilder setGzip(boolean gzip) {
         isGzip = gzip;
         return this;
     }
@@ -104,7 +123,7 @@ public class HttpURLConnectionBuilder {
     @SuppressLint("ObsoleteSdkInt")
     public HttpURLConnection build() throws IOException {
         HttpURLConnection connection;
-        URL url = new URL(mUrlString);
+        URL url = new URL(mUrlString + "?t=" + System.currentTimeMillis()/1000);
         connection = (HttpURLConnection) url.openConnection();
 
         connection.setConnectTimeout(mTimeout);
@@ -121,20 +140,20 @@ public class HttpURLConnectionBuilder {
             }
         }
 
-        connection.setRequestProperty("Authorization",authorize(mUrlString, appKey));
+        connection.setRequestProperty("Authorization", authorize(mUrlString, appKey));
         for (String name : mHeaders.keySet()) {
             connection.setRequestProperty(name, mHeaders.get(name));
         }
 
         if (!TextUtils.isEmpty(mRequestBody)) {
-            if (isGzip){
+            if (isGzip) {
                 ByteArrayOutputStream compressed = new ByteArrayOutputStream();
                 GZIPOutputStream gzip = new GZIPOutputStream(compressed);
                 gzip.write(mRequestBody.getBytes("utf-8"));
                 gzip.close();
                 connection.getOutputStream().write(compressed.toByteArray());
                 connection.getOutputStream().flush();
-            }else{
+            } else {
                 OutputStream outputStream = connection.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, DEFAULT_CHARSET));
                 writer.write(mRequestBody);
@@ -144,23 +163,5 @@ public class HttpURLConnectionBuilder {
         }
 
         return connection;
-    }
-
-    private String authorize(String key ,String data){
-            try {
-                Mac mac = Mac.getInstance("HmacSHA1");
-                SecretKeySpec secret = new SecretKeySpec(key.substring(0, 8).getBytes("UTF-8"), mac.getAlgorithm());
-                mac.init(secret);
-                mac.update(data.getBytes("utf-8"));
-                String digest = UrlSafeBase64.encodeToString(mac.doFinal());
-                return "DEMv1 " + digest;
-            } catch (NoSuchAlgorithmException e) {
-                LogUtils.e(TAG,"Hash algorithm SHA-1 is not supported " + e);
-            } catch (UnsupportedEncodingException e) {
-                LogUtils.e(TAG,"Encoding UTF-8 is not supported " +  e);
-            } catch (InvalidKeyException e) {
-                LogUtils.e(TAG,"Invalid key" + e);
-            }
-            return "";
     }
 }

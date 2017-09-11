@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Created by Misty on 17/6/15.
  */
 
-public class MatcherUtil {
+public final class MatcherUtil {
     public static final Pattern IP_Pattern = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
     public static final Pattern MIMETYPE_Pattern = Pattern.compile("[a-zA-Z0-9]+/[a-zA-Z0-9]+");
 

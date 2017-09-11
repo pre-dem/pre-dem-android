@@ -7,7 +7,7 @@ import android.content.SharedPreferences;
  * Created by Misty on 17/6/16.
  */
 
-public class SharedPreUtil {
+public final class SharedPreUtil {
     private static final String TAG = "SharedPreUtil";
 
     private static final String FILE_NAME = "dem_sdk";

@@ -26,7 +26,7 @@ import qiniu.predem.android.util.MatcherUtil;
  * Created by Misty on 5/18/17.
  */
 @Aspect
-public class HttpURLConnProbe {
+public final class HttpURLConnProbe {
     protected static final HashMap<Object, LogBean> reportMap = new HashMap<>();
     private static final String TAG = "HttpURLConnProbe";
 

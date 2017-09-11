@@ -23,7 +23,7 @@ import qiniu.predem.android.util.FileUtil;
  * Created by Misty on 2017/8/16.
  */
 
-public class ProbeBufferedSource implements BufferedSource {
+public final class ProbeBufferedSource implements BufferedSource {
     protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
     private final static String TAG = "ProbeBufferedSource";
     private static final List<ProbeBufferedSource> mPool = new LinkedList<>();

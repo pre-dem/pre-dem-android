@@ -16,7 +16,7 @@ import qiniu.predem.android.util.FileUtil;
  * Created by Misty on 17/6/15.
  */
 
-public class ProbeInputStream extends InputStream {
+public final class ProbeInputStream extends InputStream {
     protected static final ExecutorService executor = Executors.newFixedThreadPool(2);
     private static final String TAG = "ProbeInputStream";
     private static final List<ProbeInputStream> mPool = new LinkedList<>();

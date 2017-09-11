@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.Functions;
-
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 
@@ -19,7 +18,7 @@ import qiniu.predem.android.util.LogUtils;
  * Created by Misty on 17/6/15.
  */
 
-public class HttpMonitorManager {
+public final class HttpMonitorManager {
     private static final String TAG = "HttpMonitorManager";
 
     private static final int MSG_WHAT_REPORT = 1;
@@ -125,7 +124,7 @@ public class HttpMonitorManager {
             int responseCode = httpConn.getResponseCode();
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
             return successful;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

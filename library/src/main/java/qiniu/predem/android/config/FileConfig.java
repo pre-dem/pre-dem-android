@@ -10,7 +10,7 @@ import qiniu.predem.android.util.LogUtils;
  * Created by Misty on 17/6/15.
  */
 
-public class FileConfig {
+public final class FileConfig {
     public static final int MAX_LOG_FILE_SIZE = 64 * 1024;//每个文件的最大值
     public static final int MAX_LOG_FILE_NUM = 100;//最大文件数
     /**

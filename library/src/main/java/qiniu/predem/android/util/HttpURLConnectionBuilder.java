@@ -2,7 +2,6 @@ package qiniu.predem.android.util;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Base64;
 
@@ -47,7 +46,7 @@ public final class HttpURLConnectionBuilder {
     private boolean isGzip = false;
 
     public HttpURLConnectionBuilder(String urlString) {
-        mUrlString = urlString;
+        mUrlString = urlString + "?t=" + System.currentTimeMillis() / 1000;
         mHeaders = new HashMap<>();
         mHeaders.put("User-Agent", AppBean.SDK_USER_AGENT);
     }
@@ -63,9 +62,10 @@ public final class HttpURLConnectionBuilder {
         return TextUtils.join("&", protoList);
     }
 
-    private static String authorize(String key, String data) {
+    private static String authorize(String data, String key) {
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
+            data = data.substring(data.indexOf("://") + 3, data.length())
             SecretKeySpec secret = new SecretKeySpec(key.substring(8, key.length()).getBytes("UTF-8"), mac.getAlgorithm());
             mac.init(secret);
             mac.update(data.getBytes("UTF-8"));
@@ -123,7 +123,7 @@ public final class HttpURLConnectionBuilder {
     @SuppressLint("ObsoleteSdkInt")
     public HttpURLConnection build() throws IOException {
         HttpURLConnection connection;
-        URL url = new URL(mUrlString + "?t=" + System.currentTimeMillis()/1000);
+        URL url = new URL(mUrlString);
         connection = (HttpURLConnection) url.openConnection();
 
         connection.setConnectTimeout(mTimeout);

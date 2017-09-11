@@ -65,7 +65,7 @@ public final class HttpURLConnectionBuilder {
     private static String authorize(String data, String key) {
         try {
             Mac mac = Mac.getInstance("HmacSHA1");
-            data = data.substring(data.indexOf("://") + 3, data.length())
+            data = data.substring(data.indexOf("://") + 3, data.length());
             SecretKeySpec secret = new SecretKeySpec(key.substring(8, key.length()).getBytes("UTF-8"), mac.getAlgorithm());
             mac.init(secret);
             mac.update(data.getBytes("UTF-8"));

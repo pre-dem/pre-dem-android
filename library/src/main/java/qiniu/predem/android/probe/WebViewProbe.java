@@ -19,7 +19,7 @@ import qiniu.predem.android.config.Configuration;
  * Created by Misty on 17/7/4.
  */
 @Aspect
-public class WebViewProbe {
+public final class WebViewProbe {
     protected static final WebViewProbe instance = new WebViewProbe();
     protected final static List<WeakReference<WebView>> webviews = new LinkedList<>();
     private static final String TAG = "WebViewProbe";

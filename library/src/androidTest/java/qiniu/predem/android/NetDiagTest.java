@@ -1,7 +1,5 @@
 package qiniu.predem.android;
 
-import android.content.Context;
-import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
@@ -9,9 +7,7 @@ import org.junit.runner.RunWith;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.CountDownLatch;
 
-import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.util.LogUtils;
 
 /**

@@ -21,7 +21,7 @@ import qiniu.predem.android.util.LogUtils;
  * Created by Misty on 2017/8/7.
  */
 
-public class NetDiagnosis {
+public final class NetDiagnosis {
     private static final String TAG = "MyNetDiagnosis";
 
     private int count;

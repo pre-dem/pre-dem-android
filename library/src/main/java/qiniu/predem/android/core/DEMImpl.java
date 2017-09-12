@@ -58,7 +58,7 @@ public final class DEMImpl {
     }
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
-        NetDiagnosis.getInstance().start(this.context.get(),domain,address,netDiagCallback);
+        NetDiagnosis.getInstance().start(this.context.get(), domain, address, netDiagCallback);
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {
@@ -76,6 +76,7 @@ public final class DEMImpl {
 
     /**
      * 更新 配置文件
+     *
      * @param cxt
      */
     public void updateAppConfig(final Context cxt) {
@@ -165,7 +166,7 @@ public final class DEMImpl {
             int responseCode = httpConn.getResponseCode();
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
             return successful;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

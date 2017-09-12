@@ -27,7 +27,7 @@ import qiniu.predem.android.util.MatcherUtil;
  * Created by Misty on 17/6/5.
  */
 @Aspect
-public class OkHttp3Probe {
+public final class OkHttp3Probe {
     protected static final HashMap<ResponseBody, Response> RespBodyToRespMap = new HashMap<>();
     protected static final HashMap<String, Long> dnsTimeMap = new HashMap<>();
     protected static final HashMap<String, String> DomainToIpMap = new HashMap<>();

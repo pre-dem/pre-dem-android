@@ -34,9 +34,9 @@ import java.util.UUID;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
-import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.Functions;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;

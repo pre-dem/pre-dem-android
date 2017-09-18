@@ -1,4 +1,4 @@
-# Pre Sniff Server Crash Report Service Spec
+# Pre Dem Server Log Capture Service Spec
 
 ## API
 
@@ -7,12 +7,13 @@ API 域名:
 * 开发服务器 `http://hriygkee.bq.cloudappl.com` (公网域名)
 * 测试服务器 `http://jkbkolos.bq.cloudappl.com` (公网域名)
 
-### 获取崩溃日志上传 token 接口
+### 获取日志上传 token 接口
 
 请求包：
 
+v1/:app_id/log-capture/:platform
 ```
-GET /v1/${app_id}/crash-report-token/${platform}?md5=${md5}
+GET /v1/${app_id}/log-capture-token/${platform}?md5=${md5}
 ```
 
 `${platform}` 目前支持两个平台，其中 `i` 代表 `iOS`, `a` 代表 `android`
@@ -23,7 +24,7 @@ GET /v1/${app_id}/crash-report-token/${platform}?md5=${md5}
 GET /v1/f127c8d8f9ede0f464e80f5f4b46658/crash-report-token/i?md5=${af47219ebc749eab8127caedba}
 ```
 
-- 若获取崩溃报告成功，返回：
+- 若获 token 成功，返回：
 
 ```
 200
@@ -44,12 +45,12 @@ GET /v1/f127c8d8f9ede0f464e80f5f4b46658/crash-report-token/i?md5=${af47219ebc749
 }
 ```
 
-### 上报崩溃日志描述信息
+### 上报日志描述信息
 
 请求包:
 
 ```
-POST v1/${app_id}/crashes/${platform}
+POST v1/${app_id}/log-capture/${platform}
 Content-Type: application/json
 Body:
 {
@@ -66,12 +67,11 @@ Body:
 	DeviceId     string `json:"device_id"`
 	Tag          string `json:"tag"`
 	Manufacturer string `json:"manufacturer"`
-	ReportUUID   string `json:"report_uuid"`
-	CrashLogKey  string `json:"crash_log_key"`
-	StartTime    string `json:"start_time"`
-	CrashTime    string `json:"crash_time"`
-	Mode         string `json:"mode"`
-	Message      string `json:"message"`
+	StartTime    uint64 `json:"start_time"`
+	EndTime      uint64 `json:"end_time"`
+	LogKey       string `json:"log_key"`
+	LogTags      string `json:"log_tags"`
+	ErrorCount   uint64 `json:"error_count"`
 }
 ```
 
@@ -80,12 +80,12 @@ Body:
 例：
 
 ```
-POST /v1/f127c8d8f9ede0f464e80f5f4b46658/crashes/i
+POST /v1/f127c8d8f9ede0f464e80f5f4b46658/log-capture/i
 ```
 
 返回包：
 
-- 若上传崩溃描述信息成功，返回：
+- 若上传日志描述信息成功，返回：
 
 ```
 200
@@ -94,7 +94,7 @@ POST /v1/f127c8d8f9ede0f464e80f5f4b46658/crashes/i
 }
 ```
 
-- 若上传崩溃描述信息失败，返回：
+- 若上传日志描述信息失败，返回：
 
 ```
 400

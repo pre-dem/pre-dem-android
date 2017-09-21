@@ -27,7 +27,6 @@ import qiniu.predem.android.config.FileConfig;
 
 import static qiniu.predem.android.config.FileConfig.CACHE_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.FILES_PATH;
-import static qiniu.predem.android.config.FileConfig.INDEX_FILE_NAME;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_INDEX;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_POSITION;
 import static qiniu.predem.android.config.FileConfig.KEY_WRITE_FILE_INDEX;
@@ -36,6 +35,7 @@ import static qiniu.predem.android.config.FileConfig.LOG_FILE_BASE_NAME;
 import static qiniu.predem.android.config.FileConfig.MAX_LOG_FILE_NUM;
 import static qiniu.predem.android.config.FileConfig.MAX_LOG_FILE_SIZE;
 import static qiniu.predem.android.config.FileConfig.QOS_FILE_PREFIX;
+import static qiniu.predem.android.config.FileConfig.QOS_INDEX_FILE_NAME;
 
 /**
  * Created by Misty on 17/6/15.
@@ -152,7 +152,7 @@ public class FileUtil {
 
     private boolean parseIndexFile() {
         try {
-            String content = readFileOnce(mContext, INDEX_FILE_NAME, 0);
+            String content = readFileOnce(mContext, QOS_INDEX_FILE_NAME, 0);
             if (content == null) {
                 deleteAllQosFiles();
                 return false;
@@ -300,7 +300,7 @@ public class FileUtil {
             json.put(KEY_READ_FILE_POSITION, mReadFilePosition);
             json.put(KEY_WRITE_FILE_INDEX, mWriteFileIndex);
             json.put(KEY_WRITE_FILE_POSITION, mWriteFilePosition);
-            return writeFileOnce(mContext, INDEX_FILE_NAME, json.toString(), Context.MODE_PRIVATE);
+            return writeFileOnce(mContext, QOS_INDEX_FILE_NAME, json.toString(), Context.MODE_PRIVATE);
         } catch (JSONException e) {
             LogUtils.e(TAG, "-----" + e.toString());
             e.printStackTrace();

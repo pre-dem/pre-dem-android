@@ -19,6 +19,7 @@ import org.json.JSONObject;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
+import qiniu.predem.android.logcat.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button diagnosis_btn;
     private Button anr_btn;
     private Button lag_btn;
+    private Button logcat_btn;
     private Button custom_btn;
 
     //
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lag_btn.setOnClickListener(this);
         diagnosis_btn.setOnClickListener(this);
         custom_btn.setOnClickListener(this);
+        logcat_btn.setOnClickListener(this);
     }
 
     @Override
@@ -105,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lag_btn = (Button) findViewById(R.id.lag_btn);
         diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
         custom_btn = (Button) findViewById(R.id.custom_btn);
+        logcat_btn = (Button)findViewById(R.id.logcat_btn);
 
         okhttpTwoThread = new OkhttpTwoThread();
         okhttpThreeThread = new OkhttpThreeThread();
@@ -193,6 +197,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).start();
                 break;
+
+            case R.id.logcat_btn:
+                Logger.openLogs(mContext, Logger.V);
+                for (int i = 0 ; i < 10; i++){
+                    Logger.d(TAG,"------ " + i);
+                }
+                Logger.closeLogs();
+                break;
         }
     }
 
@@ -210,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         // 获取EditView中的输入内容
                         EditText edit_text = (EditText) dialogView.findViewById(R.id.edit_text);
                         appKey = edit_text.getText().toString().trim();
-//                        appKey = "000000020005dr1v4kim68c6";
+                        appKey = "000000020005dr1v4kim68c6";
                         if (appKey == null || appKey.isEmpty()) {
                             Toast.makeText(MainActivity.this, "appKey为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
                         } else {

@@ -240,7 +240,7 @@ public final class CrashManager {
                         final JSONObject bean = crashBean;
                         Zone zone = FixedZone.zone0;
                         com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
-                        UploadManager uploadManager = new UploadManager(config);
+                        UploadManager uploadManager = Functions.getUploadManager();
                         uploadManager.put(crash.getBytes(), key, token, new UpCompletionHandler() {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {

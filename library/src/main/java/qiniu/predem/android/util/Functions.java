@@ -9,6 +9,10 @@ import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
+import com.qiniu.android.common.FixedZone;
+import com.qiniu.android.common.Zone;
+import com.qiniu.android.storage.UploadManager;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,6 +27,9 @@ import java.util.List;
 
 public final class Functions {
     private static final String TAG = "ToolUtil";
+//     staging
+//    Zone zone = new FixedZone(new String[]{"10.200.20.23:5010"});
+    private static UploadManager uploadInstance = getUpManagerByZone(FixedZone.zone0);
 
     public static String getStringMd5(String content) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -146,5 +153,14 @@ public final class Functions {
             }
         }
         return false;
+    }
+
+    public static UploadManager getUploadManager() {
+        return uploadInstance;
+    }
+
+    private static UploadManager getUpManagerByZone(Zone zone) {
+        com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
+        return new UploadManager(config);
     }
 }

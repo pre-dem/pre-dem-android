@@ -83,6 +83,7 @@ public class OkhttpTwoThread {
             public void onResponse(final Response response) throws IOException {
                 Log.d(TAG, "------okhttp2 : " + response.code());
                 String str = response.body().string();
+                response.body().close();
             }
         });
     }

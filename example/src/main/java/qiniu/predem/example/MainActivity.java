@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private final String Name = "ApmDemo";
     private final String APP_KEY = "appkey";
+    private final String DOMAIN = "domain";
 
     private Button http_btn;
     private Button okhttp3_btn;
@@ -38,12 +39,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button logcat_btn;
     private Button custom_btn;
 
-    //
     private OkhttpTwoThread okhttpTwoThread;
     private OkhttpThreeThread okhttpThreeThread;
 
-    //appkey
     private String appKey;
+    private String domain;
     private Context mContext;
 
     /**
@@ -90,9 +90,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
         appKey = sh.getString(APP_KEY, null);
+        domain = sh.getString(DOMAIN, null);
         if (appKey != null && !appKey.isEmpty()) {
             //
-            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
+            DEMManager.start(domain, appKey, mContext);
         } else {
             showCustomizeDialog();
         }
@@ -127,24 +128,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.okhttp2_btn:
                 try {
-                    okhttpTwoThread.run("http://www.baidu.com");
-                    okhttpTwoThread.run("https://www.163.com");
-                    okhttpTwoThread.run("http://www.qq.com");
-                    okhttpTwoThread.run("https://www.qiniu.com");
-                    okhttpTwoThread.run("http://www.taobao.com");
-                    okhttpTwoThread.run("http://www.alipay.com");
+                    OkhttpTwoThread.run("http://www.baidu.com");
+                    OkhttpTwoThread.run("https://www.163.com");
+                    OkhttpTwoThread.run("http://www.qq.com");
+                    OkhttpTwoThread.run("https://www.qiniu.com");
+                    OkhttpTwoThread.run("http://www.taobao.com");
+                    OkhttpTwoThread.run("http://www.alipay.com");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 break;
             case R.id.okhttp3_btn:
                 try {
-                    okhttpThreeThread.run("http://www.baidu.com");
-                    okhttpThreeThread.run("https://www.163.com");
-                    okhttpThreeThread.run("http://www.qq.com");
-                    okhttpThreeThread.run("https://www.qiniu.com");
-                    okhttpThreeThread.run("http://www.taobao.com");
-                    okhttpThreeThread.run("http://www.alipay.com");
+                    OkhttpThreeThread.run("http://www.baidu.com");
+                    OkhttpThreeThread.run("https://www.163.com");
+                    OkhttpThreeThread.run("http://www.qq.com");
+                    OkhttpThreeThread.run("https://www.qiniu.com");
+                    OkhttpThreeThread.run("http://www.taobao.com");
+                    OkhttpThreeThread.run("http://www.alipay.com");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -213,26 +214,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new AlertDialog.Builder(MainActivity.this);
         final View dialogView = LayoutInflater.from(MainActivity.this)
                 .inflate(R.layout.activity_dialog, null);
-        customizeDialog.setTitle("请输入AppKey");
+        customizeDialog.setTitle("请输入AppKey和Domain");
         customizeDialog.setView(dialogView);
         customizeDialog.setPositiveButton("确定",
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // 获取EditView中的输入内容
-                        EditText edit_text = (EditText) dialogView.findViewById(R.id.edit_text);
-                        appKey = edit_text.getText().toString().trim();
-                        appKey = "000000020005dr1v4kim68c6";
-                        if (appKey == null || appKey.isEmpty()) {
-                            Toast.makeText(MainActivity.this, "appKey为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
+                        EditText appKeyField = (EditText) dialogView.findViewById(R.id.app_key_field);
+                        appKey = appKeyField.getText().toString().trim();
+                        EditText domainField = (EditText) dialogView.findViewById(R.id.domain_field);
+                        domain = domainField.getText().toString().trim();
+                        if (appKey == null || appKey.isEmpty() || domain == null || domain.isEmpty()) {
+                            Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
                         } else {
                             SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
                             SharedPreferences.Editor editor = sh.edit();
                             editor.putString(APP_KEY, appKey);
+                            editor.putString(DOMAIN, domain);
                             editor.apply();
-                            //jkbkolos.bq.cloudappl.com
-                            //
-                            DEMManager.start("hriygkee.bq.cloudappl.com", appKey, mContext);
+                            DEMManager.start(domain, appKey, mContext);
                         }
                     }
                 });

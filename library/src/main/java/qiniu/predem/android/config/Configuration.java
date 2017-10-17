@@ -80,4 +80,12 @@ public final class Configuration {
     public static String getCrashUpToken() {
         return baseUrl() + "/crash-report-token/a";
     }
+
+    public static String getLogcatUpToken(){
+        return baseUrl() + "/log-capture-token/a";
+    }
+
+    public static String getLogcatUrl(){
+        return baseUrl() + "/log-capture/a";
+    }
 }

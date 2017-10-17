@@ -81,6 +81,7 @@ public class OkhttpThreeThread {
             public void onResponse(Call call, Response response) throws IOException {
                 Log.d(TAG, "------" + response.code());
                 String str = response.body().string();
+                response.body().close();
             }
         });
     }

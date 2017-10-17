@@ -17,13 +17,22 @@ public final class FileConfig {
      * http monitor logs
      */
     public static final String QOS_FILE_PREFIX = "dem_log_";
-    public static final String INDEX_FILE_NAME = QOS_FILE_PREFIX + "index.json";
+    public static final String QOS_INDEX_FILE_NAME = QOS_FILE_PREFIX + "index.json";
     public static final String KEY_READ_FILE_INDEX = "read_file_index";
     public static final String KEY_READ_FILE_POSITION = "read_file_position";
     public static final String KEY_WRITE_FILE_INDEX = "write_file_index";
     public static final String KEY_WRITE_FILE_POSITION = "write_file_position";
     public static final String CACHE_FILE_NAME = QOS_FILE_PREFIX + "cache";
     public static final String LOG_FILE_BASE_NAME = QOS_FILE_PREFIX + "log.";
+
+    /**
+     * logcat file's config
+     */
+
+    public static final String LOGCAT_FILE_PREFIX = "dem_logcat_";
+    public static final String LOGCAT_FILE_BASE_NAME = LOGCAT_FILE_PREFIX + "log.";
+    public static final String LOGCAT_INDEX_FILE_NAME = LOGCAT_FILE_PREFIX + "index.json";
+
     /**
      * crash logs
      */

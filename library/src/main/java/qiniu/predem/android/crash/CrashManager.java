@@ -41,7 +41,7 @@ import static qiniu.predem.android.config.FileConfig.FILELD_START_TIME;
  * Created by Misty on 17/6/15.
  */
 
-public class CrashManager {
+public final class CrashManager {
     private static final String TAG = "CrashManager";
     private static final int STACK_TRACES_FOUND_NONE = 0;
     private static final int STACK_TRACES_FOUND_NEW = 1;
@@ -240,7 +240,7 @@ public class CrashManager {
                         final JSONObject bean = crashBean;
                         Zone zone = FixedZone.zone0;
                         com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
-                        UploadManager uploadManager = new UploadManager(config);
+                        UploadManager uploadManager = Functions.getUploadManager();
                         uploadManager.put(crash.getBytes(), key, token, new UpCompletionHandler() {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {

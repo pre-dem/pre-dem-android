@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Created by Misty on 5/18/17.
  */
 
-public class LogUtils {
+public final class LogUtils {
     /**
      * 打印级别为V，对应Log.v
      */

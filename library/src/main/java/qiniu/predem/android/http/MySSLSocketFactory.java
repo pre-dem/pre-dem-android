@@ -12,7 +12,7 @@ import javax.net.ssl.SSLSocketFactory;
  * Created by Misty on 17/6/15.
  */
 
-public class MySSLSocketFactory extends SSLSocketFactory {
+public final class MySSLSocketFactory extends SSLSocketFactory {
     private static final String TAG = "MySSLSocketFactory";
     protected final String hostIp;
 

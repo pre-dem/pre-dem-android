@@ -8,8 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.qiniu.android.common.FixedZone;
-import com.qiniu.android.common.Zone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
@@ -34,9 +32,9 @@ import java.util.UUID;
 import qiniu.predem.android.bean.AppBean;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.config.FileConfig;
-import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.FileUtil;
 import qiniu.predem.android.util.Functions;
+import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
@@ -317,9 +315,7 @@ public class TraceInfoCatcher extends Thread {
                         }
 
                         //2、上传信息到七牛云
-                        Zone zone = FixedZone.zone0;
-                        com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
-                        UploadManager uploadManager = new UploadManager(config);
+                        UploadManager uploadManager = Functions.getUploadManager();
                         uploadManager.put(info.mLog.getBytes(), key, token, new UpCompletionHandler() {
                             @Override
                             public void complete(final String key, ResponseInfo info, JSONObject response) {

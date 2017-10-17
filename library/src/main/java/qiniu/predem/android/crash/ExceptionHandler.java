@@ -17,7 +17,7 @@ import qiniu.predem.android.util.FileUtil;
  * Created by Misty on 17/6/15.
  */
 
-public class ExceptionHandler implements Thread.UncaughtExceptionHandler {
+public final class ExceptionHandler implements Thread.UncaughtExceptionHandler {
     private static final String TAG = "ExceptionHandler";
     @SuppressLint("StaticFieldLeak")
     private static FileUtil fileLogManager;

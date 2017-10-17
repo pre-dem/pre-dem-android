@@ -9,7 +9,7 @@ import qiniu.predem.android.config.Configuration;
  * Created by Misty on 17/6/15.
  */
 
-public class GlobalConfig {
+public final class GlobalConfig {
     //不需要收集的域名
     protected static final List<String> ExcludeDomains = new ArrayList<>();
     private static final String TAG = "GlobalConfig";

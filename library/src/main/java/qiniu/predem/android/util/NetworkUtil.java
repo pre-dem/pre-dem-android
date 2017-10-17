@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
  * Created by Misty on 17/6/15.
  */
 
-public class NetworkUtil {
+public final class NetworkUtil {
     private static final String TAG = "NetworkUtil";
 
     public static boolean isConnectedToNetwork(Context context) {

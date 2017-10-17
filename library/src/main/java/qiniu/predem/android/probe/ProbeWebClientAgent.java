@@ -23,7 +23,7 @@ import java.util.List;
  * Created by Misty on 17/7/4.
  */
 
-public class ProbeWebClientAgent extends ProbeWebClient {
+public final class ProbeWebClientAgent extends ProbeWebClient {
     private static final String TAG = "ProbeWebClientAgent";
     private static final List<ProbeWebClientAgent> mPool = new LinkedList<>();
     protected WebViewClient source;

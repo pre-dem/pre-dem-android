@@ -68,7 +68,7 @@ public class PrintLogger {
         mFormat = new SimpleDateFormat("MM-dd HH:mm:ss:SS");
         mThread.start();
 
-        this.mContext = context;
+        this.mContext = context.getApplicationContext();
     }
 
     //单例模式

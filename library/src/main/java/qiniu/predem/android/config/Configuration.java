@@ -81,11 +81,11 @@ public final class Configuration {
         return baseUrl() + "/crash-report-token/a";
     }
 
-    public static String getLogcatUpToken(){
+    public static String getLogcatUpToken() {
         return baseUrl() + "/log-capture-token/a";
     }
 
-    public static String getLogcatUrl(){
+    public static String getLogcatUrl() {
         return baseUrl() + "/log-capture/a";
     }
 }

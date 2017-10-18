@@ -28,8 +28,8 @@ import java.util.List;
 public final class Functions {
     private static final String TAG = "ToolUtil";
 //     staging
-//    Zone zone = new FixedZone(new String[]{"10.200.20.23:5010"});
-    private static UploadManager uploadInstance = getUpManagerByZone(FixedZone.zone0);
+
+    private static UploadManager uploadInstance = getUpManagerByZone();
 
     public static String getStringMd5(String content) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -159,8 +159,13 @@ public final class Functions {
         return uploadInstance;
     }
 
-    private static UploadManager getUpManagerByZone(Zone zone) {
-        com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
+    private static Zone getZone() {
+//        return new FixedZone(new String[]{"10.200.20.23:5010"});
+        return FixedZone.zone0;
+    }
+
+    private static UploadManager getUpManagerByZone() {
+        com.qiniu.android.storage.Configuration config = new com.qiniu.android.storage.Configuration.Builder().zone(getZone()).build();
         return new UploadManager(config);
     }
 }

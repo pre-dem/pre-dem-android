@@ -3,8 +3,6 @@ package qiniu.predem.android.logcat;
 import android.content.Context;
 import android.util.Log;
 
-import com.qiniu.android.common.FixedZone;
-import com.qiniu.android.common.Zone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
@@ -31,6 +29,7 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.util.Functions;
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
+
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_INDEX;
 import static qiniu.predem.android.config.FileConfig.KEY_READ_FILE_POSITION;
 import static qiniu.predem.android.config.FileConfig.KEY_WRITE_FILE_INDEX;
@@ -47,7 +46,7 @@ import static qiniu.predem.android.config.FileConfig.MAX_LOG_FILE_SIZE;
 
 public class PrintLogger {
     private static final String TAG = "PrintLogger";
-
+    private static volatile PrintLogger instance = null;
     /**
      * always synchronized with the ‘index.json’
      */
@@ -55,8 +54,6 @@ public class PrintLogger {
     private long mReadFilePosition = 0;
     private long mWriteFileIndex = 0;
     private long mWriteFilePosition = 0;
-
-    private static volatile PrintLogger instance = null;
     private SimpleDateFormat mFormat = null;
     private WriteThread mThread = null;
     private Context mContext;
@@ -66,7 +63,7 @@ public class PrintLogger {
     private long mStartTime;
     private long mEndTime;
 
-    private PrintLogger(Context context){
+    private PrintLogger(Context context) {
         mThread = new WriteThread(context);
         mFormat = new SimpleDateFormat("MM-dd HH:mm:ss:SS");
         mThread.start();
@@ -91,23 +88,23 @@ public class PrintLogger {
         mThread.enqueue(time + " " + tag + " " + str);
     }
 
-    void openLogs(){
+    void openLogs() {
         mStartTime = System.currentTimeMillis();
         parseIndexFile();
         submitLogcat();
     }
 
-    void closeLogs(){
+    void closeLogs() {
         mEndTime = System.currentTimeMillis();
         submitLogcat();
     }
 
-    private void submitLogcat(){
+    private void submitLogcat() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                if (mReadFileIndex <= mWriteFileIndex){
-                    for (long i = mReadFileIndex; i <= mWriteFileIndex; i++){
+                if (mReadFileIndex <= mWriteFileIndex) {
+                    for (long i = mReadFileIndex; i <= mWriteFileIndex; i++) {
                         //TODO
                         sendRequest(i);
                     }
@@ -116,10 +113,10 @@ public class PrintLogger {
         }).start();
     }
 
-    private void sendRequest(long readFileIndex){
+    private void sendRequest(long readFileIndex) {
         try {
             String content = getReportContent(readFileIndex);
-            if (content == null){
+            if (content == null) {
                 return;
             }
             final String filename = LOGCAT_FILE_BASE_NAME + readFileIndex;
@@ -152,13 +149,11 @@ public class PrintLogger {
                 return;
             }
 
-            Zone zone = FixedZone.zone0;
-            com.qiniu.android.storage.Configuration configuration = new com.qiniu.android.storage.Configuration.Builder().zone(zone).build();
-            UploadManager uploadManager = new UploadManager(configuration);
+            UploadManager uploadManager = Functions.getUploadManager();
             uploadManager.put(content.getBytes(), key, token, new UpCompletionHandler() {
                 @Override
                 public void complete(final String key, ResponseInfo info, JSONObject response) {
-                    Log.d(TAG,"------upload result " + info.toString());
+                    Log.d(TAG, "------upload result " + info.toString());
                     if (info.isOK()) {
                         new Thread() {
                             @Override
@@ -171,12 +166,12 @@ public class PrintLogger {
                     }
                 }
             }, null);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void report(String filename, String key){
+    private void report(String filename, String key) {
         //3、上报服务器
         HttpURLConnection url = null;
         boolean successful = false;
@@ -198,8 +193,8 @@ public class PrintLogger {
             parameters.put("start_time", mStartTime);
             parameters.put("end_time", mEndTime);
             parameters.put("log_key", key);
-            parameters.put("log_tags","");
-            parameters.put("error_count",0);
+            parameters.put("log_tags", "");
+            parameters.put("error_count", 0);
 
             url = new HttpURLConnectionBuilder(Configuration.getLogcatUrl())
                     .setRequestMethod("POST")
@@ -236,7 +231,7 @@ public class PrintLogger {
 
         synchronized (this) {
             String filename = LOGCAT_FILE_BASE_NAME + readFileIndex;
-            Log.d(TAG,"------filename " + filename);
+            Log.d(TAG, "------filename " + filename);
             mCachedReportContent = readFileOnce(filename, mReadFilePosition);
             if (mCachedReportContent == null) {
                 return null;
@@ -244,7 +239,7 @@ public class PrintLogger {
 
             mReadFilePosition += mCachedReportContent.length();
             if (mReadFileIndex < mWriteFileIndex && readFileIndex != mReadFileIndex) {
-                mReadFileIndex = readFileIndex + 1 ;
+                mReadFileIndex = readFileIndex + 1;
                 mReadFilePosition = 0;
             }
             updateIndexFile();
@@ -319,6 +314,7 @@ public class PrintLogger {
 
     /**
      * 解析 index 文件
+     *
      * @return
      */
     private boolean parseIndexFile() {
@@ -355,17 +351,17 @@ public class PrintLogger {
                 builder.append("\n");
             }
             String result = builder.toString();
-            Log.d(TAG,"----result " + result);
+            Log.d(TAG, "----result " + result);
             if ("".equals(result)) {
                 return null;
             }
             return result;
         } catch (FileNotFoundException e) {
-            Log.e(TAG,"-----" + e.toString());
+            Log.e(TAG, "-----" + e.toString());
         } catch (IOException e) {
-            Log.e(TAG,"-----" + e.toString());
+            Log.e(TAG, "-----" + e.toString());
         } catch (OutOfMemoryError e) {
-            Log.e(TAG,"-----" + e.toString());
+            Log.e(TAG, "-----" + e.toString());
         } finally {
             closeSilently(input);
             closeSilently(reader);

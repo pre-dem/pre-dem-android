@@ -69,8 +69,8 @@ public final class Configuration {
         return baseUrl() + "/net-diags/a";
     }
 
-    public static String getEventUrl(String name) {
-        return baseUrl() + "/events/" + name;
+    public static String getEventUrl() {
+        return baseUrl() + "/events";
     }
 
     public static String getLagMonitorUpToken() {

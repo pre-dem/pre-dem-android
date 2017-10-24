@@ -21,6 +21,8 @@ public final class SharedPreUtil {
 
     private static final String CRASH_CONFIRMED_FILENAMES = "crash_confirmed_filenames";
 
+    protected static final String PREFS_DEVICE_ID="device_id";
+
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(FILE_NAME, context.MODE_PRIVATE);
     }
@@ -102,6 +104,16 @@ public final class SharedPreUtil {
         editor.apply();
     }
 
+    /**
+     * 保存deviceid
+     * @param context
+     */
+    public static void setDeviceId(Context context, String deviceid){
+        SharedPreferences.Editor editor = getEditor(context);
+        editor.putString(PREFS_DEVICE_ID,deviceid);
+        editor.apply();
+    }
+
     public static void setLastTime(Context context) {
         SharedPreferences.Editor editor = getEditor(context);
         long time = System.currentTimeMillis();
@@ -142,6 +154,11 @@ public final class SharedPreUtil {
     public static long getConfigurationLastTime(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
         return sh.getLong(LAST_CONFIGURATION_TIME, -1);
+    }
+
+    public static String getDeviceId(Context context){
+        SharedPreferences sh = getSharedPreferences(context);
+        return sh.getString(PREFS_DEVICE_ID,null);
     }
 
     public static void removeCrashConfirmedFilenames(Context context) {

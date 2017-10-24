@@ -88,7 +88,7 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = Functions.generateUUID(context);
+        DEVICE_IDENTIFIER = Functions.generateUUID2(context);
 
         loadPackageData(context);
         loadCrashIdentifier(context);

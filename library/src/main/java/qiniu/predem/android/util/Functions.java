@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
@@ -20,6 +21,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Misty on 17/7/14.
@@ -48,6 +50,35 @@ public final class Functions {
             result += temp;
         }
         return result;
+    }
+
+    public static String generateUUID2(Context context){
+        UUID uuid = null;
+        if (uuid == null){
+            synchronized(Functions.class) {
+                if(uuid==null) {
+                    String id = SharedPreUtil.getDeviceId(context);
+                    if(id !=null) {
+                        uuid= UUID.fromString(id);
+                    }else{
+                        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                        try{
+                            if(!"9774d56d682e549c".equals(androidId)) {
+                                uuid= UUID.nameUUIDFromBytes(androidId.getBytes("utf8"));
+                            }else{
+                                String deviceId = ((TelephonyManager) context.getSystemService( Context.TELEPHONY_SERVICE)).getDeviceId();
+                                uuid= deviceId!=null? UUID.nameUUIDFromBytes(deviceId.getBytes("utf8")) : UUID.randomUUID();
+                            }
+                        }catch(UnsupportedEncodingException e) {
+                            throw new RuntimeException(e);
+                        }
+                        SharedPreUtil.setDeviceId(context,uuid.toString());
+                    }
+                }
+                return uuid.toString();
+            }
+        }
+        return "";
     }
 
     public static String generateUUID(Context context) {

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
+import qiniu.predem.android.bean.CustomBean;
 import qiniu.predem.android.block.TraceInfoCatcher;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
@@ -62,16 +63,20 @@ public final class DEMImpl {
     }
 
     public void trackEvent(String eventName, Map<String, Object> event) {
-        JSONObject obj = new JSONObject(event);
-        trackEvent(eventName, obj);
+//        JSONObject obj = new JSONObject(event);
+        CustomBean paratemer = new CustomBean(eventName, event.toString()); //event.toString();
+//        trackEvent(eventName, paratemer.toJsonString());
+        sendRequest(Configuration.getEventUrl(),paratemer.toJsonString());
     }
 
     public void trackEvent(String eventName, JSONArray event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+        CustomBean paramter = new CustomBean(eventName, event.toString());
+        sendRequest(Configuration.getEventUrl(), paramter.toJsonString());
     }
 
     public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+        CustomBean paramter =new CustomBean(eventName, event.toString());
+        sendRequest(Configuration.getEventUrl(), paramter.toJsonString());
     }
 
     /**
@@ -154,8 +159,7 @@ public final class DEMImpl {
     }
 
     private boolean sendRequest(String url, String content) {
-        LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
-
+        LogUtils.d(TAG,"----url:"+url + "\tcontent:"+content);
         try {
             HttpURLConnection httpConn = new HttpURLConnectionBuilder(url)
                     .setRequestMethod("POST")

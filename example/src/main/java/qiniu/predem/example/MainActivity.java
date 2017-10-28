@@ -17,16 +17,20 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.logcat.Logger;
+import qiniu.predem.android.util.Functions;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
 
     private final String Name = "ApmDemo";
-    private final String APP_KEY = "appkey";
-    private final String DOMAIN = "domain";
+    private final String APP_KEY = "A-c3TL4HymGBUdKdmttaAQDY";
+    private final String DOMAIN = "bgocyti7jwr4.predem.qiniuapi.com";
 
     private Button http_btn;
     private Button okhttp3_btn;
@@ -184,14 +188,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void run() {
                         try {
-                            //[{"hellonum":7,"helloKey":"worldValue"}]
-                            JSONArray json = new JSONArray();
-                            JSONObject jsonObject1 = new JSONObject();
-                            jsonObject1.put("hellonum", 7);
-                            jsonObject1.put("helloKey", "worldValue");
-                            json.put(jsonObject1);
+//                            JSONArray json = new JSONArray();
+//                            JSONObject jsonObject1 = new JSONObject();
+//                            jsonObject1.put("hellonum", 7);
+//                            jsonObject1.put("helloKey", "worldValue");
+//                            json.put(jsonObject1);
 
-                            DEMManager.trackEvent("viewDidLoadEvent", json);
+                            Map<String,Object> map = new HashMap<String, Object>();
+                            map.put("product_name","惊艳Plus");
+                            map.put("MAC地址","00e08f0025dd");
+                            map.put("ip","1.49.69.237");
+                            map.put("访问时间","2017/8/11  PM 8:09:18");
+
+                            DEMManager.trackEvent("viewDidLoadEvent", map);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -225,6 +234,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         appKey = appKeyField.getText().toString().trim();
                         EditText domainField = (EditText) dialogView.findViewById(R.id.domain_field);
                         domain = domainField.getText().toString().trim();
+                        appKey = APP_KEY;
+                        domain = DOMAIN;
                         if (appKey == null || appKey.isEmpty() || domain == null || domain.isEmpty()) {
                             Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
                         } else {

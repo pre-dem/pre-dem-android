@@ -45,7 +45,7 @@ public class CustomBean {
         this.osBuild = AppBean.ANDROID_BUILD;
 
         this.sdkVersion = AppBean.SDK_VERSION;
-        this.sdkId = "-";
+        this.sdkId = AppBean.SDK_ID;
 
         this.tag = AppBean.APP_TAG;
 

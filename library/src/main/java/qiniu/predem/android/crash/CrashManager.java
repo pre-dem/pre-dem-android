@@ -284,7 +284,7 @@ public final class CrashManager {
             parameters.put("os_version", AppBean.ANDROID_VERSION);
             parameters.put("os_build", AppBean.ANDROID_BUILD);
             parameters.put("sdk_version", AppBean.SDK_VERSION);
-            parameters.put("sdk_id", "");
+            parameters.put("sdk_id", AppBean.SDK_ID);
             parameters.put("device_id", AppBean.DEVICE_IDENTIFIER);
             parameters.put("tag", AppBean.APP_TAG);
             parameters.put("report_uuid", bean.optString(FIELD_REPORT_UUID));

@@ -112,7 +112,7 @@ public class NetDiagBean {
             jsonObject.put("device_model", AppBean.PHONE_MODEL);
             jsonObject.put("os_platform", AppBean.ANDROID_VERSION);
             jsonObject.put("sdk_version", AppBean.SDK_VERSION);
-            jsonObject.put("sdk_id", "");
+            jsonObject.put("sdk_id", AppBean.SDK_ID);
             jsonObject.put("device_id", AppBean.DEVICE_IDENTIFIER);
             jsonObject.put("tag", AppBean.APP_TAG);
             jsonObject.put("result_id", getResultID());

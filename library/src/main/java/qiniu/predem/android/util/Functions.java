@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.os.Environment;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
@@ -14,6 +15,9 @@ import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
 import com.qiniu.android.storage.UploadManager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,6 +26,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 import java.util.List;
 import java.util.UUID;
+
+import static android.R.attr.path;
+import static android.os.Environment.getExternalStorageState;
 
 /**
  * Created by Misty on 17/7/14.
@@ -52,7 +59,7 @@ public final class Functions {
         return result;
     }
 
-    public static String generateUUID2(Context context){
+    public static String generateDeviceId(Context context){
         UUID uuid = null;
         if (uuid == null){
             synchronized(Functions.class) {
@@ -81,48 +88,73 @@ public final class Functions {
         return "";
     }
 
-    public static String generateUUID(Context context) {
-        int permissionCheck = ContextCompat.checkSelfPermission(context,
-                Manifest.permission.READ_PHONE_STATE);
-        if (permissionCheck > 0) {
-            String s = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-            if (s == null) {
-                s = "";
+    public static String getUUID(){
+        try {
+            String uuid = "";
+
+            File file = Environment.getExternalStorageDirectory();
+            String path = file.getAbsolutePath() + File.separator +"uuid.log";
+            File f = new File(path);
+            if (f.exists()){
+                FileInputStream inputStream = new FileInputStream(f);
+                byte[] b = new byte[inputStream.available()];
+                inputStream.read(b);
+                uuid = new String(b);
+            }else{
+                FileOutputStream fos = new FileOutputStream(f);
+                uuid = UUID.randomUUID().toString();
+                fos.write(uuid.getBytes());
+                fos.close();
             }
-            String s1 = android.provider.Settings.Secure.getString(context.getContentResolver(), "android_id");
-            if (s1 == null) {
-                s1 = "";
-            }
-            String s2;
-            String s3;
-            WifiInfo wifiinfo;
-            String s4;
-            if (android.os.Build.VERSION.SDK_INT >= 9) {
-                s2 = Build.SERIAL;
-                if (s2 == null)
-                    s2 = "";
-            } else {
-                s2 = getDeviceSerial();
-            }
-            s3 = "";
-            wifiinfo = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
-            if (wifiinfo != null) {
-                s3 = wifiinfo.getMacAddress();
-                if (s3 == null) {
-                    s3 = "";
-                }
-            }
-            try {
-                s4 = getMD5String((new StringBuilder()).append(s).append(s1).append(s2).append(s3).toString());
-            } catch (NoSuchAlgorithmException nosuchalgorithmexception) {
-                nosuchalgorithmexception.printStackTrace();
-                return null;
-            }
-            return s4;
-        } else {
+            return uuid;
+        }catch (Exception e){
+            e.printStackTrace();
             return "";
         }
     }
+
+//    public static String generateUUID(Context context) {
+//        int permissionCheck = ContextCompat.checkSelfPermission(context,
+//                Manifest.permission.READ_PHONE_STATE);
+//        if (permissionCheck > 0) {
+//            String s = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
+//            if (s == null) {
+//                s = "";
+//            }
+//            String s1 = android.provider.Settings.Secure.getString(context.getContentResolver(), "android_id");
+//            if (s1 == null) {
+//                s1 = "";
+//            }
+//            String s2;
+//            String s3;
+//            WifiInfo wifiinfo;
+//            String s4;
+//            if (android.os.Build.VERSION.SDK_INT >= 9) {
+//                s2 = Build.SERIAL;
+//                if (s2 == null)
+//                    s2 = "";
+//            } else {
+//                s2 = getDeviceSerial();
+//            }
+//            s3 = "";
+//            wifiinfo = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE)).getConnectionInfo();
+//            if (wifiinfo != null) {
+//                s3 = wifiinfo.getMacAddress();
+//                if (s3 == null) {
+//                    s3 = "";
+//                }
+//            }
+//            try {
+//                s4 = getMD5String((new StringBuilder()).append(s).append(s1).append(s2).append(s3).toString());
+//            } catch (NoSuchAlgorithmException nosuchalgorithmexception) {
+//                nosuchalgorithmexception.printStackTrace();
+//                return null;
+//            }
+//            return s4;
+//        } else {
+//            return "";
+//        }
+//    }
 
     private static String getMD5String(String s) throws NoSuchAlgorithmException {
         byte abyte0[] = MessageDigest.getInstance("SHA-1").digest(s.getBytes());

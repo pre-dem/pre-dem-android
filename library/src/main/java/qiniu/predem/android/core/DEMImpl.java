@@ -98,7 +98,7 @@ public final class DEMImpl {
                     parameters.put("os_platform", AppBean.ANDROID_PLATFORM);
                     parameters.put("os_version", AppBean.ANDROID_VERSION);
                     parameters.put("sdk_version", AppBean.SDK_VERSION);
-                    parameters.put("sdk_id", AppBean.DEVICE_IDENTIFIER);
+                    parameters.put("sdk_id", AppBean.SDK_ID);
                     parameters.put("device_id", AppBean.PHONE_MANUFACTURER);
 
                     HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())

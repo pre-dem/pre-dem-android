@@ -19,7 +19,7 @@ public class FunctionsTest {
     @Test
     public void testGetUUID() {
         Context appContext = InstrumentationRegistry.getTargetContext();
-        String uuid = Functions.generateUUID(appContext);
-        System.out.println("-----uuid : " + uuid);
+        String uuid = Functions.getUUID();
+//        System.out.println("-----uuid : " + uuid);
     }
 }

@@ -53,6 +53,10 @@ public class AppBean {
      */
     public static String APP_TAG = "-";
     /**
+     * UUID
+     */
+    public static String SDK_ID = "-";
+    /**
      * The device's OS version.
      */
     public static String ANDROID_VERSION = "-";
@@ -88,7 +92,8 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = Functions.generateUUID2(context);
+        DEVICE_IDENTIFIER = Functions.generateDeviceId(context);
+        SDK_ID = Functions.getUUID();
 
         loadPackageData(context);
         loadCrashIdentifier(context);

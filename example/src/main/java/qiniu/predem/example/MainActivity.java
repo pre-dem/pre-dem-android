@@ -13,24 +13,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.logcat.Logger;
-import qiniu.predem.android.util.Functions;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
 
     private final String Name = "ApmDemo";
-    private final String APP_KEY = "A-c3TL4HymGBUdKdmttaAQDY";
-    private final String DOMAIN = "bgocyti7jwr4.predem.qiniuapi.com";
+    private final String APP_KEY = "";
+    private final String DOMAIN = "";
 
     private Button http_btn;
     private Button okhttp3_btn;
@@ -234,8 +229,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         appKey = appKeyField.getText().toString().trim();
                         EditText domainField = (EditText) dialogView.findViewById(R.id.domain_field);
                         domain = domainField.getText().toString().trim();
-                        appKey = APP_KEY;
-                        domain = DOMAIN;
+//                        appKey = APP_KEY;
+//                        domain = DOMAIN;
                         if (appKey == null || appKey.isEmpty() || domain == null || domain.isEmpty()) {
                             Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
                         } else {

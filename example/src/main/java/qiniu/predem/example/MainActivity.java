@@ -24,8 +24,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
 
     private final String Name = "ApmDemo";
-    private final String APP_KEY = "";
-    private final String DOMAIN = "";
+    private final String APP_KEY = "APP_KEY";
+    private final String DOMAIN = "DOMAIN";
 
     private Button http_btn;
     private Button okhttp3_btn;

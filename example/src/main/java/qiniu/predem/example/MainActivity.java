@@ -13,6 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -183,19 +187,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void run() {
                         try {
-//                            JSONArray json = new JSONArray();
-//                            JSONObject jsonObject1 = new JSONObject();
-//                            jsonObject1.put("hellonum", 7);
-//                            jsonObject1.put("helloKey", "worldValue");
-//                            json.put(jsonObject1);
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("product_name","惊艳Plus");
+                            jsonObject.put("MAC地址","00e08f0025dd");
+                            jsonObject.put("ip","1.49.69.237");
+                            jsonObject.put("访问时间","2017/8/11  PM 8:09:18");
 
-                            Map<String,Object> map = new HashMap<String, Object>();
-                            map.put("product_name","惊艳Plus");
-                            map.put("MAC地址","00e08f0025dd");
-                            map.put("ip","1.49.69.237");
-                            map.put("访问时间","2017/8/11  PM 8:09:18");
-
-                            DEMManager.trackEvent("viewDidLoadEvent", map);
+                            DEMManager.trackEvent("viewDidLoadEvent", jsonObject);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

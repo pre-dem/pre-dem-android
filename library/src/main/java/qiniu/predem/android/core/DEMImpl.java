@@ -2,7 +2,6 @@ package qiniu.predem.android.core;
 
 import android.content.Context;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -11,7 +10,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
@@ -60,18 +58,6 @@ public final class DEMImpl {
 
     public void netDiag(String domain, String address, DEMManager.NetDiagCallback netDiagCallback) {
         NetDiagnosis.getInstance().start(this.context.get(), domain, address, netDiagCallback);
-    }
-
-    public void trackEvent(String eventName, Map<String, Object> event) {
-//        JSONObject obj = new JSONObject(event);
-        CustomBean paratemer = new CustomBean(eventName, event.toString()); //event.toString();
-//        trackEvent(eventName, paratemer.toJsonString());
-        sendRequest(Configuration.getEventUrl(),paratemer.toJsonString());
-    }
-
-    public void trackEvent(String eventName, JSONArray event) {
-        CustomBean paramter = new CustomBean(eventName, event.toString());
-        sendRequest(Configuration.getEventUrl(), paramter.toJsonString());
     }
 
     public void trackEvent(String eventName, JSONObject event) {

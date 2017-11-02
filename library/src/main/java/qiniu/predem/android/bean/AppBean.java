@@ -51,7 +51,7 @@ public class AppBean {
     /**
      * The user's id
      */
-    public static String APP_TAG = "-";
+    public static String APP_TAG = "";
     /**
      * UUID
      */

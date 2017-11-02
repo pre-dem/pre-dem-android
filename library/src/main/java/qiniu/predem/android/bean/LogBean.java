@@ -305,7 +305,11 @@ public class LogBean {
             str.append(sdkID).append("\t");
         }
         str.append(deviceUUID).append("\t");
-        str.append(userTag).append("\t");
+        if (userTag == null || userTag.equals("")){
+            str.append("-").append("\t");
+        }else{
+            str.append(userTag).append("\t");
+        }
         str.append(manufacturer).append("\t");
         if (domain == null || domain.equals("")) {
             str.append("-").append("\t");

@@ -1,6 +1,7 @@
 package qiniu.predem.android.core;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,6 +9,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -20,6 +23,7 @@ import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
 import qiniu.predem.android.diagnosis.NetDiagnosis;
 import qiniu.predem.android.http.HttpMonitorManager;
+import qiniu.predem.android.logcat.PrintLogger;
 import qiniu.predem.android.util.HttpURLConnectionBuilder;
 import qiniu.predem.android.util.LogUtils;
 import qiniu.predem.android.util.SharedPreUtil;
@@ -37,10 +41,38 @@ public final class DEMImpl {
     private static final String TAG = "DEMManager";
 
     private static final DEMImpl _instance = new DEMImpl();
+    /**
+     * log's level
+     */
+    private final static int V = Log.VERBOSE;
+    private final static int W = Log.WARN;
+    private final static int I = Log.INFO;
+    private final static int D = Log.DEBUG;
+    private final static int E = Log.ERROR;
+    private final static int P = Integer.MAX_VALUE;
     private WeakReference<Context> context;
+    /**
+     * print level
+     */
+    private int level = 0;
 
     public static DEMImpl instance() {
         return _instance;
+    }
+
+    //获取Exception堆栈
+    private static String getStackTraceString(String str, Throwable e) {
+        //将Exception的错误信息转换成String
+        String log = "";
+        try {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            log = str + "\r\n" + sw.toString() + "\r\n";
+        } catch (Exception e2) {
+            log = str + " fail to print Exception";
+        }
+        return log;
     }
 
     public void start(String domain, String appKey, Context context) {
@@ -169,6 +201,114 @@ public final class DEMImpl {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public void openLogs(int level) {
+        this.level = level;
+        PrintLogger.getInstance(context.get()).openLogs();
+    }
+
+    public void closeLogs() {
+        level = P;
+        PrintLogger.getInstance(context.get()).closeLogs();
+    }
+
+    public void i(String tag, String msg) {
+        Log.i(tag, msg);
+        if (level < I) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void i(String tag, String msg, Throwable tr) {
+        Log.i(tag, msg, tr);
+        if (level < I) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
+        }
+    }
+
+    public void v(String tag, String msg) {
+        Log.v(tag, msg);
+        if (level < V) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void v(String tag, String msg, Throwable tr) {
+        Log.v(tag, msg, tr);
+        if (level < V) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
+        }
+    }
+
+    public void d(String tag, String msg) {
+        Log.d(tag, msg);
+        if (level < D) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void d(String tag, String msg, Throwable tr) {
+        Log.d(tag, msg, tr);
+        if (level < D) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
+        }
+    }
+
+    public void w(String tag, String msg) {
+        Log.w(tag, msg);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void w(String tag, Throwable tr) {
+        Log.w(tag, tr);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString("", tr));
+        }
+    }
+
+    public void w(String tag, String msg, Throwable tr) {
+        Log.w(tag, msg, tr);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
+        }
+    }
+
+    public void e(String tag, String msg) {
+        Log.e(tag, msg);
+        if (level < E) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void e(String tag, String msg, Throwable tr) {
+        Log.e(tag, msg, tr);
+        if (level < E) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
+        }
+    }
+
+    public void wtf(String tag, String msg) {
+        Log.wtf(tag, msg);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, msg);
+        }
+    }
+
+    public void wtf(String tag, Throwable tr) {
+        Log.wtf(tag, tr);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString("", tr));
+        }
+    }
+
+    public void wtf(String tag, String msg, Throwable tr) {
+        Log.wtf(tag, msg, tr);
+        if (level < W) {
+            PrintLogger.getInstance(context.get()).Log(tag, getStackTraceString(msg, tr));
         }
     }
 }

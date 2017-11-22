@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.LocalBroadcastManager;
+//import android.support.v4.content.LocalBroadcastManager;
 
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
@@ -77,7 +77,7 @@ public class TraceInfoCatcher extends Thread {
 
         _timeoutInterval = 2000;
 
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
+//        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -98,7 +98,7 @@ public class TraceInfoCatcher extends Thread {
                 }
             }
         };
-        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
+//        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
 
         fileName = null;
         count = 0;
@@ -389,6 +389,6 @@ public class TraceInfoCatcher extends Thread {
 
     public void stopTrace() {
         stop = true;
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+//        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
     }
 }

@@ -1,12 +1,12 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "26.0.0"
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0.0"
 
@@ -29,28 +29,27 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.qiniu:qiniu-android-sdk:7.3.8'
     compile 'org.aspectj:aspectjrt:1.8.9'
     compile 'com.qiniu:android-netdiag:0.0.6'
 
     testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile 'com.android.support.test:runner:1.0.1'
     // Set this dependency to use JUnit 4 rules
-    androidTestCompile 'com.android.support.test:rules:0.5'
+    androidTestCompile 'com.android.support.test:rules:1.0.1'
     // Set this dependency to build and run Espresso tests
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.1'
     // Espresso-contrib for DatePicker, RecyclerView, Drawer actions, Accessibility checks, CountingIdlingResource
-    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
+    androidTestCompile 'com.android.support.test.espresso:espresso-contrib:3.0.1'
 }
 
 task clearJar(type: Delete) {
     delete 'libs/AndroidAPMSDK.jar'
 }
 
-task makeJar(type:org.gradle.api.tasks.bundling.Jar) {
+task makeJar(type:Jar) {
     //指定生成的jar名
     baseName 'AndroidAPMSDK'
     //从哪里打包class文件
@@ -60,7 +59,9 @@ task makeJar(type:org.gradle.api.tasks.bundling.Jar) {
     //去掉不需要打包的目录和文件
     exclude('test/', 'BuildConfig.class', 'R.class')
     //去掉R$开头的文件
-    exclude{ it.name.startsWith('R$');}
+    exclude{
+        it.name.startsWith('R$')
+    }
 }
 
 makeJar.dependsOn(clearJar, build)

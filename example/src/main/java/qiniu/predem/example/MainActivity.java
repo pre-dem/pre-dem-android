@@ -19,7 +19,6 @@ import org.json.JSONObject;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
-import qiniu.predem.android.logcat.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
@@ -200,11 +199,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.logcat_btn:
-                Logger.openLogs(mContext, Logger.V);
+                DEMManager.startLogging(Log.VERBOSE);
                 for (int i = 0 ; i < 10; i++){
-                    Logger.d(TAG,"------ " + i);
+                    DEMManager.d(TAG,"------ " + i);
                 }
-                Logger.closeLogs();
+                DEMManager.stopLogging();
                 break;
         }
     }

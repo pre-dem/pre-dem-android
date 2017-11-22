@@ -82,13 +82,14 @@ public class AppBean {
      */
     public static String CRASH_IDENTIFIER = "-";
 
+    public static String SDK_ID = Functions.generateSdkId();
+
     public static void loadFromContext(Context context) {
         APP_NAME = getAppName(context);
         ANDROID_VERSION = Build.VERSION.RELEASE;
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
-        DEVICE_IDENTIFIER = Functions.generateUUID(context);
 
         loadPackageData(context);
         loadCrashIdentifier(context);

@@ -49,22 +49,22 @@
 ### 配置应用权限
 构建完成后，请在待检测的 App 工程的 AndroidMainfest.xml 文件中增加以下的权限:
 
-    ```
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    ```
+```
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+```
 
  ![image](https://github.com/pre-dem/pre-dem-android/blob/master/doc/pic/permission.png)
 
 ### 插入初始化探针代码
 在 “MainActivity” 中的 onResume() 方法（如未找到该方法请新增）中初始化 Android APM SDK
 
-    ```
-    DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
-    ```
+```
+DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
+```
 
  ![image](https://github.com/pre-dem/pre-dem-android/blob/master/doc/pic/start.png)
 

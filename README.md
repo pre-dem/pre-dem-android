@@ -69,7 +69,8 @@ DEMManager.start("apm.domain.com", "appkey", this.getApplicationContext());
  ![image](https://github.com/pre-dem/pre-dem-android/blob/master/doc/pic/start.png)
 
 ### 使用 Gradle 命令打包编译
-    `gradle clean build`
+
+`gradle clean build`
 
 ### 配置混淆
 发布前请在 proguard 混淆配置文件中增加以下内容，以免 SDK 不可用

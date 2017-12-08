@@ -18,8 +18,7 @@ public class FunctionsTest {
 
     @Test
     public void testGetUUID() {
-        Context appContext = InstrumentationRegistry.getTargetContext();
-        String uuid = Functions.getUUID();
-//        System.out.println("-----uuid : " + uuid);
+        String uuid = Functions.getSdkId();
+        System.out.println("-----uuid : " + uuid);
     }
 }

@@ -8,7 +8,7 @@ android {
         minSdkVersion 19
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -33,7 +33,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.5'
     compile 'com.qiniu:qiniu-android-sdk:7.3.8'
     compile 'org.aspectj:aspectjrt:1.8.9'
-    compile 'com.qiniu:android-netdiag:0.0.6'
+    compile 'com.qiniu:android-netdiag:0.1.1'
 
     testCompile 'junit:junit:4.12'
     androidTestCompile 'com.android.support.test:runner:1.0.1'

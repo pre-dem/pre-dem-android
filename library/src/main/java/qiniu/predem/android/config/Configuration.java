@@ -38,6 +38,9 @@ public final class Configuration {
     }
 
     private static String getAppId(String appKey) {
+        if (appKey == null || appKey.length() < 8) {
+            return "";
+        }
         return appKey.substring(0, 8);
     }
 
@@ -46,7 +49,11 @@ public final class Configuration {
     }
 
     private static String baseUrl() {
-        return scheme + domain + "/v1/" + getAppId(appKey);
+        if (domain.startsWith("http") || domain.startsWith("https")) {
+            return domain + "/v1/" + getAppId(appKey);
+        } else {
+            return scheme + domain + "/v1/" + getAppId(appKey);
+        }
     }
 
     public static String getConfigUrl() {
@@ -69,8 +76,8 @@ public final class Configuration {
         return baseUrl() + "/net-diags/a";
     }
 
-    public static String getEventUrl(String name) {
-        return baseUrl() + "/events/" + name;
+    public static String getEventUrl() {
+        return baseUrl() + "/events";
     }
 
     public static String getLagMonitorUpToken() {

@@ -3,10 +3,8 @@ package qiniu.predem.android.block;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-//import android.support.v4.content.LocalBroadcastManager;
 
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
@@ -40,6 +38,8 @@ import qiniu.predem.android.util.LogUtils;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_FINISH_TIME;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_START_TIME;
+
+//import android.support.v4.content.LocalBroadcastManager;
 
 /**
  * Created by fengcunhan on 16/1/19.
@@ -341,7 +341,7 @@ public class TraceInfoCatcher extends Thread {
                                                 parameters.put("os_version", AppBean.ANDROID_VERSION);
                                                 parameters.put("os_build", AppBean.ANDROID_BUILD);
                                                 parameters.put("sdk_version", AppBean.SDK_VERSION);
-                                                parameters.put("sdk_id", "");
+                                                parameters.put("sdk_id", AppBean.SDK_ID);
                                                 parameters.put("device_id", AppBean.DEVICE_IDENTIFIER);
                                                 parameters.put("tag", AppBean.APP_TAG);
                                                 parameters.put("report_uuid", UUID.randomUUID().toString());

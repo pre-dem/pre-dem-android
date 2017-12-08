@@ -64,7 +64,7 @@ public class CrashBean {
         this.OsPlatform = AppBean.ANDROID_PLATFORM;
         this.OsBuild = AppBean.ANDROID_BUILD;
         this.SDKVersion = AppBean.SDK_VERSION;
-        this.SDKId = "";//AppBean.DEVICE_IDENTIFIER;
+        this.SDKId = AppBean.SDK_ID;
         this.ReportUUID = crashIdentifier;
         this.Manufacturer = AppBean.PHONE_MANUFACTURER;
     }

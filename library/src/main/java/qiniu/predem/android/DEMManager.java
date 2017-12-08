@@ -2,10 +2,7 @@ package qiniu.predem.android;
 
 import android.content.Context;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.Map;
 
 import qiniu.predem.android.bean.NetDiagBean;
 import qiniu.predem.android.core.DEMImpl;
@@ -20,14 +17,6 @@ public final class DEMManager {
 
     public static void setUserTag(String userid) {
         DEMImpl.instance().setUserTag(userid);
-    }
-
-    public static void trackEvent(String eventName, Map<String, Object> event) {
-        DEMImpl.instance().trackEvent(eventName, event);
-    }
-
-    public static void trackEvent(String eventName, JSONArray event) {
-        DEMImpl.instance().trackEvent(eventName, event);
     }
 
     public static void trackEvent(String eventName, JSONObject event) {

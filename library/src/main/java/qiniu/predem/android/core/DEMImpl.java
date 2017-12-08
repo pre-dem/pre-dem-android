@@ -3,7 +3,6 @@ package qiniu.predem.android.core;
 import android.content.Context;
 import android.util.Log;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -14,10 +13,10 @@ import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.AppBean;
+import qiniu.predem.android.bean.CustomBean;
 import qiniu.predem.android.block.TraceInfoCatcher;
 import qiniu.predem.android.config.Configuration;
 import qiniu.predem.android.crash.CrashManager;
@@ -93,17 +92,9 @@ public final class DEMImpl {
         NetDiagnosis.getInstance().start(this.context.get(), domain, address, netDiagCallback);
     }
 
-    public void trackEvent(String eventName, Map<String, Object> event) {
-        JSONObject obj = new JSONObject(event);
-        trackEvent(eventName, obj);
-    }
-
-    public void trackEvent(String eventName, JSONArray event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
-    }
-
     public void trackEvent(String eventName, JSONObject event) {
-        sendRequest(Configuration.getEventUrl(eventName), event.toString());
+        CustomBean paramter = new CustomBean(eventName, event.toString());
+        sendRequest(Configuration.getEventUrl(), paramter.toJsonString());
     }
 
     /**
@@ -125,7 +116,7 @@ public final class DEMImpl {
                     parameters.put("os_platform", AppBean.ANDROID_PLATFORM);
                     parameters.put("os_version", AppBean.ANDROID_VERSION);
                     parameters.put("sdk_version", AppBean.SDK_VERSION);
-                    parameters.put("sdk_id", AppBean.DEVICE_IDENTIFIER);
+                    parameters.put("sdk_id", AppBean.SDK_ID);
                     parameters.put("device_id", AppBean.PHONE_MANUFACTURER);
 
                     HttpURLConnection httpConn = new HttpURLConnectionBuilder(Configuration.getConfigUrl())
@@ -186,8 +177,7 @@ public final class DEMImpl {
     }
 
     private boolean sendRequest(String url, String content) {
-        LogUtils.d(TAG, "------url = " + url + "\ncontent = " + content);
-
+        LogUtils.d(TAG, "----url:" + url + "\tcontent:" + content);
         try {
             HttpURLConnection httpConn = new HttpURLConnectionBuilder(url)
                     .setRequestMethod("POST")

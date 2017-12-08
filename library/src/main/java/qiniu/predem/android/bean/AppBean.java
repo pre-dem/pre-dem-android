@@ -51,7 +51,11 @@ public class AppBean {
     /**
      * The user's id
      */
-    public static String APP_TAG = "-";
+    public static String APP_TAG = "";
+    /**
+     * UUID
+     */
+    public static String SDK_ID = "-";
     /**
      * The device's OS version.
      */
@@ -82,7 +86,6 @@ public class AppBean {
      */
     public static String CRASH_IDENTIFIER = "-";
 
-    public static String SDK_ID = Functions.generateSdkId();
 
     public static void loadFromContext(Context context) {
         APP_NAME = getAppName(context);
@@ -90,6 +93,8 @@ public class AppBean {
         ANDROID_BUILD = Build.DISPLAY;
         PHONE_MODEL = Build.MODEL;
         PHONE_MANUFACTURER = Build.MANUFACTURER;
+
+        SDK_ID = Functions.getSdkId();
 
         loadPackageData(context);
         loadCrashIdentifier(context);
@@ -101,7 +106,10 @@ public class AppBean {
 
     @SuppressLint("HardwareIds")
     private static String getId(Context context) {
-        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CUPCAKE) {
+            return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        }
+        return SDK_ID;
     }
 
     private static void loadCrashIdentifier(Context context) {
@@ -188,8 +196,10 @@ public class AppBean {
     }
 
     public static String getAppName(Context context) {
-        int lableInfo = context.getApplicationInfo().labelRes;
-        String textTitle = context.getString(lableInfo);
-        return textTitle;
+        int lableInfo = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.DONUT) {
+            lableInfo = context.getApplicationInfo().labelRes;
+        }
+        return context.getString(lableInfo);
     }
 }

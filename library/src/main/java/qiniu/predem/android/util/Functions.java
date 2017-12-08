@@ -2,20 +2,22 @@ package qiniu.predem.android.util;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.os.Build;
 
 import com.qiniu.android.common.FixedZone;
 import com.qiniu.android.common.Zone;
 import com.qiniu.android.storage.UploadManager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Formatter;
 import java.util.List;
 import java.util.UUID;
+
+import qiniu.predem.android.config.FileConfig;
+
 
 /**
  * Created by Misty on 17/7/14.
@@ -23,7 +25,6 @@ import java.util.UUID;
 
 public final class Functions {
     private static final String TAG = "ToolUtil";
-//     staging
 
     private static UploadManager uploadInstance = getUpManagerByZone();
 
@@ -46,27 +47,47 @@ public final class Functions {
         return result;
     }
 
-    public static String generateSdkId(){
-        return UUID.randomUUID().toString();
+    public static String getSdkId() {
+        try {
+            String uuid;
+            String path = FileConfig.FILES_PATH + File.separator + "dem_sdk_id.log";
+            File f = new File(path);
+            if (f.exists()) {
+                FileInputStream inputStream = new FileInputStream(f);
+                byte[] b = new byte[inputStream.available()];
+                inputStream.read(b);
+                uuid = new String(b);
+            } else {
+                FileOutputStream fos = new FileOutputStream(f);
+                uuid = UUID.randomUUID().toString();
+                fos.write(uuid.getBytes());
+                fos.close();
+            }
+            return uuid;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return UUID.randomUUID().toString();
+        }
     }
-
 
     public static boolean isBackground(Context context) {
         if (context == null) {
             return false;
         }
+
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningAppProcessInfo> appProcesses = activityManager.getRunningAppProcesses();
+        if (activityManager == null) {
+            return true;
+        }
+
+        List<ActivityManager.RunningAppProcessInfo> appProcesses = null;
+        appProcesses = activityManager.getRunningAppProcesses();
         if (appProcesses == null || appProcesses.size() == 0) {
             return false;
         }
         for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
             if (appProcess.processName.equals(context.getPackageName())) {
-                if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_BACKGROUND) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return appProcess.importance != ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
             }
         }
         return false;
@@ -77,8 +98,8 @@ public final class Functions {
     }
 
     private static Zone getZone() {
-        return new FixedZone(new String[]{"10.200.20.23:5010"});
-//        return FixedZone.zone0;
+//        return new FixedZone(new String[]{"10.200.20.23:5010"});
+        return FixedZone.zone0;
     }
 
     private static UploadManager getUpManagerByZone() {

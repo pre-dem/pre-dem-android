@@ -14,22 +14,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import qiniu.predem.android.DEMManager;
 import qiniu.predem.android.bean.NetDiagBean;
-import qiniu.predem.android.logcat.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity";
 
     private final String Name = "ApmDemo";
-    private final String APP_KEY = "APP_KEY";
-    private final String DOMAIN = "DOMAIN";
 
     private Button http_btn;
     private Button okhttp3_btn;
@@ -92,8 +85,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
-        appKey = sh.getString(APP_KEY, null);
-        domain = sh.getString(DOMAIN, null);
+        appKey = sh.getString("APP_KEY", null);
+        domain = sh.getString("DOMAIN", null);
         if (appKey != null && !appKey.isEmpty()) {
             //
             DEMManager.start(domain, appKey, mContext);
@@ -112,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lag_btn = (Button) findViewById(R.id.lag_btn);
         diagnosis_btn = (Button) findViewById(R.id.diagnosis_btn);
         custom_btn = (Button) findViewById(R.id.custom_btn);
-        logcat_btn = (Button)findViewById(R.id.logcat_btn);
+        logcat_btn = (Button) findViewById(R.id.logcat_btn);
 
         okhttpTwoThread = new OkhttpTwoThread();
         okhttpThreeThread = new OkhttpThreeThread();
@@ -188,10 +181,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void run() {
                         try {
                             JSONObject jsonObject = new JSONObject();
-                            jsonObject.put("product_name","惊艳Plus");
-                            jsonObject.put("MAC地址","00e08f0025dd");
-                            jsonObject.put("ip","1.49.69.237");
-                            jsonObject.put("访问时间","2017/8/11  PM 8:09:18");
+                            jsonObject.put("product_name", "惊艳Plus");
+                            jsonObject.put("MAC地址", "00e08f0025dd");
+                            jsonObject.put("ip", "1.49.69.237");
+                            jsonObject.put("访问时间", "2017/8/11  PM 8:09:18");
 
                             DEMManager.trackEvent("viewDidLoadEvent", jsonObject);
                         } catch (Exception e) {
@@ -202,11 +195,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.logcat_btn:
-                Logger.openLogs(mContext, Logger.V);
-                for (int i = 0 ; i < 10; i++){
-                    Logger.d(TAG,"------ " + i);
+                DEMManager.startLogging(Log.VERBOSE);
+                for (int i = 0; i < 10; i++) {
+                    DEMManager.d(TAG, "------ " + i);
                 }
-                Logger.closeLogs();
+                DEMManager.stopLogging();
                 break;
         }
     }
@@ -227,15 +220,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         appKey = appKeyField.getText().toString().trim();
                         EditText domainField = (EditText) dialogView.findViewById(R.id.domain_field);
                         domain = domainField.getText().toString().trim();
-//                        appKey = APP_KEY;
-//                        domain = DOMAIN;
                         if (appKey == null || appKey.isEmpty() || domain == null || domain.isEmpty()) {
-                            Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端, 临时使用默认配置", Toast.LENGTH_SHORT).show();
+                            DEMManager.start(Conf.DOMAIN, Conf.APP_KEY, mContext);
                         } else {
                             SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
                             SharedPreferences.Editor editor = sh.edit();
-                            editor.putString(APP_KEY, appKey);
-                            editor.putString(DOMAIN, domain);
+                            editor.putString("APP_KEY", appKey);
+                            editor.putString("DOMAIN", domain);
                             editor.apply();
                             DEMManager.start(domain, appKey, mContext);
                         }

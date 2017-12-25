@@ -38,7 +38,7 @@ public final class Configuration {
     }
 
     private static String getAppId(String appKey) {
-        if (appKey == null || appKey.length() < 8){
+        if (appKey == null || appKey.length() < 8) {
             return "";
         }
         return appKey.substring(0, 8);
@@ -49,9 +49,9 @@ public final class Configuration {
     }
 
     private static String baseUrl() {
-        if (domain.startsWith("http") || domain.startsWith("https")){
+        if (domain.startsWith("http") || domain.startsWith("https")) {
             return domain + "/v1/" + getAppId(appKey);
-        }else{
+        } else {
             return scheme + domain + "/v1/" + getAppId(appKey);
         }
     }

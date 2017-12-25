@@ -8,20 +8,15 @@ import android.content.SharedPreferences;
  */
 
 public final class SharedPreUtil {
+    protected static final String PREFS_DEVICE_ID = "device_id";
     private static final String TAG = "SharedPreUtil";
-
     private static final String FILE_NAME = "dem_sdk";
-
     private static final String LAST_CONFIGURATION_TIME = "last_time";
-
     private static final String HTTP_MONITOR_ENABLE = "http_monitor_enable";
     private static final String CRASH_REPORT_ENABLE = "crash_report_enable";
     private static final String WEBVIEW_ENABLE = "webview_enable";
     private static final String LAG_MONITOR_ENABLE = "lag_monitor_enable";
-
     private static final String CRASH_CONFIRMED_FILENAMES = "crash_confirmed_filenames";
-
-    protected static final String PREFS_DEVICE_ID="device_id";
 
     private static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(FILE_NAME, context.MODE_PRIVATE);
@@ -106,11 +101,12 @@ public final class SharedPreUtil {
 
     /**
      * 保存deviceid
+     *
      * @param context
      */
-    public static void setDeviceId(Context context, String deviceid){
+    public static void setDeviceId(Context context, String deviceid) {
         SharedPreferences.Editor editor = getEditor(context);
-        editor.putString(PREFS_DEVICE_ID,deviceid);
+        editor.putString(PREFS_DEVICE_ID, deviceid);
         editor.apply();
     }
 
@@ -156,9 +152,9 @@ public final class SharedPreUtil {
         return sh.getLong(LAST_CONFIGURATION_TIME, -1);
     }
 
-    public static String getDeviceId(Context context){
+    public static String getDeviceId(Context context) {
         SharedPreferences sh = getSharedPreferences(context);
-        return sh.getString(PREFS_DEVICE_ID,null);
+        return sh.getString(PREFS_DEVICE_ID, null);
     }
 
     public static void removeCrashConfirmedFilenames(Context context) {

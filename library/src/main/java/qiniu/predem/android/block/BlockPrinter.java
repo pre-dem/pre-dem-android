@@ -2,9 +2,10 @@ package qiniu.predem.android.block;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Printer;
+
+//import android.support.v4.content.LocalBroadcastManager;
 
 
 /**
@@ -68,12 +69,12 @@ public class BlockPrinter implements Printer {
     }
 
     private void notifyBlockEvent(long endTime, long startTime) {
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(mContext);
+//        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(mContext);
         Intent intent = new Intent();
         intent.setAction(ACTION_BLOCK);
         intent.putExtra(EXTRA_START_TIME, startTime);
         intent.putExtra(EXTRA_FINISH_TIME, endTime);
-        manager.sendBroadcast(intent);
+//        manager.sendBroadcast(intent);
     }
 }
 

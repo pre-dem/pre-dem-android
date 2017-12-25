@@ -74,7 +74,7 @@ public class PrintLogger {
     //单例模式
     public static PrintLogger getInstance(Context context) {
         if (instance == null) {
-            synchronized (Logger.class) {
+            synchronized (PrintLogger.class) {
                 if (instance == null) {
                     instance = new PrintLogger(context);
                 }
@@ -83,18 +83,18 @@ public class PrintLogger {
         return instance;
     }
 
-    synchronized void Log(String tag, String str) {
+    public synchronized void Log(String tag, String str) {
         String time = mFormat.format(new Date());
         mThread.enqueue(time + " " + tag + " " + str);
     }
 
-    void openLogs() {
+    public void openLogs() {
         mStartTime = System.currentTimeMillis();
         parseIndexFile();
         submitLogcat();
     }
 
-    void closeLogs() {
+    public void closeLogs() {
         mEndTime = System.currentTimeMillis();
         submitLogcat();
     }

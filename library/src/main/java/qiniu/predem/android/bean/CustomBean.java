@@ -31,7 +31,7 @@ public class CustomBean {
     private String name;
     private String content;
 
-    public CustomBean(String name, String content){
+    public CustomBean(String name, String content) {
         this.appBundleId = AppBean.APP_PACKAGE;
         this.appName = AppBean.APP_NAME;
         this.appVersion = AppBean.APP_VERSION;
@@ -56,31 +56,31 @@ public class CustomBean {
         this.content = content;
     }
 
-    public String toJsonString(){
+    public String toJsonString() {
         JSONObject object = new JSONObject();
         try {
-            object.put("app_bundle_id",this.appBundleId);
-            object.put("app_name",this.appName);
-            object.put("app_version",this.appVersion);
+            object.put("app_bundle_id", this.appBundleId);
+            object.put("app_name", this.appName);
+            object.put("app_version", this.appVersion);
 
-            object.put("device_model",this.deviceModel);
-            object.put("manufacturer",this.manufacturer);
-            object.put("device_id",this.deviceId);
+            object.put("device_model", this.deviceModel);
+            object.put("manufacturer", this.manufacturer);
+            object.put("device_id", this.deviceId);
 
-            object.put("os_platform",this.osPlatform);
-            object.put("os_version",this.osVersion);
-            object.put("os_build",this.osBuild);
+            object.put("os_platform", this.osPlatform);
+            object.put("os_version", this.osVersion);
+            object.put("os_build", this.osBuild);
 
-            object.put("sdk_version",this.sdkVersion);
-            object.put("sdk_id",this.sdkId);
+            object.put("sdk_version", this.sdkVersion);
+            object.put("sdk_id", this.sdkId);
 
-            object.put("tag",tag);
+            object.put("tag", tag);
 
-            object.put("type",this.type);
-            object.put("name",this.name);
-            object.put("content",this.content);
+            object.put("type", this.type);
+            object.put("name", this.name);
+            object.put("content", this.content);
             return object.toString();
-        }catch (JSONException e){
+        } catch (JSONException e) {
             e.printStackTrace();
             return "";
         }

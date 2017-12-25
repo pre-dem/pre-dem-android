@@ -1,13 +1,7 @@
 package qiniu.predem.android.bean;
 
-import android.graphics.Path;
-import android.nfc.Tag;
-
-import com.qiniu.android.dns.Domain;
-
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -243,18 +237,18 @@ public class LogBean {
     public String toJsonString() {
         try {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("app_bundle_id",appBundleId);
-            jsonObject.put("app_name",appName);
-            jsonObject.put("app_version",appVersion);
-            jsonObject.put("device_model",deviceModel);
-            jsonObject.put("os_platform",platform);
-            jsonObject.put("os_version",osVersion);
-            jsonObject.put("os_build",osBuild);
-            jsonObject.put("sdk_version",sdkVersion);
-            jsonObject.put("sdk_id",sdkID);
-            jsonObject.put("device_id",deviceUUID);
-            jsonObject.put("tag",userTag);
-            jsonObject.put("manufacturer",manufacturer);
+            jsonObject.put("app_bundle_id", appBundleId);
+            jsonObject.put("app_name", appName);
+            jsonObject.put("app_version", appVersion);
+            jsonObject.put("device_model", deviceModel);
+            jsonObject.put("os_platform", platform);
+            jsonObject.put("os_version", osVersion);
+            jsonObject.put("os_build", osBuild);
+            jsonObject.put("sdk_version", sdkVersion);
+            jsonObject.put("sdk_id", sdkID);
+            jsonObject.put("device_id", deviceUUID);
+            jsonObject.put("tag", userTag);
+            jsonObject.put("manufacturer", manufacturer);
             if (domain == null || domain.equals("")) {
                 jsonObject.put("domain", "-");
             } else {
@@ -275,7 +269,7 @@ public class LogBean {
             } else {
                 jsonObject.put("hostIpSet", hostIP);
             }
-            jsonObject.put("status_code",statusCode);
+            jsonObject.put("status_code", statusCode);
             jsonObject.put("startTimestamp", startTimestamp);
             jsonObject.put("responseTimestamp", responseTimestamp);
             jsonObject.put("endTimestamp", endTimestamp);
@@ -301,13 +295,13 @@ public class LogBean {
         str.append(sdkVersion).append("\t");
         if (sdkID == null || sdkID.equals("")) {
             str.append("-").append("\t");
-        }else{
+        } else {
             str.append(sdkID).append("\t");
         }
         str.append(deviceUUID).append("\t");
-        if (userTag == null || userTag.equals("")){
+        if (userTag == null || userTag.equals("")) {
             str.append("-").append("\t");
-        }else{
+        } else {
             str.append(userTag).append("\t");
         }
         str.append(manufacturer).append("\t");

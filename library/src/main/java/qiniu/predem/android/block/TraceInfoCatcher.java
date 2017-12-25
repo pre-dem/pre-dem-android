@@ -3,10 +3,8 @@ package qiniu.predem.android.block;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.UpCompletionHandler;
@@ -40,6 +38,8 @@ import qiniu.predem.android.util.LogUtils;
 import static qiniu.predem.android.block.BlockPrinter.ACTION_BLOCK;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_FINISH_TIME;
 import static qiniu.predem.android.block.BlockPrinter.EXTRA_START_TIME;
+
+//import android.support.v4.content.LocalBroadcastManager;
 
 /**
  * Created by fengcunhan on 16/1/19.
@@ -77,7 +77,7 @@ public class TraceInfoCatcher extends Thread {
 
         _timeoutInterval = 2000;
 
-        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
+//        LocalBroadcastManager manager = LocalBroadcastManager.getInstance(context);
         mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -98,7 +98,7 @@ public class TraceInfoCatcher extends Thread {
                 }
             }
         };
-        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
+//        manager.registerReceiver(mBroadcastReceiver, new IntentFilter(ACTION_BLOCK));
 
         fileName = null;
         count = 0;
@@ -389,6 +389,6 @@ public class TraceInfoCatcher extends Thread {
 
     public void stopTrace() {
         stop = true;
-        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
+//        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mBroadcastReceiver);
     }
 }

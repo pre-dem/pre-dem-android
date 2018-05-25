@@ -20,7 +20,7 @@ public final class NetworkUtil {
             }
         } catch (Exception e) {
             LogUtils.e(TAG, "Exception thrown when check network is connected:" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return false;
     }

@@ -81,7 +81,7 @@ public class CustomBean {
             object.put("content", this.content);
             return object.toString();
         } catch (JSONException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return "";
         }
     }

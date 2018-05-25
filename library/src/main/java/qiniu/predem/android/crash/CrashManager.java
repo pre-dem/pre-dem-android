@@ -92,7 +92,7 @@ public final class CrashManager {
                 confirmedFilenames = getConfirmedFilenames(weakContext);
             } catch (Exception e) {
                 LogUtils.e(TAG, e.toString());
-                e.printStackTrace();
+//                e.printStackTrace();
             }
 
             if (confirmedFilenames != null) {
@@ -259,7 +259,7 @@ public final class CrashManager {
                     }
                 } catch (Exception e) {
                     LogUtils.e(TAG, "-----" + e.toString());
-                    e.printStackTrace();
+//                    e.printStackTrace();
                 } finally {
                     if (urlConnection != null) {
                         urlConnection.disconnect();
@@ -304,7 +304,7 @@ public final class CrashManager {
             successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
         } catch (Exception e) {
             LogUtils.e(TAG, "----" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             if (url != null) {
                 url.disconnect();
@@ -368,6 +368,7 @@ public final class CrashManager {
                         contents.append(System.getProperty("line.separator"));
                     }
                 } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

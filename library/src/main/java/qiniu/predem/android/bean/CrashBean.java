@@ -162,7 +162,7 @@ public class CrashBean {
             return jsonObject.toString();
         } catch (Exception e) {
             LogUtils.e(TAG, e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return null;
     }

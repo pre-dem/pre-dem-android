@@ -125,7 +125,7 @@ public class AppBean {
                 CRASH_IDENTIFIER = bytesToHex(bytes);
             } catch (Throwable e) {
                 LogUtils.e(TAG, "Couldn't create CrashIdentifier with Exception:" + e.toString());
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
     }
@@ -176,7 +176,7 @@ public class AppBean {
                 }
             } catch (Exception e) {
                 LogUtils.e(TAG, "Exception thrown when accessing the package info:" + e.toString());
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
     }
@@ -190,7 +190,7 @@ public class AppBean {
             }
         } catch (PackageManager.NameNotFoundException e) {
             LogUtils.e(TAG, "Exception thrown when accessing the application info:" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return 0;
     }

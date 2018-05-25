@@ -222,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         domain = domainField.getText().toString().trim();
                         if (appKey == null || appKey.isEmpty() || domain == null || domain.isEmpty()) {
                             Toast.makeText(MainActivity.this, "app key或domain为空，数据无法上报到服务端, 临时使用默认配置", Toast.LENGTH_SHORT).show();
-                            DEMManager.start(Conf.DOMAIN, Conf.APP_KEY, mContext);
+//                            DEMManager.start(Conf.DOMAIN, Conf.APP_KEY, mContext);
                         } else {
                             SharedPreferences sh = getSharedPreferences(Name, MODE_PRIVATE);
                             SharedPreferences.Editor editor = sh.edit();

@@ -113,13 +113,13 @@ public final class FileUtil {
             return true;
         } catch (FileNotFoundException e) {
             LogUtils.e(TAG, "------" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         } catch (IOException e) {
             LogUtils.e(TAG, "------" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         } catch (OutOfMemoryError e) {
             LogUtils.d(TAG, "------" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         } finally {
             closeSilently(output);
             closeSilently(writer);
@@ -303,7 +303,7 @@ public final class FileUtil {
             return writeFileOnce(mContext, QOS_INDEX_FILE_NAME, json.toString(), Context.MODE_PRIVATE);
         } catch (JSONException e) {
             LogUtils.e(TAG, "-----" + e.toString());
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         return false;
     }

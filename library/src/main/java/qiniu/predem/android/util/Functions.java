@@ -65,7 +65,7 @@ public final class Functions {
             }
             return uuid;
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return UUID.randomUUID().toString();
         }
     }

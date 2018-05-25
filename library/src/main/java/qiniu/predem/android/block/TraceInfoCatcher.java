@@ -174,7 +174,7 @@ public class TraceInfoCatcher extends Thread {
             try {
                 Thread.sleep(_timeoutInterval);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
                 return;
             }
 
@@ -360,7 +360,7 @@ public class TraceInfoCatcher extends Thread {
                                                 LogUtils.d(TAG, "-------view report code : " + responseCode);
                                             } catch (Exception e) {
                                                 LogUtils.e(TAG, "----" + e.toString());
-                                                e.printStackTrace();
+//                                                e.printStackTrace();
                                             } finally {
                                                 if (url != null) {
                                                     url.disconnect();
@@ -376,7 +376,7 @@ public class TraceInfoCatcher extends Thread {
                         submitting = false;
                     } catch (Exception e) {
                         LogUtils.e(TAG, "-----" + e.toString());
-                        e.printStackTrace();
+//                        e.printStackTrace();
                     } finally {
                         if (urlConnection != null) {
                             urlConnection.disconnect();

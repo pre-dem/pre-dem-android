@@ -189,7 +189,7 @@ public final class DEMImpl {
             boolean successful = (responseCode == HttpURLConnection.HTTP_ACCEPTED || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpURLConnection.HTTP_OK);
             return successful;
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             return false;
         }
     }

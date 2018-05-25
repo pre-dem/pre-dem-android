@@ -68,7 +68,7 @@ public final class FileConfig {
                 }
             } catch (Exception e) {
                 LogUtils.e(TAG, "Exception thrown when accessing the files dir:" + e.toString());
-                e.printStackTrace();
+//                e.printStackTrace();
             }
         }
     }

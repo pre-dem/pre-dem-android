@@ -2,6 +2,7 @@ package qiniu.predem.android.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
@@ -637,8 +638,18 @@ public final class ProbeBufferedSource implements BufferedSource {
     }
 
     @Override
+    public boolean isOpen() {
+        return source.isOpen();
+    }
+
+    @Override
     public void close() throws IOException {
         source.close();
+    }
+
+    @Override
+    public int read(ByteBuffer dst) throws IOException {
+        return source.read(dst);
     }
 
     public BufferedSource getSource() {
